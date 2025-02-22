@@ -1,6 +1,6 @@
 #######################################
 
-# Syntax Coloring Map For MicroMenu
+# Syntax Coloring Map For SixButtonUI
 
 #######################################
 
@@ -10,7 +10,7 @@
 
 
 
-MicroMenu           KEYWORD1
+SixButtonUI           KEYWORD1
 
 
 #######################################
