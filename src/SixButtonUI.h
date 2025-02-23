@@ -38,13 +38,13 @@ class SixButtonUI: public EventSource {
     uint8_t _rootElementIdx;
     UIElement* _currConfig;
     Widget* _currWidget = nullptr;
-    Widget::Model* _currWidgetModel = nullptr;
     RenderFunction _renderFunction;
     void render();
     void clearHandlers();
     void maybeInitWidget();
     void menuBack();
     Widget* newForType(UIElement::Type type);
+    Widget::Model* widgetModel();
     static SixButtonUI* UI(void* widgetModel);
 
     void* _state = nullptr;

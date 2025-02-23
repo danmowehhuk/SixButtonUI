@@ -35,7 +35,9 @@ class SubMenuWidget: public Widget {
 
     Widget::Model* loadModel(void* state) override {
       // submenu model is static so only loads once
-      if (modelLoaded) return &_model;
+      if (modelLoaded) {
+        return &_model;
+      }
 
       _configurableModel.title = _config->getTitle();
       if (_config->modelLoader != 0) {

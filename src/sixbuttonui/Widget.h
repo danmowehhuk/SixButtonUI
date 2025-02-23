@@ -93,8 +93,15 @@ class Widget {
   protected:
     Widget(UIElement* wConf): wConf(wConf) {};
     const UIElement* wConf;
+
     virtual void updateViewModel(ViewModel* vm) = 0;
     virtual Model* loadModel(void* state) = 0;
+    void initWidgetModel(void* state) {
+      _widgetModel = loadModel(state);
+    };
+    Model* widgetModel() {
+      return _widgetModel;
+    };
 
     /*
      * onEnter returns either the same state object passed in or
@@ -111,6 +118,7 @@ class Widget {
 
   private:
     Widget(Widget &t) = delete;
+    Model* _widgetModel = nullptr;
 
 };
 inline Widget::~Widget() {};

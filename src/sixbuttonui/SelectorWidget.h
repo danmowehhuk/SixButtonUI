@@ -22,7 +22,16 @@ class SelectorWidget: public Widget {
       if (_config->modelLoader != 0) {
         _config->modelLoader(&_model, state);
       }
-      _model.currIndex = _config->lastSelected;
+      if (_model.currValue) {
+        for (uint8_t i = 0; i < _model.numOptions; i++) {
+          if (strcmp(_model.optionValues[i], _model.currValue) == 0) {
+            _model.currIndex = i;
+            break;
+          }
+        }
+      } else {
+        _model.currIndex = _config->lastSelected;
+      }
       modelLoaded = true;
       return &_model;
     };

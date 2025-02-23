@@ -10,14 +10,14 @@ class ButtonTestHelper {
   public:
     ButtonTestHelper(SixButtonUI* ui): _ui(ui) {};
 
-    void goHome() {
+    void reset() {
+      resetLastSelected(_ui->_nav);
       UIElement* main = _ui->_nav->getChild(0);
-      if (main->type == UIElement::Type::SUB_MENU) {
-        static_cast<SubMenuElement*>(main)->lastSelected = 0;
-      } else if (main->type == UIElement::Type::SELECTOR) {
-        static_cast<SelectorElement*>(main)->lastSelected = 0;
-      }
       _ui->goTo(main);
+      if (_ui->_currWidget) {
+        delete _ui->_currWidget;
+        _ui->_currWidget = nullptr;
+      }
       _ui->render();
     }
 
@@ -45,9 +45,21 @@ class ButtonTestHelper {
     SixButtonUI* _ui;
 
     void pressAndRelease(Button* b) {
-      Widget::Model* _currWidgetModel = _ui->_currWidgetModel;
+      Widget::Model* _currWidgetModel = _ui->widgetModel();
       if (b->onPressed != 0) b->onPressed(b->getValue(), _currWidgetModel);
       if (b->onReleased != 0) b->onReleased(b->getValue(), _currWidgetModel);
+    };
+
+    void resetLastSelected(UIElement* element) {
+      for (uint8_t i = 0; i < element->getChildCount(); i++) {
+        UIElement* child = element->getChild(i);
+        if (child->type == UIElement::Type::SUB_MENU) {
+          static_cast<SubMenuElement*>(child)->lastSelected = 0;
+        } else if (child->type == UIElement::Type::SELECTOR) {
+          static_cast<SelectorElement*>(child)->lastSelected = 0;
+        }
+        resetLastSelected(child);
+      }
     };
 
 };

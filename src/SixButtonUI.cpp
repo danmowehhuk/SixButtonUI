@@ -35,21 +35,21 @@ void SixButtonUI::poll(void* state = nullptr) {
   /*
    * The state object (if any) sent from Eventuino is not used.
    */ 
-  _down.poll(_currWidgetModel);
-  _up.poll(_currWidgetModel);
-  _left.poll(_currWidgetModel);
-  _right.poll(_currWidgetModel);
-  _menuBack.poll(_currWidgetModel);
-  _selectEnter.poll(_currWidgetModel);
+  _down.poll(_currWidget->widgetModel());
+  _up.poll(_currWidget->widgetModel());
+  _left.poll(_currWidget->widgetModel());
+  _right.poll(_currWidget->widgetModel());
+  _menuBack.poll(_currWidget->widgetModel());
+  _selectEnter.poll(_currWidget->widgetModel());
 }
 
 void SixButtonUI::render() {
   clearHandlers();
   maybeInitWidget();
-  _currWidgetModel = _currWidget->loadModel(_state);
-  _currWidgetModel->ui = this;
-  _currWidgetModel->state = _state;
-  _currWidgetModel->element = _currConfig;
+  _currWidget->initWidgetModel(_state);
+  _currWidget->widgetModel()->ui = this;
+  _currWidget->widgetModel()->state = _state;
+  _currWidget->widgetModel()->element = _currConfig;
   ViewModel vm;
   _currWidget->updateViewModel(&vm);
   _renderFunction(&vm);
@@ -101,10 +101,10 @@ void SixButtonUI::menuBack() {
     }
     if (_currConfig->type == UIElement::Type::SUB_MENU) {
       static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
-          static_cast<SubMenuWidget::SubMenuModel*>(_currWidgetModel)->currIndex;
+          static_cast<SubMenuWidget::SubMenuModel*>(_currWidget->widgetModel())->currIndex;
     } else if (_currConfig->type == UIElement::Type::SELECTOR) {
       static_cast<SelectorElement*>(_currConfig)->lastSelected = 
-          static_cast<SelectorWidget::SelectorModel*>(_currWidgetModel)->currIndex;
+          static_cast<SelectorWidget::SelectorModel*>(_currWidget->widgetModel())->currIndex;
     }
     _currConfig = parent->getChild(_rootElementIdx);
   } else {
@@ -159,6 +159,11 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
       break;
   }
   return out;
+}
+
+Widget::Model* SixButtonUI::widgetModel() {
+  if (_currWidget) return _currWidget->widgetModel();
+  return nullptr;
 }
 
 SixButtonUI* SixButtonUI::UI(void* widgetModel) {
