@@ -21,14 +21,14 @@ void render(ViewModel* viewModel) {
 
 using namespace sixbuttonui;
 
-// void loadSelectorModel(SelectorElement::Model* model, void* state) {
-//   static const char* names[] = { "one", "two" };
-//   model->optionNames = names;
-//   static const char* values[] = { "buckle", "shoe" };
-//   model->optionValues = values;
-//   model->numOptions = 2;
-//   model->currValue = "shoe";
-// }
+void loadSelectorModel(SelectorElement::Model* model, void* state) {
+  static const char* names[] = { "one", "two" };
+  model->optionNames = names;
+  static const char* values[] = { "buckle", "shoe" };
+  model->optionValues = values;
+  model->numOptions = 2;
+  model->currValue = "shoe";
+}
 
 NavigationConfig* config = new NavigationConfig(
   subMenu()
@@ -36,11 +36,9 @@ NavigationConfig* config = new NavigationConfig(
       ->withMenuItems(
         subMenu()
           ->withTitle("First"),
-        subMenu()
-          ->withTitle("Second"),
-        // selector()
-        //   ->withTitle("Second")
-        //   ->withModelFunction(loadSelectorModel),
+        selector()
+          ->withTitle("Second")
+          ->withModelFunction(loadSelectorModel),
         subMenu()
           ->withTitle("Third")
           ->withMenuItems(

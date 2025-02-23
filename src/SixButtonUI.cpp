@@ -1,7 +1,7 @@
 #include "SixButtonUI.h"
 #include "sixbuttonui/NavigationConfig.h"
 #include "sixbuttonui/Widget.h"
-// #include "sixbuttonui/SelectorWidget.h"
+#include "sixbuttonui/SelectorWidget.h"
 #include "sixbuttonui/SubMenuWidget.h"
 
 int freeMemory();
@@ -102,17 +102,17 @@ void SixButtonUI::menuBack() {
     if (_currConfig->type == UIElement::Type::SUB_MENU) {
       static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
           static_cast<SubMenuWidget::SubMenuModel*>(_currWidgetModel)->currIndex;
-    }// } else if (_currConfig->type == UIElement::Type::SELECTOR) {
-    //   static_cast<SelectorElement*>(_currConfig)->lastSelected = 
-    //       static_cast<SelectorWidget::SelectorModel*>(_currWidgetModel)->currIndex;
-    // }
+    } else if (_currConfig->type == UIElement::Type::SELECTOR) {
+      static_cast<SelectorElement*>(_currConfig)->lastSelected = 
+          static_cast<SelectorWidget::SelectorModel*>(_currWidgetModel)->currIndex;
+    }
     _currConfig = parent->getChild(_rootElementIdx);
   } else {
     if (_currConfig->type == UIElement::Type::SUB_MENU) {
       static_cast<SubMenuElement*>(_currConfig)->lastSelected = 0;
-    }// } else if (_currConfig->type == UIElement::Type::SELECTOR) {
-    //   static_cast<SelectorElement*>(_currConfig)->lastSelected = 0;
-    // }
+    } else if (_currConfig->type == UIElement::Type::SELECTOR) {
+      static_cast<SelectorElement*>(_currConfig)->lastSelected = 0;
+    }
     goTo(parent);
   }
 }
@@ -139,9 +139,9 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
     case UIElement::Type::SUB_MENU:
       out = new SubMenuWidget(static_cast<SubMenuElement*>(_currConfig));
       break;
-    // case UIElement::Type::SELECTOR:
-      // out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
-    //   break;
+    case UIElement::Type::SELECTOR:
+      out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
+      break;
     // case UIElement::Type::TEXT_INPUT:
 
     //   break;

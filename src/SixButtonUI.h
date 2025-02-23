@@ -8,7 +8,7 @@
 #include "sixbuttonui/UIElement.h"
 #include "sixbuttonui/NavigationConfig.h"
 #include "sixbuttonui/SubMenuElement.h"
-// #include "sixbuttonui/SelectorElement.h"
+#include "sixbuttonui/SelectorElement.h"
 #include "sixbuttonui/Widget.h"
 
 using namespace eventuino;
@@ -55,7 +55,7 @@ class SixButtonUI: public EventSource {
 
 namespace sixbuttonui {
 
-  // inline SelectorElement* selector() { return new SelectorElement(); };
+  inline SelectorElement* selector() { return new SelectorElement(); };
   inline SubMenuElement*  subMenu()  { return new SubMenuElement();  };
 
 }

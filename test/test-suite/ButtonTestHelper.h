@@ -14,9 +14,9 @@ class ButtonTestHelper {
       UIElement* main = _ui->_nav->getChild(0);
       if (main->type == UIElement::Type::SUB_MENU) {
         static_cast<SubMenuElement*>(main)->lastSelected = 0;
-      }// } else if (main->type == UIElement::Type::SELECTOR) {
-      //   static_cast<SelectorElement*>(main)->lastSelected = 0;
-      // }
+      } else if (main->type == UIElement::Type::SELECTOR) {
+        static_cast<SelectorElement*>(main)->lastSelected = 0;
+      }
       _ui->goTo(main);
       _ui->render();
     }
