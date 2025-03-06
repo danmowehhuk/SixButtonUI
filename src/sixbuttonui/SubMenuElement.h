@@ -27,8 +27,10 @@ class SubMenuElement: public UIElementBase<SubMenuElement> {
      */
     struct Model {
       char* title = nullptr;
+      __FlashStringHelper* titlePmem = nullptr;
       ~Model() {
         title = nullptr;
+        titlePmem = nullptr;
       };
     };
     typedef void (*ModelFunction)(Model* model, void* state);

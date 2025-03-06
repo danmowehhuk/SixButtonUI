@@ -13,7 +13,7 @@
 #define ENTER_BUTTON_PIN 5
 
 
-ViewModel MODEL;
+ViewModel MODEL("", 0, "", 0, "", 0, "", 0);
 
 void render(ViewModel* viewModel) {
   MODEL = *viewModel;  // Copy data into global struct
@@ -22,12 +22,17 @@ void render(ViewModel* viewModel) {
 using namespace sixbuttonui;
 
 void loadSelectorModel(SelectorElement::Model* model, void* state) {
-  static const char* names[] = { "one", "two" };
-  model->optionNames = names;
-  static const char* values[] = { "buckle", "shoe" };
-  model->optionValues = values;
-  model->numOptions = 2;
-  model->currValue = "shoe";
+  model->numOptions = 0;
+  // model->currValue = "shoe";
+
+  // static const char* names[] = { "one", "two" };
+  // model->optionNames = names;
+  // static const char* values[] = { "buckle", "shoe" };
+  // model->optionValues = values;
+
+  // model->optionNames = new char*[numOptions];
+  // model->optionValues = new char*[numOptions];
+
 }
 
 NavigationConfig* config = new NavigationConfig(
@@ -37,8 +42,8 @@ NavigationConfig* config = new NavigationConfig(
         subMenu()
           ->withTitle("First"),
         selector()
-          ->withTitle("Second")
-          ->withModelFunction(loadSelectorModel),
+          ->withTitle("Second"),
+          // ->withModelFunction(loadSelectorModel),
         subMenu()
           ->withTitle("Third")
           ->withMenuItems(

@@ -35,17 +35,35 @@ class SelectorElement: public UIElementBase<SelectorElement> {
     SelectorElement(): UIElementBase(SELECTOR) {};
 
     struct Model {
-      char* title = nullptr;
-      char* instruction = nullptr;
+      // char* title = nullptr;
+      // char* instruction = nullptr;
       char** optionNames = nullptr;
+      __FlashStringHelper** optionNamesPmem = nullptr;
+      size_t* optionNameLengths = nullptr;
       char** optionValues = nullptr;
+      __FlashStringHelper** optionValuesPmem = nullptr;
+      size_t* optionValueLengths = nullptr;
       char* currValue = nullptr;
       uint8_t numOptions = 0;
       uint8_t currIndex = 0;
       ~Model() {
-        title = nullptr;
-        // if (optionNames) delete optionNames;
-        // if (optionValues) delete optionValues;
+        // if (optionNames) {
+        //   for (uint8_t i = 0; i < numOptions; i++) {
+        //     optionNames[i] = nullptr;
+        //   }
+        //   // delete[] optionNames;
+        //   optionNames = nullptr;
+        // }
+        // if (optionNamesPmem) {
+        //   for (uint8_t i = 0; i < numOptions; i++) {
+        //     optionNamesPmem[i] = nullptr;
+        //   }
+        //   // delete[] optionNamesPmem;
+        //   optionNamesPmem = nullptr;
+        // }
+        // // title = nullptr;
+        // // if (optionNames) delete optionNames;
+        // // if (optionValues) delete optionValues;
       };
     };
     typedef void (*ModelFunction)(Model* model, void* state);

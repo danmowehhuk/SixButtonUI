@@ -24,8 +24,18 @@ class UIElement {
     const UIElement* getParent() const;
     const uint8_t getChildCount() const;
     const UIElement* getChild(uint8_t index) const;
-    char* getTitle();
-    char* getInstruction();
+    const char* getTitle() const;
+    const __FlashStringHelper* getTitle_P() const;
+    bool isTitlePmem();
+    size_t getTitleLength() const;
+    const char* getInstruction() const;
+    const __FlashStringHelper* getInstruction_P() const;
+    bool isInstructionPmem();
+    size_t getInstructionLength() const;
+    const char* getFooter() const;
+    const __FlashStringHelper* getFooter_P() const;
+    bool isFooterPmem();
+    size_t getFooterLength() const;
 
     // Make the class pure virtual
     virtual ~UIElement() = 0;
@@ -36,9 +46,11 @@ class UIElement {
     UIElement** _children = nullptr;
     uint8_t _numChildren = 0;
     char* _title = nullptr;
-    bool _pmemTitle = false;
+    __FlashStringHelper* _titlePmem = nullptr;
     char* _instruction = nullptr;
-    bool _pmemInstruction = false;
+    __FlashStringHelper* _instructionPmem = nullptr;
+    char* _footer = nullptr;
+    __FlashStringHelper* _footerPmem = nullptr;
 
   private:
     UIElement() = delete;
@@ -64,7 +76,11 @@ class UIElementBase: public UIElement {
     // Make the class pure virtual
     virtual ~UIElementBase() = 0;
     DerivedElement* withTitle(const char* title, bool pmem = false);
+    DerivedElement* withTitle(const __FlashStringHelper* title);
     DerivedElement* withInstruction(const char* instruction, bool pmem = false);
+    DerivedElement* withInstruction(const __FlashStringHelper* instruction);
+    DerivedElement* withFooter(const char* footer, bool pmem = false);
+    DerivedElement* withFooter(const __FlashStringHelper* footer);
 
  protected:
     UIElementBase(const Type type): UIElement(type) {};
@@ -84,15 +100,49 @@ inline UIElementBase<DerivedElement>::~UIElementBase() {};
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withTitle(const char* title, bool pmem = false) {
-  _title = title;
-  _pmemTitle = pmem;
+  if (pmem) {
+    _titlePmem = reinterpret_cast<const __FlashStringHelper *>(title);
+  } else {
+    _title = title;
+  }
+  return static_cast<DerivedElement*>(this);
+};
+
+template <typename DerivedElement>
+DerivedElement* UIElementBase<DerivedElement>::withTitle(const __FlashStringHelper* title) {
+  _titlePmem = title;
   return static_cast<DerivedElement*>(this);
 };
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withInstruction(const char* instruction, bool pmem = false) {
-  _instruction = instruction;
-  _pmemInstruction = pmem;
+  if (pmem) {
+    _instructionPmem = reinterpret_cast<const __FlashStringHelper *>(instruction);
+  } else {
+    _instruction = instruction;
+  }
+  return static_cast<DerivedElement*>(this);
+};
+
+template <typename DerivedElement>
+DerivedElement* UIElementBase<DerivedElement>::withInstruction(const __FlashStringHelper* instruction) {
+  _instructionPmem = instruction;
+  return static_cast<DerivedElement*>(this);
+};
+
+template <typename DerivedElement>
+DerivedElement* UIElementBase<DerivedElement>::withFooter(const char* footer, bool pmem = false) {
+  if (pmem) {
+    _footerPmem = reinterpret_cast<const __FlashStringHelper *>(footer);
+  } else {
+    _footer = footer;
+  }
+  return static_cast<DerivedElement*>(this);
+};
+
+template <typename DerivedElement>
+DerivedElement* UIElementBase<DerivedElement>::withFooter(const __FlashStringHelper* footer) {
+  _footerPmem = footer;
   return static_cast<DerivedElement*>(this);
 };
 

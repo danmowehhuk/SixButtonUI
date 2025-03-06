@@ -17,14 +17,15 @@ class SelectorWidget: public Widget {
     Widget::Model* loadModel(void* state) override {
       // selector model is static so only loads once
       if (modelLoaded) return &_model;
-      _model.title = _config->getTitle();
-      _model.instruction = _config->getInstruction();
+
       if (_config->modelLoader != 0) {
         _config->modelLoader(&_model, state);
       }
       if (_model.currValue) {
         for (uint8_t i = 0; i < _model.numOptions; i++) {
-          if (strcmp(_model.optionValues[i], _model.currValue) == 0) {
+          if ((_model.optionValues[i] && strcmp(_model.currValue, _model.optionValues[i]) == 0) ||
+              (_model.optionValuesPmem[i] 
+                && strcmp_P(_model.currValue, reinterpret_cast<const char*>(_model.optionValuesPmem[i])) == 0)) {
             _model.currIndex = i;
             break;
           }
@@ -36,18 +37,43 @@ class SelectorWidget: public Widget {
       return &_model;
     };
 
-    void updateViewModel(ViewModel* vm) override {
+    ViewModel* getViewModel() override {
+      // size_t titleLength = _config->getTitleLength();
+      // char* title = copyMaybePmem(_config->getTitle(), _config->getTitle_P(), titleLength);
+      // size_t instructionLength = _config->getInstructionLength();
+      // char* instruction = copyMaybePmem(_config->getInstruction(), _config->getInstruction_P(), instructionLength);
+      // size_t interactiveLength;
+      // char* interactive;
+      // if (_model.numOptions > 0) {
+      //   interactiveLength = _model.optionNameLengths[_model.currIndex];
+      //   interactive = copyMaybePmem(_model.optionNames[_model.currIndex],
+      //           _model.optionNamesPmem[_model.currIndex], interactiveLength);
+      // } else {
+        // interactiveLength = 0;
+        // interactive = "";
+      // }
+      // size_t footerLength = _config->getFooterLength();
+      // char* footer = copyMaybePmem(_config->getFooter(), _config->getFooter_P(), footerLength);
+
+      ViewModel* vm = new ViewModel("", 0, "", 0, "", 0, "", 0);
+      // delete[] title;
+      // delete[] instruction;
+      // delete[] interactive;
+      // delete[] footer;
       vm->type = UIElement::Type::SELECTOR;
-      strncpy(vm->titleLine, _model.title, ViewModel::MAX_TITLE_LENGTH);
-      strncpy(vm->instructionLine, _model.instruction, ViewModel::MAX_INSTR_LENGTH);
-      if (_model.numOptions > 0) {
-        strncpy(vm->interactiveLine, _model.optionNames[_model.currIndex], ViewModel::MAX_INTER_LENGTH);
-      } else {
-        strncpy(vm->interactiveLine, "", ViewModel::MAX_INTER_LENGTH);
-      }
-      if (strcmp(_model.optionValues[_model.currIndex], _model.currValue) == 0) {
-        vm->isSelected = true;
-      }
+      return vm;
+
+      // vm->type = UIElement::Type::SELECTOR;
+      // strncpy(vm->titleLine, _model.title, ViewModel::MAX_TITLE_LENGTH);
+      // strncpy(vm->instructionLine, _model.instruction, ViewModel::MAX_INSTR_LENGTH);
+      // if (_model.numOptions > 0) {
+      //   strncpy(vm->interactiveLine, _model.optionNames[_model.currIndex], ViewModel::MAX_INTER_LENGTH);
+      // } else {
+      //   strncpy(vm->interactiveLine, "", ViewModel::MAX_INTER_LENGTH);
+      // }
+      // if (strcmp(_model.optionValues[_model.currIndex], _model.currValue) == 0) {
+      //   vm->isSelected = true;
+      // }
     };
 
   protected:

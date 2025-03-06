@@ -50,9 +50,10 @@ void SixButtonUI::render() {
   _currWidget->widgetModel()->ui = this;
   _currWidget->widgetModel()->state = _state;
   _currWidget->widgetModel()->element = _currConfig;
-  ViewModel vm;
-  _currWidget->updateViewModel(&vm);
-  _renderFunction(&vm);
+
+  ViewModel* vm = _currWidget->getViewModel();
+  _renderFunction(vm);
+  delete vm;
 
   _up.onPressed = [](uint8_t value, void* widgetModel) {
     UI(widgetModel)->_currWidget->onUpPressed(value, widgetModel);
