@@ -45,7 +45,7 @@ class ButtonTestHelper {
     SixButtonUI* _ui;
 
     void pressAndRelease(Button* b) {
-      Widget::Model* _currWidgetModel = _ui->widgetModel();
+      WidgetModel* _currWidgetModel = _ui->widgetModel();
       if (b->onPressed != 0) b->onPressed(b->getValue(), _currWidgetModel);
       if (b->onReleased != 0) b->onReleased(b->getValue(), _currWidgetModel);
     };
@@ -55,8 +55,6 @@ class ButtonTestHelper {
         UIElement* child = element->getChild(i);
         if (child->type == UIElement::Type::SUB_MENU) {
           static_cast<SubMenuElement*>(child)->lastSelected = 0;
-        } else if (child->type == UIElement::Type::SELECTOR) {
-          static_cast<SelectorElement*>(child)->lastSelected = 0;
         }
         resetLastSelected(child);
       }

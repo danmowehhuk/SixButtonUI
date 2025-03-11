@@ -4,8 +4,6 @@
 #include "sixbuttonui/SelectorWidget.h"
 #include "sixbuttonui/SubMenuWidget.h"
 
-int freeMemory();
-
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
       uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
@@ -33,27 +31,27 @@ void SixButtonUI::setup() {
 
 void SixButtonUI::poll(void* state = nullptr) {
   /*
-   * The state object (if any) sent from Eventuino is not used.
+   * The state object (if any) sent from Eventuino is not used. Instead,
+   * the current widget's own model is passed so it can be made available
+   * within the event handler callbacks (e.g. onPressed, onReleased).
    */ 
-  _down.poll(_currWidget->widgetModel());
-  _up.poll(_currWidget->widgetModel());
-  _left.poll(_currWidget->widgetModel());
-  _right.poll(_currWidget->widgetModel());
-  _menuBack.poll(_currWidget->widgetModel());
-  _selectEnter.poll(_currWidget->widgetModel());
+  if (_currWidget->getModel()) {
+    _down.poll(_currWidget->getModel());
+    _up.poll(_currWidget->getModel());
+    _left.poll(_currWidget->getModel());
+    _right.poll(_currWidget->getModel());
+    _menuBack.poll(_currWidget->getModel());
+    _selectEnter.poll(_currWidget->getModel());
+  }
 }
 
 void SixButtonUI::render() {
   clearHandlers();
   maybeInitWidget();
-  _currWidget->initWidgetModel(_state);
-  _currWidget->widgetModel()->ui = this;
-  _currWidget->widgetModel()->state = _state;
-  _currWidget->widgetModel()->element = _currConfig;
-
-  ViewModel* vm = _currWidget->getViewModel();
-  _renderFunction(vm);
-  delete vm;
+  _currWidget->populateModel(_state);
+  _currWidget->getModel()->_ui = this;
+  _currWidget->getModel()->_state = _state;
+  _renderFunction(_currWidget->getViewModel());
 
   _up.onPressed = [](uint8_t value, void* widgetModel) {
     UI(widgetModel)->_currWidget->onUpPressed(value, widgetModel);
@@ -77,7 +75,7 @@ void SixButtonUI::render() {
    * actions when trying to long-press both together
    */
   _selectEnter.onReleased = [](uint8_t value, void* widgetModel) {
-    void* stateIn = static_cast<Widget::Model*>(widgetModel)->state;
+    void* stateIn = static_cast<WidgetModel*>(widgetModel)->_state;
     void* stateOut = UI(widgetModel)->_currWidget->onEnter(value, widgetModel, stateIn);
     UI(widgetModel)->_state = stateOut;
     UI(widgetModel)->render();
@@ -102,17 +100,12 @@ void SixButtonUI::menuBack() {
     }
     if (_currConfig->type == UIElement::Type::SUB_MENU) {
       static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
-          static_cast<SubMenuWidget::SubMenuModel*>(_currWidget->widgetModel())->currIndex;
-    } else if (_currConfig->type == UIElement::Type::SELECTOR) {
-      static_cast<SelectorElement*>(_currConfig)->lastSelected = 
-          static_cast<SelectorWidget::SelectorModel*>(_currWidget->widgetModel())->currIndex;
+          static_cast<SubMenuModel*>(_currWidget->getModel())->getCurrIndex();
     }
     _currConfig = parent->getChild(_rootElementIdx);
   } else {
     if (_currConfig->type == UIElement::Type::SUB_MENU) {
       static_cast<SubMenuElement*>(_currConfig)->lastSelected = 0;
-    } else if (_currConfig->type == UIElement::Type::SELECTOR) {
-      static_cast<SelectorElement*>(_currConfig)->lastSelected = 0;
     }
     goTo(parent);
   }
@@ -128,7 +121,7 @@ void SixButtonUI::clearHandlers() {
 }
 
 void SixButtonUI::maybeInitWidget() {
-  if (!_currWidget || _currWidget->wConf != _currConfig) {
+  if (!_currWidget || _currWidget->_wConf != _currConfig) {
     if (_currWidget) delete _currWidget;
     _currWidget = newForType(_currConfig->type);
   }
@@ -162,12 +155,12 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
   return out;
 }
 
-Widget::Model* SixButtonUI::widgetModel() {
-  if (_currWidget) return _currWidget->widgetModel();
+WidgetModel* SixButtonUI::widgetModel() {
+  if (_currWidget) return _currWidget->getModel();
   return nullptr;
 }
 
 SixButtonUI* SixButtonUI::UI(void* widgetModel) {
-  return static_cast<Widget::Model*>(widgetModel)->ui;
+  return static_cast<WidgetModel*>(widgetModel)->_ui;
 }
 

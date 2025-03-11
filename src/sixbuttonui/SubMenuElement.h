@@ -2,6 +2,7 @@
 #define _sixbuttonui_SubMenuElement_h
 
 
+#include "SubMenuModel.h"
 #include "UIElement.h"
 
 /*
@@ -23,17 +24,9 @@ class SubMenuElement: public UIElementBase<SubMenuElement> {
     /*
      * The selection options for a sub-menu come from the nav config and cannot
      * be changed. The title defaults to what's provided in the nav config, but
-     * it can be overridden.
+     * it can be overridden by the provided ModelFunction
      */
-    struct Model {
-      char* title = nullptr;
-      __FlashStringHelper* titlePmem = nullptr;
-      ~Model() {
-        title = nullptr;
-        titlePmem = nullptr;
-      };
-    };
-    typedef void (*ModelFunction)(Model* model, void* state);
+    typedef void (*ModelFunction)(SubMenuModel* model, void* state);
     ModelFunction modelLoader = 0;
     SubMenuElement* withModelFunction(ModelFunction modelFunction) {
       modelLoader = modelFunction;

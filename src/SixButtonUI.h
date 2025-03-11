@@ -16,11 +16,12 @@ using namespace eventuino;
 class SixButtonUI: public EventSource {
 
   public:
-    typedef void (*RenderFunction)(ViewModel* viewModel);
+    typedef void (*RenderFunction)(ViewModel viewModel);
     SixButtonUI(uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
               uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
               const NavigationConfig* navConfig, RenderFunction renderFunction);
 
+    // Tells SixButtonUI to switch to a different element in the nav config
     void goTo(UIElement* element);
 
     // Required by EventSource
@@ -44,12 +45,12 @@ class SixButtonUI: public EventSource {
     void maybeInitWidget();
     void menuBack();
     Widget* newForType(UIElement::Type type);
-    Widget::Model* widgetModel();
     static SixButtonUI* UI(void* widgetModel);
 
     void* _state = nullptr;
 
     // Allows the test suite to mimic pressing buttons
+    WidgetModel* widgetModel();
     friend class ButtonTestHelper;
 };
 

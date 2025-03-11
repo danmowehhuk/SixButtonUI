@@ -13,64 +13,59 @@
 #define ENTER_BUTTON_PIN 5
 
 
-ViewModel MODEL("", 0, "", 0, "", 0, "", 0);
+ViewModel MODEL(UIElement::Type::UNDEFINED);
 
-void render(ViewModel* viewModel) {
-  MODEL = *viewModel;  // Copy data into global struct
+void render(ViewModel viewModel) {
+  MODEL = static_cast<ViewModel&&>(viewModel);  // Move data into global struct
 }
 
 using namespace sixbuttonui;
 
-void loadSelectorModel(SelectorElement::Model* model, void* state) {
-  model->numOptions = 0;
-  // model->currValue = "shoe";
-
-  // static const char* names[] = { "one", "two" };
-  // model->optionNames = names;
-  // static const char* values[] = { "buckle", "shoe" };
-  // model->optionValues = values;
-
-  // model->optionNames = new char*[numOptions];
-  // model->optionValues = new char*[numOptions];
-
+void loadSelectorModel(SelectorModel* model, void* state) {
+  model->setNumOptions(2);
+  model->setCurrValue("shoe");
+  model->setOption(0, F("one"), F("buckle"));
+  model->setOption(1, F("two"), F("shoe"));
 }
 
-NavigationConfig* config = new NavigationConfig(
+NavigationConfig* myNavigationConfig() {
+  return new NavigationConfig(
   subMenu()
-      ->withTitle("Main Menu")
+      ->withTitle(F("Main Menu"))
       ->withMenuItems(
         subMenu()
-          ->withTitle("First"),
+          ->withTitle(F("First")),
         selector()
-          ->withTitle("Second"),
-          // ->withModelFunction(loadSelectorModel),
+          ->withTitle("Second") // leave non-PROGMEM for test
+          ->withModelFunction(loadSelectorModel),
         subMenu()
-          ->withTitle("Third")
+          ->withTitle(F("Third"))
           ->withMenuItems(
             subMenu()
-              ->withTitle("Low"),
+              ->withTitle(F("Low")),
             subMenu()
-              ->withTitle("Medium"),
+              ->withTitle(F("Medium")),
             subMenu()
-              ->withTitle("High")
+              ->withTitle(F("High"))
           ),
         subMenu()
-          ->withTitle("Fourth")
+          ->withTitle(F("Fourth"))
       ),
   subMenu()
-      ->withTitle("Settings")
+      ->withTitle(F("Settings"))
       ->withMenuItems(
         subMenu()
-          ->withTitle("Clock"),
+          ->withTitle(F("Clock")),
         subMenu()
-          ->withTitle("Date")
+          ->withTitle(F("Date"))
       )
-);
+  );
+};
 
 SixButtonUI sixButtonUI(
       UP_BUTTON_PIN, DOWN_BUTTON_PIN, LEFT_BUTTON_PIN,
       RIGHT_BUTTON_PIN, MENU_BUTTON_PIN, ENTER_BUTTON_PIN,
-      config, render
+      myNavigationConfig(), render
 );
 
 ButtonTestHelper helper(&sixButtonUI);

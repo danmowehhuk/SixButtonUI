@@ -2,12 +2,16 @@
 #define _sixbuttonui_UIElement_h
 
 
+#include <Arduino.h>
 #include <stdint.h>
 
 /*
  * Base type for any node in the SixButtonUI navigation tree. Cannot be instantiated
  * directly. Use the convenience functions in the sixbuttonui namespace to instantiate
- * concrete subtypes
+ * concrete subtypes.
+ * 
+ * The char arrays for 'title', 'instruction', and 'footer' are expected not to change
+ * once initialized, so no memory management is performed for them.
  */
 class UIElement {
   public:  
@@ -24,18 +28,15 @@ class UIElement {
     const UIElement* getParent() const;
     const uint8_t getChildCount() const;
     const UIElement* getChild(uint8_t index) const;
-    const char* getTitle() const;
-    const __FlashStringHelper* getTitle_P() const;
-    bool isTitlePmem();
-    size_t getTitleLength() const;
-    const char* getInstruction() const;
-    const __FlashStringHelper* getInstruction_P() const;
-    bool isInstructionPmem();
-    size_t getInstructionLength() const;
-    const char* getFooter() const;
-    const __FlashStringHelper* getFooter_P() const;
-    bool isFooterPmem();
-    size_t getFooterLength() const;
+
+    const char* getTitle() const { return _title; };
+    bool isTitlePmem() { return _isTitlePmem; };
+
+    const char* getInstruction() const { return _instruction; };
+    bool isInstructionPmem() { return _isInstructionPmem; };
+
+    const char* getFooter() const { return _footer; };
+    bool isFooterPmem() { return _isFooterPmem; };
 
     // Make the class pure virtual
     virtual ~UIElement() = 0;
@@ -46,11 +47,11 @@ class UIElement {
     UIElement** _children = nullptr;
     uint8_t _numChildren = 0;
     char* _title = nullptr;
-    __FlashStringHelper* _titlePmem = nullptr;
     char* _instruction = nullptr;
-    __FlashStringHelper* _instructionPmem = nullptr;
     char* _footer = nullptr;
-    __FlashStringHelper* _footerPmem = nullptr;
+    bool _isTitlePmem = false;
+    bool _isInstructionPmem = false;
+    bool _isFooterPmem = false;
 
   private:
     UIElement() = delete;
@@ -100,49 +101,43 @@ inline UIElementBase<DerivedElement>::~UIElementBase() {};
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withTitle(const char* title, bool pmem = false) {
-  if (pmem) {
-    _titlePmem = reinterpret_cast<const __FlashStringHelper *>(title);
-  } else {
-    _title = title;
-  }
+  _title = title;
+  _isTitlePmem = pmem;
   return static_cast<DerivedElement*>(this);
 };
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withTitle(const __FlashStringHelper* title) {
-  _titlePmem = title;
+  _title = reinterpret_cast<const char*>(title);
+  _isTitlePmem = true;
   return static_cast<DerivedElement*>(this);
 };
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withInstruction(const char* instruction, bool pmem = false) {
-  if (pmem) {
-    _instructionPmem = reinterpret_cast<const __FlashStringHelper *>(instruction);
-  } else {
-    _instruction = instruction;
-  }
+  _instruction = instruction;
+  _isInstructionPmem = pmem;
   return static_cast<DerivedElement*>(this);
 };
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withInstruction(const __FlashStringHelper* instruction) {
-  _instructionPmem = instruction;
+  _instruction = reinterpret_cast<const char*>(instruction);
+  _isInstructionPmem = true;
   return static_cast<DerivedElement*>(this);
 };
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withFooter(const char* footer, bool pmem = false) {
-  if (pmem) {
-    _footerPmem = reinterpret_cast<const __FlashStringHelper *>(footer);
-  } else {
-    _footer = footer;
-  }
+  _footer = footer;
+  _isFooterPmem = pmem;
   return static_cast<DerivedElement*>(this);
 };
 
 template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withFooter(const __FlashStringHelper* footer) {
-  _footerPmem = footer;
+  _footer = reinterpret_cast<const char*>(footer);
+  _isFooterPmem = true;
   return static_cast<DerivedElement*>(this);
 };
 
