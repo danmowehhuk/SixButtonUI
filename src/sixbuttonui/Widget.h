@@ -25,9 +25,17 @@ class Widget {
     virtual void* onEnter(uint8_t value, void* widgetModel, void* state) {};
 
     virtual void onUpPressed(uint8_t value, void* widgetModel) {};
+    virtual void onUpLongPressed(uint8_t value, void* widgetModel) {};
     virtual void onDownPressed(uint8_t value, void* widgetModel) {};
+    virtual void onDownLongPressed(uint8_t value, void* widgetModel) {};
     virtual void onLeftPressed(uint8_t value, void* widgetModel) {};
+    virtual void onLeftLongPressed(uint8_t value, void* widgetModel) {};
     virtual void onRightPressed(uint8_t value, void* widgetModel) {};
+    virtual void onRightLongPressed(uint8_t value, void* widgetModel) {};
+    virtual bool onUpLongPressRepeat() { return false; };
+    virtual bool onDownLongPressRepeat() { return false; };
+    virtual bool onLeftLongPressRepeat() { return false; };
+    virtual bool onRightLongPressRepeat() { return false; };
 
     friend class SixButtonUI;
 
@@ -37,6 +45,7 @@ class Widget {
     virtual ViewModel getViewModel() = 0;
     void preLoadModel();
     void populateModel(void* state);
+    bool _modelLoaded = false;
 
 };
 inline Widget::~Widget() {};

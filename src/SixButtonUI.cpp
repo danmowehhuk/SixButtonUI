@@ -3,6 +3,7 @@
 #include "sixbuttonui/Widget.h"
 #include "sixbuttonui/SelectorWidget.h"
 #include "sixbuttonui/SubMenuWidget.h"
+#include "sixbuttonui/TextInputWidget.h"
 
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
@@ -69,6 +70,26 @@ void SixButtonUI::render() {
     UI(widgetModel)->_currWidget->onRightPressed(value, widgetModel);
     UI(widgetModel)->render();
   };
+  _up.onLongPress = [](uint8_t value, void* widgetModel) {
+    UI(widgetModel)->_currWidget->onUpLongPressed(value, widgetModel);
+    UI(widgetModel)->render();
+  };
+  _up.enableRepeat(_currWidget->onUpLongPressRepeat());
+  _down.onLongPress = [](uint8_t value, void* widgetModel) {
+    UI(widgetModel)->_currWidget->onDownLongPressed(value, widgetModel);
+    UI(widgetModel)->render();
+  };
+  _down.enableRepeat(_currWidget->onDownLongPressRepeat());
+  _left.onLongPress = [](uint8_t value, void* widgetModel) {
+    UI(widgetModel)->_currWidget->onLeftLongPressed(value, widgetModel);
+    UI(widgetModel)->render();
+  };
+  _left.enableRepeat(_currWidget->onLeftLongPressRepeat());
+  _right.onLongPress = [](uint8_t value, void* widgetModel) {
+    UI(widgetModel)->_currWidget->onRightLongPressed(value, widgetModel);
+    UI(widgetModel)->render();
+  };
+  _right.enableRepeat(_currWidget->onRightLongPressRepeat());
 
   /*
    * selectEnter and menuBack are "onReleased" to avoid unwanted
@@ -113,11 +134,19 @@ void SixButtonUI::menuBack() {
 
 void SixButtonUI::clearHandlers() {
   _up.onPressed = 0;
+  _up.onLongPress = 0;
   _down.onPressed = 0;
+  _down.onLongPress = 0;
   _left.onPressed = 0;
+  _left.onLongPress = 0;
   _right.onPressed = 0;
+  _right.onLongPress = 0;
   _menuBack.onReleased = 0;
   _selectEnter.onReleased = 0;
+  _up.enableRepeat(false);
+  _down.enableRepeat(false);
+  _left.enableRepeat(false);
+  _right.enableRepeat(false);
 }
 
 void SixButtonUI::maybeInitWidget() {
@@ -136,9 +165,9 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
     case UIElement::Type::SELECTOR:
       out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
       break;
-    // case UIElement::Type::TEXT_INPUT:
-
-    //   break;
+    case UIElement::Type::TEXT_INPUT:
+      out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
+      break;
     // case UIElement::Type::COMBO_BOX:
 
     //   break;

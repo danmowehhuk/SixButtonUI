@@ -10,8 +10,12 @@ void Widget::preLoadModel() {
 }
 
 void Widget::populateModel(void* state) {
-  if (_noRefreshModel) return;
-  initModel();
-  preLoadModel();
-  loadModel(state);
+  if (!_modelLoaded) {
+    initModel();
+    preLoadModel();
+  }
+  if (!_modelLoaded || !_noRefreshModel) {
+    loadModel(state);
+  }
+  _modelLoaded = true;
 }

@@ -28,59 +28,82 @@ Adafruit_LiquidCrystal lcd(
 void renderLCDDisplay(ViewModel* viewModel) {
   // Print the contents of the view model in a way
   // that fits the display device
+  lcd.noBlink();
+  lcd.noCursor();
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print(viewModel->titleLine);
+  if (viewModel->isTitlePmem()) {
+    lcd.print(viewModel->getTitleLine_P());
+  } else {
+    lcd.print(viewModel->getTitleLine());
+  }
   lcd.setCursor(0, 1);
-  lcd.print(viewModel->interactiveLine);
+  if (viewModel->isInteractivePmem()) {
+    lcd.print(viewModel->getInteractiveLine_P());
+  } else {
+    lcd.print(viewModel->getInteractiveLine());
+  }
+  lcd.setCursor(viewModel->cursorPosition, 1);
+  if (viewModel->cursorMode != ViewModel::CursorMode::NO_CURSOR) {
+    lcd.cursor();    
+  }
 };
 
 using namespace sixbuttonui;
 
-void loadSelectorModel(SelectorElement::Model* model, void* state) {
-  static const char* names[] = { "one", "two" };
-  model->optionNames = names;
-  static const char* values[] = { "buckle", "shoe" };
-  model->optionValues = values;
-  model->numOptions = 2;
-  model->currValue = "shoe";
+void loadSelectorModel(SelectorModel* model, void* state) {
+  model->setNumOptions(2);
+  model->setCurrValue("shoe");
+  model->setOption(0, F("one"), F("buckle"));
+  model->setOption(1, F("two"), F("shoe"));
 }
 
-static const NavigationConfig* NAV_CONFIG = new NavigationConfig(
+void initializeTextBox(TextInputModel* model, void* state) {
+  model->initialize(F("bar"));
+}
+
+void* saveTextInput(const char* value, void* state) {
+  Serial.println("onEnter function received: '" + String(value) + "'");
+  return state;
+}
+
+NavigationConfig* myNavigationConfig() {
+  return new NavigationConfig(
   subMenu()
-      ->withTitle("Main Menu")
+      ->withTitle(F("Main Menu"))
+      ->withInstruction(F("Press"))
+      ->withFooter(F("Back"))
       ->withMenuItems(
         subMenu()
-          ->withTitle("First"),
+          ->withTitle(F("First")),
         selector()
-          ->withTitle("Second")
+          ->withTitle("Second") // leave non-PROGMEM for test
+          ->withInstruction("Check")
+          ->withFooter("Enter")
           ->withModelFunction(loadSelectorModel),
+        textInput()
+          ->withTitle(F("Third"))
+          ->withInitialValue(F("foo"))
+          ->withModelFunction(initializeTextBox)
+          ->onEnter(saveTextInput),
         subMenu()
-          ->withTitle("Third")
-          ->withMenuItems(
-            subMenu()
-              ->withTitle("Low"),
-            subMenu()
-              ->withTitle("Medium"),
-            subMenu()
-              ->withTitle("High")
-          )
+          ->withTitle(F("Fourth"))
       ),
   subMenu()
-      ->withTitle("Settings")
+      ->withTitle(F("Settings"))
       ->withMenuItems(
         subMenu()
-          ->withTitle("Clock"),
+          ->withTitle(F("Clock")),
         subMenu()
-          ->withTitle("Date")
+          ->withTitle(F("Date"))
       )
-);
-        
+  );
+};
 
 SixButtonUI sixButtonUI(
       UP_BUTTON_PIN, DOWN_BUTTON_PIN, LEFT_BUTTON_PIN,
       RIGHT_BUTTON_PIN, MENU_BUTTON_PIN, ENTER_BUTTON_PIN,
-      NAV_CONFIG, renderLCDDisplay
+      myNavigationConfig(), renderLCDDisplay
 );
 
 Eventuino evt;

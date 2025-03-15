@@ -15,7 +15,7 @@ class SelectorWidget: public Widget {
 
     void initModel() override {
       _model = new SelectorModel();
-      // submenu model is static so only loads once
+      // model is static so only loads once
       _noRefreshModel = true;
     }
 
@@ -46,14 +46,15 @@ class SelectorWidget: public Widget {
   protected:
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      if (m->_numOptions == 0) return; // nothing to select
-
-      // TODO goto parent
-
-      if (_config->onEnterFunc != 0) {
-        char* selectionName = m->_optionNames[m->_currIndex];
-        char* selectionValue = m->_optionValues[m->_currIndex];
-        state = _config->onEnterFunc(selectionName, selectionValue, state);
+      m->getController()->goTo(_config->getParent());
+      if (m->_numOptions > 0) {
+        if (_config->onEnterFunc != 0) {
+          char* selectionName = m->_optionNames[m->_currIndex];
+          bool isNamePmem = m->_isOptionNamePmem[m->_currIndex];
+          char* selectionValue = m->_optionValues[m->_currIndex];
+          bool isValuePmem = m->_isOptionValuePmem[m->_currIndex];
+          state = _config->onEnterFunc(selectionName, isNamePmem, selectionValue, isValuePmem, state);
+        }
       }
       return state;
     };

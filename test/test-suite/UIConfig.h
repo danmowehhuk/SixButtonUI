@@ -12,14 +12,35 @@
 #define MENU_BUTTON_PIN  2
 #define ENTER_BUTTON_PIN 5
 
+char* strdup_P(const char* str_P) {
+  if (!str_P) return nullptr;
+  size_t len = strlen_P(str_P);
+  char* str = new char[len + 1];
+  if (str) {
+    strncpy_P(str, str_P, len);
+    str[len] = '\0';
+  }
+  return str;
+}
 
 ViewModel MODEL(UIElement::Type::UNDEFINED);
-
 void render(ViewModel viewModel) {
   MODEL = static_cast<ViewModel&&>(viewModel);  // Move data into global struct
 }
 
-using namespace sixbuttonui;
+char* capturedText = nullptr;
+void* captureTextValue(const char* value, void* state) {
+  capturedText = strdup(value);
+  return state;
+}
+
+char* capturedSelectionName = nullptr;
+char* capturedSelectionValue = nullptr;
+void* captureSelectorValue(const char* selectionName, bool namePmem, const char* selectionValue, bool valuePmem, void* state) {
+  capturedSelectionName = namePmem ? strdup_P (selectionName) : strdup(selectionName);
+  capturedSelectionValue = valuePmem ? strdup_P(selectionValue) : strdup(selectionValue);
+  return state;
+}
 
 void loadSelectorModel(SelectorModel* model, void* state) {
   model->setNumOptions(2);
@@ -28,26 +49,32 @@ void loadSelectorModel(SelectorModel* model, void* state) {
   model->setOption(1, F("two"), F("shoe"));
 }
 
+void initializeTextBox(TextInputModel* model, void* state) {
+  model->initialize(F("bar"));
+}
+
+using namespace sixbuttonui;
+
 NavigationConfig* myNavigationConfig() {
   return new NavigationConfig(
   subMenu()
       ->withTitle(F("Main Menu"))
+      ->withInstruction(F("Press"))
+      ->withFooter(F("Back"))
       ->withMenuItems(
         subMenu()
           ->withTitle(F("First")),
         selector()
           ->withTitle("Second") // leave non-PROGMEM for test
-          ->withModelFunction(loadSelectorModel),
-        subMenu()
+          ->withInstruction("Check")
+          ->withFooter("Enter")
+          ->withModelFunction(loadSelectorModel)
+          ->onEnter(captureSelectorValue),
+        textInput()
           ->withTitle(F("Third"))
-          ->withMenuItems(
-            subMenu()
-              ->withTitle(F("Low")),
-            subMenu()
-              ->withTitle(F("Medium")),
-            subMenu()
-              ->withTitle(F("High"))
-          ),
+          ->withInitialValue(F("foo")) // model function overrides this
+          ->withModelFunction(initializeTextBox)
+          ->onEnter(captureTextValue),
         subMenu()
           ->withTitle(F("Fourth"))
       ),

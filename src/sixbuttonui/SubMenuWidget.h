@@ -17,7 +17,7 @@ class SubMenuWidget: public Widget {
     void initModel() override {
       uint8_t count = _config->getChildCount();
       _model = new SubMenuModel(count);
-      // submenu model is static so only loads once
+      // model is static so only loads once
       _noRefreshModel = true;
     }
 
