@@ -59,7 +59,7 @@ void loadSelectorModel(SelectorModel* model, void* state) {
 }
 
 void initializeTextBox(TextInputModel* model, void* state) {
-  model->initialize(F("bar"));
+  model->setInitialValue(F("bar"));
 }
 
 void* saveTextInput(const char* value, void* state) {

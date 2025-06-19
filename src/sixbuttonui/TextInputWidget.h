@@ -45,76 +45,12 @@ class TextInputWidget: public Widget {
 
     void onDownPressed(uint8_t value, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
-      char c = m->getChar();
-      uint8_t curr = (uint8_t)c;
-      uint8_t next = curr;
-      switch (curr) {  // always start with ' ', then
-        case 32:       // lower-case, upper-case, numbers, then symbols
-          next = 97;
-          break;
-        case 122:
-          next = 65;
-          break;
-        case 90:
-          next = 48;
-          break;
-        case 57:
-          next = 33;
-          break;
-        case 47:
-          next = 58;
-          break;
-        case 64:
-          next = 91;
-          break;
-        case 96:
-          next = 123;
-          break;
-        case 126:
-          next = 32;
-          break;
-        default:
-          next++;
-          break;
-      }
-      m->setChar((char)next);
+      m->setChar(TextInputModel::getNext(m->getChar()));
     };
 
     void onUpPressed(uint8_t value, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
-      char c = m->getChar();
-      uint8_t curr = (uint8_t)c;
-      uint8_t prev = curr;
-      switch (curr) {  // same as onDownPressed, but reverse order
-        case 32:
-          prev = 126;
-          break;
-        case 123:
-          prev = 96;
-          break;
-        case 91:
-          prev = 64;
-          break;
-        case 58:
-          prev = 47;
-          break;
-        case 33:
-          prev = 57;
-          break;
-        case 48:
-          prev = 90;
-          break;
-        case 65:
-          prev = 122;
-          break;
-        case 97:
-          prev = 32;
-          break;
-        default:
-          prev--;
-          break;
-      }
-      m->setChar((char)prev);
+      m->setChar(TextInputModel::getPrev(m->getChar()));
     };
 
     void onDownLongPressed(uint8_t value, void* widgetModel) override {
@@ -146,7 +82,7 @@ class TextInputWidget: public Widget {
 
     void onLeftLongPressed(uint8_t value, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
-      m->initialize(nullptr, false); // clear the value
+      m->setInitialValue(" ", false); // clear the value
     };
 
 

@@ -11,13 +11,10 @@ class TextInputModel : public WidgetModel {
 
     static const uint8_t MAX_LENGTH = 64;
 
-    void initialize(const char* initValue, bool pmem = false);
-    void initialize(const __FlashStringHelper* initValue);
     bool isInitialized() { return _isInitialized; };
-    void setCursorPos(uint8_t pos);
+    void setInitialValue(const char* initValue, bool pmem = false);
+    void setInitialValue(const __FlashStringHelper* initValue);
     uint8_t getCursorPos() { return _cursorPos; };
-    void setChar(char c);
-    char getChar();
     char* getValue();
 
     // Disable moving and copying
@@ -26,13 +23,20 @@ class TextInputModel : public WidgetModel {
     TextInputModel(const TextInputModel&) = delete;
     TextInputModel& operator=(const TextInputModel&) = delete;
 
+    static char getNext(char c);
+    static char getPrev(char c);
+
   private:
     bool _isInitialized = false;
     char* _value = nullptr;
     uint8_t _valueLen = 0;
     uint8_t _cursorPos = 0;
+    void setCursorPos(uint8_t pos);
+    void setChar(char c);
+    char getChar();
     void clear();
 
+    friend class TextInputWidget;
 };
 
 

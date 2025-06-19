@@ -1,20 +1,13 @@
 #include "TextInputModel.h"
 
 TextInputModel::TextInputModel(const char* initValue, bool pmem = false) {
-  if (initValue) {
-    initialize(initValue, pmem);
-  } else {
-    _valueLen = 1;
-    _value = new char[_valueLen + 1] { '\0' };
-    _isInitialized = false;
-  }
+  setInitialValue(initValue, pmem);
 }
 
-void TextInputModel::initialize(const char* initValue, bool pmem = false) {
+void TextInputModel::setInitialValue(const char* initValue, bool pmem = false) {
   if (_value) free(_value);
   if (!initValue || (pmem ? strlen_P(initValue) : strlen(initValue)) == 0) {
-    _valueLen = 1;
-    _value = new char[_valueLen + 1] { '\0' };
+    setInitialValue(" ", false);
   } else {
     _valueLen = pmem ? strlen_P(initValue) : strlen(initValue);
     _value = new char[_valueLen + 1];
@@ -29,8 +22,8 @@ void TextInputModel::initialize(const char* initValue, bool pmem = false) {
   _isInitialized = true;
 }
 
-void TextInputModel::initialize(const __FlashStringHelper* initValue) {
-  initialize(reinterpret_cast<const char*>(initValue), true);
+void TextInputModel::setInitialValue(const __FlashStringHelper* initValue) {
+  setInitialValue(reinterpret_cast<const char*>(initValue), true);
 }
 
 void TextInputModel::setCursorPos(uint8_t pos) {
@@ -66,4 +59,74 @@ char* TextInputModel::getValue() {
 void TextInputModel::clear() {
   if (_value) free(_value);
   _value = nullptr;
+}
+
+char TextInputModel::getNext(char c) {
+  uint8_t curr = (uint8_t)c;
+  uint8_t next = curr;
+  switch (curr) {  // always start with ' ', then
+    case 32:       // lower-case, upper-case, numbers, then symbols
+      next = 97;
+      break;
+    case 122:
+      next = 65;
+      break;
+    case 90:
+      next = 48;
+      break;
+    case 57:
+      next = 33;
+      break;
+    case 47:
+      next = 58;
+      break;
+    case 64:
+      next = 91;
+      break;
+    case 96:
+      next = 123;
+      break;
+    case 126:
+      next = 32;
+      break;
+    default:
+      next++;
+      break;
+  }
+  return (char)next;
+}
+
+char TextInputModel::getPrev(char c) {
+  uint8_t curr = (uint8_t)c;
+  uint8_t prev = curr;
+  switch (curr) {  // same as onDownPressed, but reverse order
+    case 32:
+      prev = 126;
+      break;
+    case 123:
+      prev = 96;
+      break;
+    case 91:
+      prev = 64;
+      break;
+    case 58:
+      prev = 47;
+      break;
+    case 33:
+      prev = 57;
+      break;
+    case 48:
+      prev = 90;
+      break;
+    case 65:
+      prev = 122;
+      break;
+    case 97:
+      prev = 32;
+      break;
+    default:
+      prev--;
+      break;
+  }
+  return (char)prev;
 }
