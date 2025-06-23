@@ -11,13 +11,18 @@ class NavigationConfig: public UIElementBase<NavigationConfig> {
 
   public:
     template <typename... Args>
-    NavigationConfig(UIElement* topLevelElement, Args... moreTopLevelElements): UIElementBase(ROOT) {
+    NavigationConfig(UIElement* topLevelElement, Args... moreTopLevelElements): UIElementBase(UIElement::ROOT) {
       withChildren(topLevelElement, moreTopLevelElements...);
     };
 
+    // Allow moving
+    NavigationConfig(NavigationConfig&& other) noexcept : UIElementBase(static_cast<NavigationConfig&&>(other)) {}
+    // But not copying
+    NavigationConfig(const NavigationConfig&) = delete;
+    NavigationConfig& operator=(const NavigationConfig&) = delete;
+
   private:
     NavigationConfig() = delete;
-    NavigationConfig(NavigationConfig &t) = delete;
 
 };
 

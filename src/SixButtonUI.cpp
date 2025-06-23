@@ -1,23 +1,18 @@
 #include "SixButtonUI.h"
-#include "sixbuttonui/NavigationConfig.h"
-#include "sixbuttonui/Widget.h"
-#include "sixbuttonui/SelectorWidget.h"
-#include "sixbuttonui/SubMenuWidget.h"
-#include "sixbuttonui/TextInputWidget.h"
 
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
       uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
-      const NavigationConfig* navConfig, RenderFunction renderFunction):
+      RenderFunction renderFunction, NavigationConfig&& navConfig):
           _up(upButtonPin, 0), 
           _down(downButtonPin, 0), 
           _left(leftButtonPin, 0),
           _right(rightButtonPin, 0),
           _menuBack(menuBackButtonPin, 0),
           _selectEnter(enterSelectButtonPin, 0),
-          _nav(navConfig),
+          _nav(static_cast<NavigationConfig&&>(navConfig)),
           _rootElementIdx(0),
-          _currConfig(navConfig->getChild(_rootElementIdx)),
+          _currConfig(_nav.getChild(_rootElementIdx)),
           _renderFunction(renderFunction) {};
 
 void SixButtonUI::setup() {
@@ -30,7 +25,7 @@ void SixButtonUI::setup() {
   render();
 }
 
-void SixButtonUI::poll(void* state = nullptr) {
+void SixButtonUI::poll(void* state) {
   /*
    * The state object (if any) sent from Eventuino is not used. Instead,
    * the current widget's own model is passed so it can be made available
@@ -48,12 +43,29 @@ void SixButtonUI::poll(void* state = nullptr) {
 
 void SixButtonUI::render() {
   clearHandlers();
+
+  // If we've moved to a different UIElement, clean up the old state
+  // and instantiate the new _currWidget.
   maybeInitWidget();
+
+  if (!_currWidget) {
+    // No widget was created due to an error. Return without attaching
+    // any button handlers so that although SixButtonUI becomes  
+    // unresponsive, other Eventuino EventSources keep functioning.
+    return;
+  }
+
   _currWidget->populateModel(_state);
-  _currWidget->getModel()->_ui = this;
+
+  // Make the state and this SixButtonUI instance available in
+  // the widget model.
   _currWidget->getModel()->_state = _state;
+  _currWidget->getModel()->_ui = this;
+
+  // Update the ViewModel based on the current widget model
   _renderFunction(_currWidget->getViewModel());
 
+  // Re-apply all the button action handlers
   _up.onPressed = [](uint8_t value, void* widgetModel) {
     UI(widgetModel)->_currWidget->onUpPressed(value, widgetModel);
     UI(widgetModel)->render();
@@ -91,10 +103,8 @@ void SixButtonUI::render() {
   };
   _right.enableRepeat(_currWidget->onRightLongPressRepeat());
 
-  /*
-   * selectEnter and menuBack are "onReleased" to avoid unwanted
-   * actions when trying to long-press both together
-   */
+   // selectEnter and menuBack are "onReleased" to avoid unwanted
+   // actions when trying to long-press both together
   _selectEnter.onReleased = [](uint8_t value, void* widgetModel) {
     void* stateIn = static_cast<WidgetModel*>(widgetModel)->_state;
     void* stateOut = UI(widgetModel)->_currWidget->onEnter(value, widgetModel, stateIn);
@@ -105,6 +115,7 @@ void SixButtonUI::render() {
     UI(widgetModel)->menuBack();
     UI(widgetModel)->render();
   };
+
 }
 
 void SixButtonUI::goTo(UIElement* element) {
@@ -114,20 +125,32 @@ void SixButtonUI::goTo(UIElement* element) {
 void SixButtonUI::menuBack() {
   UIElement* parent = _currConfig->getParent();
   if (parent->type == UIElement::Type::ROOT) {
+
+    // Parent element is the ROOT node (NavigationConfig). Go to
+    // the next child element, not the parent.
     if (_rootElementIdx < parent->getChildCount() - 1) {
       _rootElementIdx++;
     } else {
       _rootElementIdx = 0;
     }
-    if (_currConfig->type == UIElement::Type::SUB_MENU) {
-      static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
-          static_cast<SubMenuModel*>(_currWidget->getModel())->getCurrIndex();
-    }
+
+    // Store the selected index of the current sub-menu so we can 
+    // keep it selected while toggling through the root menus.
+    // if (_currConfig->type == UIElement::Type::SUB_MENU) {
+    //   static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
+    //       static_cast<SubMenuModel*>(_currWidget->getModel())->getCurrIndex();
+    // }
+
+    // Switch to the next child element
     _currConfig = parent->getChild(_rootElementIdx);
   } else {
-    if (_currConfig->type == UIElement::Type::SUB_MENU) {
-      static_cast<SubMenuElement*>(_currConfig)->lastSelected = 0;
-    }
+    // Store the selected index of the current sub-menu so we can
+    // pre-load it if we enter back into the sub-menu.
+    // if (_currConfig->type == UIElement::Type::SUB_MENU) {
+    //   static_cast<SubMenuElement*>(_currConfig)->lastSelected = 0;
+    // }
+
+    // Switch to the parent element
     goTo(parent);
   }
 }
@@ -159,15 +182,15 @@ void SixButtonUI::maybeInitWidget() {
 Widget* SixButtonUI::newForType(UIElement::Type type) {
   Widget* out = nullptr;
   switch (type) {
-    case UIElement::Type::SUB_MENU:
-      out = new SubMenuWidget(static_cast<SubMenuElement*>(_currConfig));
-      break;
-    case UIElement::Type::SELECTOR:
-      out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
-      break;
-    case UIElement::Type::TEXT_INPUT:
-      out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
-      break;
+    // case UIElement::Type::SUB_MENU:
+    //   out = new SubMenuWidget(static_cast<SubMenuElement*>(_currConfig));
+    //   break;
+    // case UIElement::Type::SELECTOR:
+    //   out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
+    //   break;
+    // case UIElement::Type::TEXT_INPUT:
+    //   out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
+    //   break;
     // case UIElement::Type::COMBO_BOX:
 
     //   break;
@@ -192,4 +215,3 @@ WidgetModel* SixButtonUI::widgetModel() {
 SixButtonUI* SixButtonUI::UI(void* widgetModel) {
   return static_cast<WidgetModel*>(widgetModel)->_ui;
 }
-

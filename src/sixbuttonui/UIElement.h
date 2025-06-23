@@ -41,6 +41,12 @@ class UIElement {
     // Make the class pure virtual
     virtual ~UIElement() = 0;
 
+    // Allow moving
+    UIElement(UIElement&& other) noexcept;
+    // But not copying
+    UIElement(const UIElement&) = delete;
+    UIElement& operator=(const UIElement&) = delete;
+
   protected:
     UIElement(Type type): type(type) {};
     void setParent(UIElement* parent);
@@ -65,10 +71,9 @@ class UIElement {
 // Destructor impl required despite being virtual
 inline UIElement::~UIElement() {};
 
-
 /*
  * Additional pieces of the base UIElement class that need to be
- * templated so the API returns the right subtype
+ * templated so the API returns the right subtype for method-chaining
  */
 template <typename DerivedElement>
 class UIElementBase: public UIElement {
@@ -76,6 +81,13 @@ class UIElementBase: public UIElement {
   public:
     // Make the class pure virtual
     virtual ~UIElementBase() = 0;
+
+    // Allow moving
+    UIElementBase(UIElementBase&& other) noexcept : UIElement(static_cast<UIElement&&>(other)) {}
+    // But not copying
+    UIElementBase(const UIElementBase&) = delete;
+    UIElementBase& operator=(const UIElementBase&) = delete;
+
     DerivedElement* withTitle(const char* title, bool pmem = false);
     DerivedElement* withTitle(const __FlashStringHelper* title);
     DerivedElement* withInstruction(const char* instruction, bool pmem = false);
@@ -91,7 +103,6 @@ class UIElementBase: public UIElement {
     DerivedElement* withChildren() { return static_cast<DerivedElement*>(this); };
 
   private:
-    UIElementBase(UIElementBase &t) = delete;
     UIElementBase() = delete;
 
 };
@@ -100,7 +111,7 @@ inline UIElementBase<DerivedElement>::~UIElementBase() {};
 
 
 template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withTitle(const char* title, bool pmem = false) {
+DerivedElement* UIElementBase<DerivedElement>::withTitle(const char* title, bool pmem) {
   _title = title;
   _isTitlePmem = pmem;
   return static_cast<DerivedElement*>(this);
@@ -114,7 +125,7 @@ DerivedElement* UIElementBase<DerivedElement>::withTitle(const __FlashStringHelp
 };
 
 template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withInstruction(const char* instruction, bool pmem = false) {
+DerivedElement* UIElementBase<DerivedElement>::withInstruction(const char* instruction, bool pmem) {
   _instruction = instruction;
   _isInstructionPmem = pmem;
   return static_cast<DerivedElement*>(this);
@@ -128,7 +139,7 @@ DerivedElement* UIElementBase<DerivedElement>::withInstruction(const __FlashStri
 };
 
 template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withFooter(const char* footer, bool pmem = false) {
+DerivedElement* UIElementBase<DerivedElement>::withFooter(const char* footer, bool pmem) {
   _footer = footer;
   _isFooterPmem = pmem;
   return static_cast<DerivedElement*>(this);

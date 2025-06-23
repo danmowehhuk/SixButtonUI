@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "UIElement.h"
 
 const UIElement* UIElement::getParent() const {
@@ -6,7 +5,7 @@ const UIElement* UIElement::getParent() const {
 }
 
 void UIElement::setParent(UIElement* parent) {
-  if (_parent == nullptr) _parent = parent;
+  _parent = parent;
 }
 
 const uint8_t UIElement::getChildCount() const {
@@ -15,4 +14,28 @@ const uint8_t UIElement::getChildCount() const {
 
 const UIElement* UIElement::getChild(uint8_t index) const {
   return _children[index];
+}
+
+// Move constructor
+UIElement::UIElement(UIElement&& other) noexcept
+    : type(other.type),
+      _children(other._children),
+      _numChildren(other._numChildren),
+      _title(other._title),
+      _instruction(other._instruction),
+      _footer(other._footer),
+      _isTitlePmem(other._isTitlePmem),
+      _isInstructionPmem(other._isInstructionPmem),
+      _isFooterPmem(other._isFooterPmem),
+      _parent(other._parent) {
+    // Invalidate the other object so its destructor doesn't free our resources
+    other._children = nullptr;
+    other._numChildren = 0;
+
+    // Update the children's parent pointers to this new parent
+    for (uint8_t i = 0; i < _numChildren; i++) {
+        if (_children[i]) {
+            _children[i]->setParent(this);
+        }
+    }
 }
