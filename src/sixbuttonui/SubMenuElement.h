@@ -2,36 +2,69 @@
 #define _sixbuttonui_SubMenuElement_h
 
 
-#include "SubMenuModel.h"
-#include "UIElement.h"
+#include "SelectorElement.h"
+#include <Arduino.h>
 
 /*
- * SubMenuElement is a pure navigation element. It looks like a selector, but the
- * values come from the navigation config, and the action is always to 
+ * SubMenuElement is a pure navigation element. It has type SELECTOR for rendering, 
+ * but the values come from the navigation config, and the action is always to 
  * "enter" the selected node of the navigation tree. Therefore, it does not
- * take a model loader function or action function.
+ * take an onEnter function.
+ *
+ * Note that the with* methods are overridden to return SubMenuElement*
+ * so that the methods can be chained.
+ *
+ * The selection options for a sub-menu come from the nav config and cannot
+ * be changed. The title defaults to what's provided in the nav config, but
+ * it can be overridden by the inherited SelectorModelFunction. Updates to any 
+ * other model properties than the title are ignored.  
  */
-class SubMenuElement: public UIElementBase<SubMenuElement> {
+class SubMenuElement: public SelectorElement {
 
   public:
-    SubMenuElement(): UIElementBase(SUB_MENU) {};
+    SubMenuElement(): SelectorElement(UIElement::Type::SUB_MENU) {};
 
     template <typename... Args>
     SubMenuElement* withMenuItems(UIElement* childElement, Args... moreChildElements) {
-      return withChildren(childElement, moreChildElements...);
+      return static_cast<SubMenuElement*>(withChildren(childElement, moreChildElements...));
     };
 
-    /*
-     * The selection options for a sub-menu come from the nav config and cannot
-     * be changed. The title defaults to what's provided in the nav config, but
-     * it can be overridden by the provided ModelFunction
-     */
-    typedef void (*ModelFunction)(SubMenuModel* model, void* state);
-    ModelFunction modelLoader = 0;
-    SubMenuElement* withModelFunction(ModelFunction modelFunction) {
-      modelLoader = modelFunction;
+    SubMenuElement* withTitle(const char* title, bool pmem = false) {
+      SelectorElement::withTitle(title, pmem);
       return this;
     };
+
+    SubMenuElement* withTitle(const __FlashStringHelper* title) {
+      SelectorElement::withTitle(title);
+      return this;
+    };
+
+    SubMenuElement* withInstruction(const char* instruction, bool pmem = false) {
+      SelectorElement::withInstruction(instruction, pmem);
+      return this;
+    };
+
+    SubMenuElement* withInstruction(const __FlashStringHelper* instruction) {
+      SelectorElement::withInstruction(instruction);
+      return this;
+    };
+
+    SubMenuElement* withFooter(const char* footer, bool pmem = false) {
+      SelectorElement::withFooter(footer, pmem);
+      return this;
+    };
+
+    SubMenuElement* withFooter(const __FlashStringHelper* footer) {
+      SelectorElement::withFooter(footer);
+      return this;
+    };
+
+    SubMenuElement* withModelFunction(SelectorModelFunction modelFunction) {
+      SelectorElement::withModelFunction(modelFunction);
+      return this;
+    };
+
+    SelectorElement* onEnter(SelectorOnEnterFunction func) = delete;
 
     uint8_t lastSelected = 0;
 

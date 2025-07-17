@@ -2,71 +2,85 @@
 #define _sixbuttonui_SubMenuWidget_h
 
 
-#include "SubMenuModel.h"
-#include "Widget.h"
+#include "SelectorModel.h"
+#include "SelectorWidget.h"
 
-class SubMenuWidget: public Widget {
+class SubMenuWidget: public SelectorWidget {
 
   public:
-    SubMenuWidget(const SubMenuElement* config): Widget(config), _config(config) {};
-    ~SubMenuWidget() {
+    SubMenuWidget(const SubMenuElement* config): SelectorWidget(config), _config(config) {};
+    ~SubMenuWidget() override {
       if (_model) delete _model;
     };
 
   protected:
     void initModel() override {
       uint8_t count = _config->getChildCount();
-      _model = new SubMenuModel(count);
+      _model = new SelectorModel();
+      _model->setNumOptions(count);
+
       // model is static so only loads once
       _noRefreshModel = true;
     }
 
     void loadModel(void* state) override {
-      _model->_currIndex = _config->lastSelected;
-
-      // Load the non-customizable fields from the element configuration
-      uint8_t count = _config->getChildCount();
-      for (uint8_t i = 0; i < count; i++) {
-        UIElement* child = _config->getChild(i);
-        _model->setMenuItem(i, child->getTitle(), child->isTitlePmem(), child);
+      // Default title is what was set in NavigationConfig
+      if (_config->getTitle()) {
+        _model->setTitleRaw(_config->getTitle(), _config->isTitlePmem());
+      } else {
+        _model->setTitle(F(""));
       }
-
-      // Call custom model loader function
+        
+      // Call custom model loader function to optionally override the title
       if (_config->modelLoader != 0) {
         _config->modelLoader(_model, state);
       }
+
+      // Load the non-customizable fields from the element configuration
+      if (_config->getInstruction()) {
+        _model->setInstructionRaw(_config->getInstruction(), _config->isInstructionPmem());
+      }
+      if (_config->getFooter()) {
+        _model->setFooterRaw(_config->getFooter(), _config->isFooterPmem());
+      }
+
+      uint8_t count = _config->getChildCount();
+      for (uint8_t i = 0; i < count; i++) {
+        UIElement* child = _config->getChild(i);
+
+        // Force the UIElement* into a char* but set allocate* to false so it's
+        // not strdup'ed
+        _model->setOptionRaw(i, child->getTitle(), child->isTitlePmem(), 
+        reinterpret_cast<char*>(child), false, false,
+         false);
+      }
+
+      // Restore last selected if we backed into this submenu
+      _model->_currIndex = _config->lastSelected;
     };
 
     ViewModel getViewModel() override {
       ViewModel vm(UIElement::Type::SUB_MENU, _model);
       if (_model->getNumOptions() > 0) {
-        vm.setInteractiveLine(_model->getMenuItemName(), _model->isMenuItemNamePmem());
+        vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
       }
       return vm;
     };
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
-      SubMenuModel* m = static_cast<SubMenuModel*>(widgetModel);
+      SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       if (m->getNumOptions() == 0) return state; // nothing to select
       uint8_t currIdx = m->getCurrIndex();
       _config->lastSelected = currIdx;
-      m->getController()->goTo(m->getMenuItemValue());
+      char* uiePtr = m->_optionValues[m->_currIndex];
+      UIElement* element = reinterpret_cast<UIElement*>(uiePtr);
+      m->getController()->goTo(element);
       return state;
-    };
-
-    void onUpPressed(uint8_t value, void* widgetModel) override {
-      SubMenuModel* m = static_cast<SubMenuModel*>(widgetModel);
-      if (m->_currIndex > 0) m->_currIndex--;
-    };
-
-    void onDownPressed(uint8_t value, void* widgetModel) override {
-      SubMenuModel* m = static_cast<SubMenuModel*>(widgetModel);
-      if (m->_currIndex < m->_numOptions - 1) m->_currIndex++;
     };
 
   private:
     SubMenuElement* _config;
-    SubMenuModel* _model = nullptr;
+    SelectorModel* _model = nullptr;
     virtual WidgetModel* getModel() override {
       return _model;
     };

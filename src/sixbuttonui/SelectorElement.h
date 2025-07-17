@@ -29,28 +29,36 @@
  *                              Returns a void* to the same or a new 
  *                              arbitrary state object that will be passed
  *                              to the next model loader.
+ *
+ *    withFooter(...)           Displayed at the bottom of the display
  */
 class SelectorElement: public UIElementBase<SelectorElement> {
 
   public:
-    SelectorElement(): UIElementBase(SELECTOR) {};
+    SelectorElement(): UIElementBase(UIElement::Type::SELECTOR) {};
 
-    typedef void (*ModelFunction)(SelectorModel* model, void* state);
-    ModelFunction modelLoader = 0;
-    SelectorElement* withModelFunction(ModelFunction modelFunction) {
+    typedef void (*SelectorModelFunction)(SelectorModel* model, void* state);
+    SelectorModelFunction modelLoader = 0;
+    SelectorElement* withModelFunction(SelectorModelFunction modelFunction) {
       modelLoader = modelFunction;
       return this;
     };
 
-    typedef void* (*OnEnterFunction)(char* selectionName, bool namePmem, char* selectionValue, bool valuePmem, void* state);
-    OnEnterFunction onEnterFunc = 0;
-    SelectorElement* onEnter(OnEnterFunction func) {
+    typedef void* (*SelectorOnEnterFunction)(char* selectionName, bool namePmem, char* selectionValue, bool valuePmem, void* state);
+    SelectorOnEnterFunction onEnterFunc = 0;
+    SelectorElement* onEnter(SelectorOnEnterFunction func) {
       onEnterFunc = func;
       return this;
     };
 
-  private:
-    SelectorElement(SelectorElement &t) = delete;
+    // Disable moving and copying
+    SelectorElement(SelectorElement&& other) = delete;
+    SelectorElement& operator=(SelectorElement&& other) = delete;
+    SelectorElement(const SelectorElement&) = delete;
+    SelectorElement& operator=(const SelectorElement&) = delete;
+
+  protected:
+    SelectorElement(UIElement::Type type): UIElementBase(type) {};
 
 };
 

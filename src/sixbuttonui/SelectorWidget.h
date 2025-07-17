@@ -9,7 +9,7 @@ class SelectorWidget: public Widget {
 
   public:
     SelectorWidget(const SelectorElement* config): Widget(config), _config(config) {};
-    ~SelectorWidget() {
+    ~SelectorWidget() override {
       if (_model) delete _model;
     };
 
@@ -71,7 +71,7 @@ class SelectorWidget: public Widget {
 
   private:
     SelectorElement* _config;
-    SelectorModel* _model;
+    SelectorModel* _model = nullptr;
     virtual WidgetModel* getModel() override {
       return _model;
     };

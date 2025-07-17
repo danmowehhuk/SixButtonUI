@@ -58,6 +58,23 @@ void loadSelectorModel(SelectorModel* model, void* state) {
   model->setOption(1, F("two"), F("shoe"));
 }
 
+void loadSelectorModelRAM(SelectorModel* model, void* state) {
+  model->setNumOptions(2);
+  model->setCurrValue("shoe");
+  model->setOption(0, "one", "buckle");
+  model->setOption(1, "two", "shoe");
+}
+
+void* selectorOnEnter(const char* selectionName, bool namePmem, const char* selectionValue, bool valuePmem, void* state) {
+  Serial.print("Selected: ");
+  if (namePmem) Serial.print(reinterpret_cast<const __FlashStringHelper*>(selectionName));
+  else Serial.print(selectionName);
+  Serial.print(" with value: ");
+  if (valuePmem) Serial.println(reinterpret_cast<const __FlashStringHelper*>(selectionValue));
+  else Serial.println(selectionValue);
+  return state;
+}
+
 void initializeTextBox(TextInputModel* model, void* state) {
   model->setInitialValue(F("bar"));
 }
@@ -67,44 +84,64 @@ void* saveTextInput(const char* value, void* state) {
   return state;
 }
 
-NavigationConfig* myNavigationConfig() {
-  return new NavigationConfig(
-  subMenu()
-      ->withTitle(F("Main Menu"))
-      ->withInstruction(F("Press"))
-      ->withFooter(F("Back"))
-      ->withMenuItems(
-        subMenu()
-          ->withTitle(F("First")),
-        selector()
-          ->withTitle("Second") // leave non-PROGMEM for test
-          ->withInstruction("Check")
-          ->withFooter("Enter")
-          ->withModelFunction(loadSelectorModel),
-        textInput()
-          ->withTitle(F("Third"))
-          ->withInitialValue(F("foo"))
-          ->withModelFunction(initializeTextBox)
-          ->onEnter(saveTextInput),
-        subMenu()
-          ->withTitle(F("Fourth"))
-      ),
-  subMenu()
-      ->withTitle(F("Settings"))
-      ->withMenuItems(
-        subMenu()
-          ->withTitle(F("Clock")),
-        subMenu()
-          ->withTitle(F("Date"))
+SixButtonUI* initSixButtonUI() {
+  SixButtonUI* sixButtonUI = new SixButtonUI(
+        UP_BUTTON_PIN,    DOWN_BUTTON_PIN,
+        LEFT_BUTTON_PIN,  RIGHT_BUTTON_PIN,
+        MENU_BUTTON_PIN,  ENTER_BUTTON_PIN,
+        renderLCDDisplay,
+        NavigationConfig(
+          subMenu()
+            ->withTitle(F("Main Menu"))
+            ->withInstruction(F("Press"))
+            ->withFooter(F("Back"))
+            ->withMenuItems(
+              subMenu()
+                ->withTitle(F("First"))
+                ->withMenuItems(
+                  selector()
+                    ->withTitle("RAM-selector") // non-PROGMEM for test
+                    ->withInstruction("Press")
+                    ->withFooter("Enter")
+                    ->withModelFunction(loadSelectorModel)
+                    ->onEnter(selectorOnEnter),
+                  selector()
+                    ->withTitle(F("PMEM-selector")) // PROGMEM for test
+                    ->withInstruction(F("Drink"))
+                    ->withFooter(F("Back"))
+                    ->withModelFunction(loadSelectorModel)
+                    ->onEnter(selectorOnEnter),
+                  textInput()
+                    ->withTitle(F("TextBox"))
+                    ->withInitialValue(F("foo")) // model function overrides this
+                    ->withModelFunction(initializeTextBox)
+                    ->onEnter(saveTextInput)          
+                ),
+              selector()
+                ->withTitle(F("Second"))
+                ->withInstruction(F("Check"))
+                ->withFooter(F("Enter"))
+                ->withModelFunction(loadSelectorModel)
+                ->onEnter(selectorOnEnter),
+              selector()
+                ->withTitle(F("Third"))
+                ->withInstruction(F("Check"))
+                ->withFooter(F("Enter"))
+                ->withModelFunction(loadSelectorModelRAM)
+                ->onEnter(selectorOnEnter)
+            ),
+          subMenu()
+            ->withTitle(F("Settings"))
+            ->withMenuItems(
+              subMenu()
+                ->withTitle(F("Clock")),
+              subMenu()
+                ->withTitle(F("Date"))    
+        )
       )
   );
-};
-
-SixButtonUI sixButtonUI(
-      UP_BUTTON_PIN, DOWN_BUTTON_PIN, LEFT_BUTTON_PIN,
-      RIGHT_BUTTON_PIN, MENU_BUTTON_PIN, ENTER_BUTTON_PIN,
-      myNavigationConfig(), renderLCDDisplay
-);
+  return sixButtonUI;
+}
 
 Eventuino evt;
 
@@ -112,10 +149,15 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
+  Serial.println("Startup LCD");
   lcd.begin(DISPLAY_COLS, DISPLAY_ROWS);
 
-  evt.addEventSource(&sixButtonUI);
+  SixButtonUI* sixButtonUI = initSixButtonUI();
+  evt.addEventSource(sixButtonUI);
+  Serial.println("Startup Eventuino");
   evt.begin();
+
+  Serial.println("Setup complete");
 }
 
 void loop() {

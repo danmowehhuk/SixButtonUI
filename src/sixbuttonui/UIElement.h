@@ -24,7 +24,7 @@ class UIElement {
       COMBO_BOX,     // Like TEXT_INPUT, but UP/DOWN/LEFT/RIGHT move char by char through a trie of the options
       WIZARD         // Like SELECTOR, but LEFT/RIGHT move thru series of SELECTORS
     };
-    const Type type;
+    const UIElement::Type type;
     const UIElement* getParent() const;
     const uint8_t getChildCount() const;
     const UIElement* getChild(uint8_t index) const;
@@ -48,7 +48,7 @@ class UIElement {
     UIElement& operator=(const UIElement&) = delete;
 
   protected:
-    UIElement(Type type): type(type) {};
+    UIElement(UIElement::Type type): type(type) {};
     void setParent(UIElement* parent);
     UIElement** _children = nullptr;
     uint8_t _numChildren = 0;
@@ -96,7 +96,7 @@ class UIElementBase: public UIElement {
     DerivedElement* withFooter(const __FlashStringHelper* footer);
 
  protected:
-    UIElementBase(const Type type): UIElement(type) {};
+    UIElementBase(const UIElement::Type type): UIElement(type) {};
 
     template <typename... Args>
     DerivedElement* withChildren(UIElement* childElement, Args... moreChildElements);

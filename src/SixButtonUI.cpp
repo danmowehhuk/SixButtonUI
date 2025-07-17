@@ -1,4 +1,9 @@
 #include "SixButtonUI.h"
+#include "sixbuttonui/SelectorWidget.h"
+#include "sixbuttonui/SubMenuWidget.h"
+#include "sixbuttonui/TextInputWidget.h"
+#include "sixbuttonui/ViewModel.h"
+#include "sixbuttonui/WidgetModel.h"
 
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
@@ -42,6 +47,7 @@ void SixButtonUI::poll(void* state) {
 }
 
 void SixButtonUI::render() {
+
   clearHandlers();
 
   // If we've moved to a different UIElement, clean up the old state
@@ -123,7 +129,7 @@ void SixButtonUI::goTo(UIElement* element) {
 }
 
 void SixButtonUI::menuBack() {
-  UIElement* parent = _currConfig->getParent();
+  const UIElement* parent = _currConfig->getParent();
   if (parent->type == UIElement::Type::ROOT) {
 
     // Parent element is the ROOT node (NavigationConfig). Go to
@@ -136,19 +142,20 @@ void SixButtonUI::menuBack() {
 
     // Store the selected index of the current sub-menu so we can 
     // keep it selected while toggling through the root menus.
-    // if (_currConfig->type == UIElement::Type::SUB_MENU) {
-    //   static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
-    //       static_cast<SubMenuModel*>(_currWidget->getModel())->getCurrIndex();
-    // }
+    if (_currConfig->type == UIElement::Type::SUB_MENU) {
+      static_cast<SubMenuElement*>(_currConfig)->lastSelected = 
+          static_cast<SelectorModel*>(_currWidget->getModel())->getCurrIndex();
+    }
 
     // Switch to the next child element
     _currConfig = parent->getChild(_rootElementIdx);
+
   } else {
-    // Store the selected index of the current sub-menu so we can
-    // pre-load it if we enter back into the sub-menu.
-    // if (_currConfig->type == UIElement::Type::SUB_MENU) {
-    //   static_cast<SubMenuElement*>(_currConfig)->lastSelected = 0;
-    // }
+
+    // Reset the last selected value when backing out of a submenu
+    if (_currConfig->type == UIElement::Type::SUB_MENU) {
+      static_cast<SubMenuElement*>(_currConfig)->lastSelected = 0;
+    }
 
     // Switch to the parent element
     goTo(parent);
@@ -182,15 +189,15 @@ void SixButtonUI::maybeInitWidget() {
 Widget* SixButtonUI::newForType(UIElement::Type type) {
   Widget* out = nullptr;
   switch (type) {
-    // case UIElement::Type::SUB_MENU:
-    //   out = new SubMenuWidget(static_cast<SubMenuElement*>(_currConfig));
-    //   break;
-    // case UIElement::Type::SELECTOR:
-    //   out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
-    //   break;
-    // case UIElement::Type::TEXT_INPUT:
-    //   out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
-    //   break;
+    case UIElement::Type::SELECTOR:
+      out = new SelectorWidget(static_cast<const SelectorElement*>(_currConfig));
+      break;
+    case UIElement::Type::SUB_MENU:
+      out = new SubMenuWidget(static_cast<const SubMenuElement*>(_currConfig));
+      break;
+    case UIElement::Type::TEXT_INPUT:
+      out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
+      break;
     // case UIElement::Type::COMBO_BOX:
 
     //   break;
@@ -199,7 +206,8 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
     //   break;
     default:
 #if (defined(DEBUG))
-      Serial.println(String(F("ERROR: Invalid widget type: ")) + String(_currConfig->type));
+      Serial.print(F("ERROR: Invalid widget type: "));
+      Serial.println(_currConfig->type);
       delay(100);
 #endif
       break;

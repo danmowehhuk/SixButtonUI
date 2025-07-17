@@ -13,17 +13,17 @@ void SelectorModel::setNumOptions(uint8_t numOptions) {
 }
 
 void SelectorModel::setOption(uint8_t i, const char* name, const char* value, 
-      bool allocateName = false, bool allocateValue = false) {
+      bool allocateName, bool allocateValue) {
   setOptionRaw(i, name, false, value, false, allocateName, allocateValue);
 }
 
 void SelectorModel::setOption(uint8_t i, const __FlashStringHelper* name, 
-      const char* value, bool allocateValue = false) {
+      const char* value, bool allocateValue) {
   setOptionRaw(i, reinterpret_cast<const char*>(name), true, value, false, false, allocateValue);
 }
 
 void SelectorModel::setOption(uint8_t i, const char* name, 
-      const __FlashStringHelper* value, bool allocateName = false) {
+      const __FlashStringHelper* value, bool allocateName) {
   setOptionRaw(i, name, false, reinterpret_cast<const char*>(value), true, allocateName, false);
 }
 
@@ -33,7 +33,7 @@ void SelectorModel::setOption(uint8_t i, const __FlashStringHelper* name,
 }
 
 void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool namePmem, const char* value, bool valuePmem, 
-      bool allocateName = false, bool allocateValue = false) {
+      bool allocateName, bool allocateValue) {
   if (_optionNames[i] && _isOwnsOptionName[i]) {
     free(_optionNames[i]);
   }
@@ -48,7 +48,7 @@ void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool namePmem, con
   _isOptionValuePmem[i] = valuePmem;
 }
 
-void SelectorModel::setCurrValue(const char* currValue, bool allocate = false) {
+void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
   if (_currValue && _isOwnsCurrValue) {
     free(_currValue);
   }
