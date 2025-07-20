@@ -1,6 +1,7 @@
 #include <Adafruit_LiquidCrystal.h>
 #include <Eventuino.h>
 #include <SixButtonUI.h>
+#include <Arduino.h>
 
 #define UP_BUTTON_PIN    6
 #define DOWN_BUTTON_PIN  4
@@ -45,7 +46,13 @@ void renderLCDDisplay(ViewModel* viewModel) {
   }
   lcd.setCursor(viewModel->cursorPosition, 1);
   if (viewModel->cursorMode != ViewModel::CursorMode::NO_CURSOR) {
-    lcd.cursor();    
+    if (viewModel->isSelectable) {  
+      lcd.blink();       // Block (blinking) cursor
+      lcd.noCursor();
+    } else if (viewModel->cursorMode == ViewModel::CursorMode::UNDERLINE) {
+      lcd.cursor();      // Underline cursor
+      lcd.noBlink();
+    }
   }
 };
 
@@ -84,6 +91,66 @@ void* saveTextInput(const char* value, void* state) {
   return state;
 }
 
+void loadComboBox(SelectorModel* model, void* state) {
+  char* searchPrefix = model->getSearchPrefix();
+  if (!searchPrefix || strlen(searchPrefix) == 0) {
+    model->setNumOptions(3);
+    model->setOptionRaw(0, "a", false, "a", false);
+    model->setOptionRaw(1, "b", false, nullptr, false);
+    model->setOptionRaw(2, "c", false, nullptr, false);
+  } else if (strcmp(searchPrefix, "c") == 0) {
+    model->setNumOptions(3);
+    model->setOptionRaw(0, "ca", false, nullptr, false);
+    model->setOptionRaw(1, "ch", false, nullptr, false);
+    model->setOptionRaw(2, "co", false, nullptr, false);
+  } else if (strcmp(searchPrefix, "ch") == 0) {
+    model->setNumOptions(3);
+    model->setOptionRaw(0, "cha", false, nullptr, false);
+    model->setOptionRaw(1, "che", false, nullptr, false);
+    model->setOptionRaw(2, "chr", false, nullptr, false);
+  } else if (strcmp(searchPrefix, "co") == 0) {
+    model->setNumOptions(3);
+    model->setOptionRaw(0, "coa", false, nullptr, false);
+    model->setOptionRaw(1, "cob", false, "cob", false);
+    model->setOptionRaw(2, "cow", false, "cow", false);
+  } else if (strcmp(searchPrefix, "cob") == 0) {
+    model->setNumOptions(3);
+    model->setOptionRaw(0, "coba", false, nullptr, false);
+    model->setOptionRaw(1, "cobb", false, nullptr, false);
+    model->setOptionRaw(2, "cobr", false, nullptr, false);
+  } else {
+    Serial.print("No match for searchPrefix: '");
+    Serial.print(searchPrefix);
+    Serial.println("'");
+    model->setNumOptions(0);
+  }    
+}
+
+void loadComboBoxWithInitialValue(SelectorModel* model, void* state) {
+  if (model->getSearchPrefix() == nullptr) { // first load
+    model->setCurrValue("cob");
+    model->setNumOptions(1);
+    model->setOptionRaw(0, "cob", false, "cob", false);
+  } else {
+    loadComboBox(model, state);
+  }
+}
+
+void loadComboBoxEmpty(SelectorModel* model, void* state) {
+  model->setNumOptions(0);
+}
+
+extern char __heap_start, *__brkval;
+
+int freeMemory() {
+  char top;
+  if (__brkval == 0) {
+      return &top - &__heap_start;
+  } else {
+      return &top - __brkval;
+  }
+}
+
 SixButtonUI* initSixButtonUI() {
   SixButtonUI* sixButtonUI = new SixButtonUI(
         UP_BUTTON_PIN,    DOWN_BUTTON_PIN,
@@ -115,7 +182,19 @@ SixButtonUI* initSixButtonUI() {
                     ->withTitle(F("TextBox"))
                     ->withInitialValue(F("foo")) // model function overrides this
                     ->withModelFunction(initializeTextBox)
-                    ->onEnter(saveTextInput)          
+                    ->onEnter(saveTextInput),
+                  comboBox()
+                    ->withTitle(F("ComboBox1"))
+                    ->withModelFunction(loadComboBox)
+                    ->onEnter(selectorOnEnter),
+                  comboBox()
+                    ->withTitle(F("ComboBox2"))
+                    ->withModelFunction(loadComboBoxWithInitialValue)
+                    ->onEnter(selectorOnEnter),
+                  comboBox()
+                    ->withTitle(F("ComboBox3"))
+                    ->withModelFunction(loadComboBoxEmpty)
+                    ->onEnter(selectorOnEnter)
                 ),
               selector()
                 ->withTitle(F("Second"))
@@ -149,15 +228,10 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  Serial.println("Startup LCD");
   lcd.begin(DISPLAY_COLS, DISPLAY_ROWS);
-
   SixButtonUI* sixButtonUI = initSixButtonUI();
   evt.addEventSource(sixButtonUI);
-  Serial.println("Startup Eventuino");
   evt.begin();
-
-  Serial.println("Setup complete");
 }
 
 void loop() {

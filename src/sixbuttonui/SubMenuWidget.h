@@ -2,25 +2,19 @@
 #define _sixbuttonui_SubMenuWidget_h
 
 
-#include "SelectorModel.h"
 #include "SelectorWidget.h"
 
 class SubMenuWidget: public SelectorWidget {
 
   public:
     SubMenuWidget(const SubMenuElement* config): SelectorWidget(config), _config(config) {};
-    ~SubMenuWidget() override {
-      if (_model) delete _model;
-    };
+    ~SubMenuWidget() override {};
 
   protected:
     void initModel() override {
+      SelectorWidget::initModel();
       uint8_t count = _config->getChildCount();
-      _model = new SelectorModel();
       _model->setNumOptions(count);
-
-      // model is static so only loads once
-      _noRefreshModel = true;
     }
 
     void loadModel(void* state) override {
@@ -80,10 +74,6 @@ class SubMenuWidget: public SelectorWidget {
 
   private:
     SubMenuElement* _config;
-    SelectorModel* _model = nullptr;
-    virtual WidgetModel* getModel() override {
-      return _model;
-    };
 
 };
 

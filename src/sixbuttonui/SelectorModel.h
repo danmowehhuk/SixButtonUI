@@ -39,12 +39,13 @@ class SelectorModel : public WidgetModel {
     void setCurrValue(const char* currValue, bool allocate = true);
 
     // Methods for getting values from the model
-    uint8_t getCurrIndex()       { return _currIndex; };
-    uint8_t getNumOptions()      { return _numOptions; };
-    bool isOptionNamePmem()      { return _isOptionNamePmem[_currIndex]; };
-    bool isOptionValuePmem()     { return _isOptionValuePmem[_currIndex]; };
-    const char* getOptionName()  { return _optionNames[_currIndex]; };
-    const char* getOptionValue() { return _optionValues[_currIndex]; };
+    uint8_t getCurrIndex()        { return _currIndex; };
+    uint8_t getNumOptions()       { return _numOptions; };
+    bool isOptionNamePmem()       { return _isOptionNamePmem[_currIndex]; };
+    bool isOptionValuePmem()      { return _isOptionValuePmem[_currIndex]; };
+    const char* getOptionName()   { return _optionNames[_currIndex]; };
+    const char* getOptionValue()  { return _optionValues[_currIndex]; };
+    const char* getSearchPrefix() { return _searchPrefix; };
 
     // Disable moving and copying
     SelectorModel(SelectorModel&& other) = delete;
@@ -65,10 +66,15 @@ class SelectorModel : public WidgetModel {
     bool* _isOwnsOptionValue = nullptr;
     const char* _currValue = nullptr;
     bool _isOwnsCurrValue = false;
+    const char* _searchPrefix = nullptr;
+    bool _isOwnsSearchPrefix = false;
+    void setSearchPrefix(const char* searchPrefix, bool allocate = true);
+    void resetOptions();
     void clear();
 
     friend class SelectorWidget;
     friend class SubMenuWidget;
+    friend class ComboBoxWidget;
 
 };
 

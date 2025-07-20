@@ -65,6 +65,7 @@ class ViewModel {
     bool hasNext = false;
     bool hasPrev = false;
     bool isSelected = false;
+    bool isSelectable = false;
 
   private:
     UIElement::Type _type;

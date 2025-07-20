@@ -6,6 +6,7 @@
 
 namespace SixButtonUIStrings {
 
+  bool startsWith(const char* str, const char* prefix);
   char* strdup_P(const char* progmemStr);
   char* strdup(const __FlashStringHelper* progmemStr);
 

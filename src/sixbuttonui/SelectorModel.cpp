@@ -1,6 +1,9 @@
 #include "SelectorModel.h"
 
 void SelectorModel::setNumOptions(uint8_t numOptions) {
+  if (_numOptions > 0) {
+    resetOptions();
+  }
   _numOptions = numOptions;
   if (numOptions > 0) {
     _optionNames = new const char*[_numOptions]();
@@ -56,17 +59,17 @@ void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
   _isOwnsCurrValue = allocate;
 }
 
-void SelectorModel::clear() {
-  for (uint8_t i = 0; i < _numOptions; i++) {
-    if (_optionNames[i] && _isOwnsOptionName[i]) {
-      free(_optionNames[i]);
-    }
-    if (_optionValues[i] && _isOwnsOptionValue[i]) {
-      free(_optionValues[i]);
-    }
+void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
+  if (_searchPrefix && _isOwnsSearchPrefix) {
+    free(_searchPrefix);
   }
-  if (_currValue && _isOwnsCurrValue) {
-    free(_currValue);
+  _searchPrefix = allocate ? strdup(searchPrefix) : searchPrefix;
+  _isOwnsSearchPrefix = allocate;
+}
+
+void SelectorModel::resetOptions() {
+  for (uint8_t i = 0; i < _numOptions; i++) {
+    setOptionRaw(i, nullptr, false, nullptr, false, false, false);
   }
   delete[] _optionNames;
   delete[] _isOptionNamePmem;
@@ -80,8 +83,20 @@ void SelectorModel::clear() {
   _optionValues = nullptr;
   _isOptionValuePmem = nullptr;
   _isOwnsOptionValue = nullptr;
+  _numOptions = 0;
+}
+
+void SelectorModel::clear() {
+  resetOptions();
+  if (_currValue && _isOwnsCurrValue) {
+    free(_currValue);
+  }
+  if (_searchPrefix && _isOwnsSearchPrefix) {
+    free(_searchPrefix);
+  }
   _currValue = nullptr;
   _isOwnsCurrValue = false;
-  _numOptions = 0;
+  _searchPrefix = nullptr;
+  _isOwnsSearchPrefix = false;
   _currIndex = 0;
 }

@@ -4,6 +4,14 @@
 
 namespace SixButtonUIStrings {
 
+  bool startsWith(const char* str, const char* prefix) {
+    if (!str || !prefix) return false;
+    while (*prefix) {
+      if (*str++ != *prefix++) return false;
+    }
+    return true;
+  }
+
   char* strdup_P(const char* progmemStr) {
     if (!progmemStr) return nullptr;
     size_t len = strlen_P(progmemStr);

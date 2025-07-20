@@ -2,6 +2,7 @@
 #include "sixbuttonui/SelectorWidget.h"
 #include "sixbuttonui/SubMenuWidget.h"
 #include "sixbuttonui/TextInputWidget.h"
+#include "sixbuttonui/ComboBoxWidget.h"
 #include "sixbuttonui/ViewModel.h"
 #include "sixbuttonui/WidgetModel.h"
 
@@ -198,9 +199,9 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
     case UIElement::Type::TEXT_INPUT:
       out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
       break;
-    // case UIElement::Type::COMBO_BOX:
-
-    //   break;
+    case UIElement::Type::COMBO_BOX:
+      out = new ComboBoxWidget(static_cast<ComboBoxElement*>(_currConfig));
+      break;
     // case UIElement::Type::WIZARD:
 
     //   break;

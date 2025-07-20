@@ -8,6 +8,7 @@
 #include "sixbuttonui/SelectorElement.h"
 #include "sixbuttonui/SubMenuElement.h"
 #include "sixbuttonui/TextInputElement.h"
+#include "sixbuttonui/ComboBoxElement.h"
 #include "sixbuttonui/UIElement.h"
 #include "sixbuttonui/ViewModel.h"
 #include "sixbuttonui/Widget.h"
@@ -75,6 +76,7 @@ namespace sixbuttonui {
   inline SelectorElement*  selector()   { return new SelectorElement();   };
   inline SubMenuElement*   subMenu()    { return new SubMenuElement();    };
   inline TextInputElement* textInput()  { return new TextInputElement();  };
+  inline ComboBoxElement*  comboBox()   { return new ComboBoxElement();   };
 
 };
 
