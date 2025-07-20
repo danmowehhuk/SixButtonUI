@@ -40,6 +40,31 @@ void initializeTextBox(TextInputModel* model, void* state) {
   model->setInitialValue(F("bar"));
 }
 
+void loadBasicComboBoxModel(SelectorModel* model, void* state) {
+  const char* searchPrefix = model->getSearchPrefix();
+  if (!searchPrefix || searchPrefix[0] == '\0') {
+    model->setNumOptions(2);
+    model->setOptionRaw(0, PSTR("a"), true, PSTR("a"), true);
+    model->setOptionRaw(1, "b", false, nullptr, false);
+  } else if (strcmp(searchPrefix, "b") == 0) {
+    model->setNumOptions(2);
+    model->setOptionRaw(0, "e", false, PSTR("be"), true);
+    model->setOptionRaw(1, PSTR("r"), true, nullptr, false);
+  } else {
+    model->setNumOptions(0);
+  }
+}
+
+void loadPreloadedComboBoxModel(SelectorModel* model, void* state) {
+  if (!model->getSearchPrefix()) { // not initialized
+    model->setCurrValue("be");
+    model->setNumOptions(1);
+    model->setOption(0, F("be"), F("be"));
+  } else {
+    loadBasicComboBoxModel(model, state);
+  }
+}
+
 char* capturedSelectionName = nullptr;
 char* capturedSelectionValue = nullptr;
 void* captureSelectorValue(const char* selectionName, bool namePmem, const char* selectionValue, bool valuePmem, void* state) {
@@ -86,7 +111,15 @@ SixButtonUI* initSixButtonUI() {
                     ->withTitle(F("TextBox"))
                     ->withInitialValue(F("foo")) // model function overrides this
                     ->withModelFunction(initializeTextBox)
-                    ->onEnter(captureTextValue)          
+                    ->onEnter(captureTextValue),
+                  comboBox()
+                    ->withTitle(F("DefaultComboBox"))
+                    ->withModelFunction(loadBasicComboBoxModel)
+                    ->onEnter(captureSelectorValue),
+                  comboBox()
+                    ->withTitle(F("PreloadedComboBox"))
+                    ->withModelFunction(loadPreloadedComboBoxModel)
+                    ->onEnter(captureSelectorValue)
                 ),
               selector()
                 ->withTitle(F("Second"))

@@ -30,6 +30,9 @@ class SelectorModel : public WidgetModel {
     // By default, char*'s are strdup'ed into their own arrays managed by
     // this class. If using string literals, you can set allocate...=false
     // to prevent freeing of the memory
+    //
+    // When used with a ComboBoxWidget, the options should be set to 
+    // completions that will be appended to the search prefix
     void setOption(uint8_t index, const char* name, const char* value, bool allocateName = true, bool allocateValue = true);
     void setOption(uint8_t index, const __FlashStringHelper* name, const char* value, bool allocateValue = true);
     void setOption(uint8_t index, const char* name, const __FlashStringHelper* value, bool allocateName = true);
@@ -37,6 +40,10 @@ class SelectorModel : public WidgetModel {
     void setOptionRaw(uint8_t i, const char* name, bool namePmem, const char* value, bool valuePmem, 
           bool allocateName = false, bool allocateValue = false);
     void setCurrValue(const char* currValue, bool allocate = true);
+
+    // Set an initial selection
+    bool selectOptionWithName(char* name);
+    bool selectOptionWithValue(char* value);
 
     // Methods for getting values from the model
     uint8_t getCurrIndex()        { return _currIndex; };
@@ -68,6 +75,7 @@ class SelectorModel : public WidgetModel {
     bool _isOwnsCurrValue = false;
     const char* _searchPrefix = nullptr;
     bool _isOwnsSearchPrefix = false;
+    bool selectOptionBy(char* key, const char** arr, const bool* isPmemArr);
     void setSearchPrefix(const char* searchPrefix, bool allocate = true);
     void resetOptions();
     void clear();

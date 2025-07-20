@@ -52,7 +52,13 @@ ViewModel::ViewModel(ViewModel&& other) noexcept:
       _interactiveLine(other._interactiveLine),
       _isInteractivePmem(other._isInteractivePmem),
       _footerLine(other._footerLine),
-      _isFooterPmem(other._isFooterPmem) {
+      _isFooterPmem(other._isFooterPmem),
+      hasPrev(other.hasPrev),
+      hasNext(other.hasNext),
+      isSelected(other.isSelected),
+      isSelectable(other.isSelectable),
+      cursorMode(other.cursorMode),
+      cursorPosition(other.cursorPosition) {
   other._titleLine                = nullptr;
   other._instructionLine          = nullptr;
   other._interactiveLine          = nullptr;
@@ -70,6 +76,12 @@ ViewModel& ViewModel::operator=(ViewModel&& other) noexcept {
     _isInteractivePmem = other._isInteractivePmem;
     _footerLine = other._footerLine;
     _isFooterPmem = other._isFooterPmem;
+    hasPrev = other.hasPrev;
+    hasNext = other.hasNext;
+    isSelected = other.isSelected;
+    isSelectable = other.isSelectable;
+    cursorMode = other.cursorMode;
+    cursorPosition = other.cursorPosition;
     other._titleLine                = nullptr;
     other._instructionLine          = nullptr;
     other._interactiveLine          = nullptr;

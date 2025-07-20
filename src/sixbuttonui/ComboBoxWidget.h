@@ -13,7 +13,10 @@ class ComboBoxWidget: public SelectorWidget {
 
   public:
   ComboBoxWidget(const ComboBoxElement* config): SelectorWidget(config), _config(config) {};
-    ~ComboBoxWidget() override {};
+    ~ComboBoxWidget() override {
+      if (_prevSearchPrefix) free(_prevSearchPrefix);
+      if (_tmpInteractiveLine) free(_tmpInteractiveLine);
+    };
 
   protected:
     void initModel() override {
@@ -32,7 +35,7 @@ class ComboBoxWidget: public SelectorWidget {
 
       if (_isFirstModelLoad) {
         _model->setSearchPrefix("", true);
-        if (_model->_currValue && selectOptionWithValue(_model->_currValue)) {
+        if (_model->_currValue && _model->selectOptionWithValue(_model->_currValue)) {
           // The matching option name will now be used as the search prefix
           char* searchPrefix = dupOptionName();
           _model->setSearchPrefix(searchPrefix, true);
@@ -44,7 +47,10 @@ class ComboBoxWidget: public SelectorWidget {
       } else if (_prevSearchPrefix && strlen(_prevSearchPrefix) > strlen(_model->getSearchPrefix())) {
         // When moving the cursor left, select the previous search prefix so the selection doesn't
         // jump to the first option, breaking ux continuity
-        selectOptionWithName(_prevSearchPrefix);
+        if (_prevSearchPrefix && strlen(_prevSearchPrefix) > 0) {
+          char lastChar[2] = { _prevSearchPrefix[strlen(_prevSearchPrefix) - 1], '\0' };
+          _model->selectOptionWithName(lastChar);
+        }
       }
 
       if (strlen(_model->getSearchPrefix()) > 0 && _model->getNumOptions() == 0) {
@@ -68,36 +74,29 @@ class ComboBoxWidget: public SelectorWidget {
           // Indicates that one or more options don't start with the search prefix
           vm.setInteractiveLine(PSTR("  err"), true);
         } else {
-          vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
-          if (_model->getOptionValue() != nullptr) {
-            vm.isSelectable = true;
+          if (_isInitialRender) {
+            // Option name is initial value - display as-is
+            vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
+          } else {
+            // Prepend option name with search prefix
+            setTmpInteractiveLine();
+            vm.setInteractiveLine(_tmpInteractiveLine, false);
           }
           vm.cursorPosition = _cursorPos;
+          if (_model->getOptionValue() == nullptr) {
+            vm.isSelectable = false;
+          } else {
+            vm.isSelectable = true;
+          }  
         }
-        if (_isInitialRender) {
+
+      if (_isInitialRender) {
           vm.cursorMode = ViewModel::NO_CURSOR;
         } else {
           vm.cursorMode = ViewModel::UNDERLINE;
         }
       }
       return vm;
-    };
-
-    void* onEnter(uint8_t value, void* widgetModel, void* state) override {
-      SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      if (m->_numOptions > 0) {
-        char* selectionValue = m->_optionValues[m->_currIndex];
-        if (selectionValue != nullptr) {
-          m->getController()->goTo(_config->getParent());
-          if (_config->onEnterFunc != 0) {
-            char* selectionName = m->_optionNames[m->_currIndex];
-            bool isNamePmem = m->_isOptionNamePmem[m->_currIndex];
-            bool isValuePmem = m->_isOptionValuePmem[m->_currIndex];
-            state = _config->onEnterFunc(selectionName, isNamePmem, selectionValue, isValuePmem, state);
-          }
-        }
-      }
-      return state;
     };
 
     /*
@@ -164,22 +163,36 @@ class ComboBoxWidget: public SelectorWidget {
     bool _doModelReload = true;
     bool _invalidOption = false;
     char* _prevSearchPrefix = nullptr;
+    char* _tmpInteractiveLine = nullptr;
 
     void setPrevSearchPrefix(const char* prefix) {
       if (_prevSearchPrefix) free(_prevSearchPrefix);
       _prevSearchPrefix = strdup(prefix);
     }
 
+    void setTmpInteractiveLine() {
+      if (_tmpInteractiveLine) free(_tmpInteractiveLine);
+      _tmpInteractiveLine = dupOptionName();
+    }
+
     char* dupOptionName() {
-      char* optionName = _model->isOptionNamePmem() ? strdup_P(_model->getOptionName())
-          : strdup(_model->getOptionName());
-      return optionName;
+      return dupOptionName(_model->_currIndex);
     }
 
     char* dupOptionName(uint8_t i) {
+      const char* searchPrefix = _model->_searchPrefix ? _model->_searchPrefix : "";
+      size_t prefixLen = strlen(searchPrefix);
       char* optionName = _model->_isOptionNamePmem[i] ? strdup_P(_model->_optionNames[i])
           : strdup(_model->_optionNames[i]);
-      return optionName;
+      size_t optionLen = strlen(optionName);
+      char* result = (char*)malloc(prefixLen + optionLen + 1);
+      if (result) {
+        memcpy(result, searchPrefix, prefixLen);
+        memcpy(result + prefixLen, optionName, optionLen);
+        result[prefixLen + optionLen] = '\0';
+      }
+      free(optionName);
+      return result;
     }
 
     void validateOptions() {

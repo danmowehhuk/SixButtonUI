@@ -100,24 +100,24 @@ void loadComboBox(SelectorModel* model, void* state) {
     model->setOptionRaw(2, "c", false, nullptr, false);
   } else if (strcmp(searchPrefix, "c") == 0) {
     model->setNumOptions(3);
-    model->setOptionRaw(0, "ca", false, nullptr, false);
-    model->setOptionRaw(1, "ch", false, nullptr, false);
-    model->setOptionRaw(2, "co", false, nullptr, false);
+    model->setOptionRaw(0, "a", false, nullptr, false);
+    model->setOptionRaw(1, "herry", false, "cherry", false);
+    model->setOptionRaw(2, "o", false, nullptr, false);
   } else if (strcmp(searchPrefix, "ch") == 0) {
     model->setNumOptions(3);
-    model->setOptionRaw(0, "cha", false, nullptr, false);
-    model->setOptionRaw(1, "che", false, nullptr, false);
-    model->setOptionRaw(2, "chr", false, nullptr, false);
+    model->setOptionRaw(0, "a", false, nullptr, false);
+    model->setOptionRaw(1, "e", false, nullptr, false);
+    model->setOptionRaw(2, "r", false, nullptr, false);
   } else if (strcmp(searchPrefix, "co") == 0) {
     model->setNumOptions(3);
-    model->setOptionRaw(0, "coa", false, nullptr, false);
-    model->setOptionRaw(1, "cob", false, "cob", false);
-    model->setOptionRaw(2, "cow", false, "cow", false);
+    model->setOptionRaw(0, "a", false, nullptr, false);
+    model->setOptionRaw(1, "b", false, "cob", false);
+    model->setOptionRaw(2, "w", false, "cow", false);
   } else if (strcmp(searchPrefix, "cob") == 0) {
     model->setNumOptions(3);
-    model->setOptionRaw(0, "coba", false, nullptr, false);
-    model->setOptionRaw(1, "cobb", false, nullptr, false);
-    model->setOptionRaw(2, "cobr", false, nullptr, false);
+    model->setOptionRaw(0, "a", false, nullptr, false);
+    model->setOptionRaw(1, "b", false, nullptr, false);
+    model->setOptionRaw(2, "r", false, nullptr, false);
   } else {
     Serial.print("No match for searchPrefix: '");
     Serial.print(searchPrefix);

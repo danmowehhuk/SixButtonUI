@@ -28,6 +28,10 @@ class SixButtonUITestHelper {
     void pressAndReleaseSelectEnter() {
       pressAndRelease(&(_ui->_selectEnter));
     };
+    void longPressLeft() {
+      longPress(&(_ui->_left));
+    }
+
 
     void reset() {
       resetLastSelected(&(_ui->_nav));
@@ -81,6 +85,11 @@ class SixButtonUITestHelper {
       WidgetModel* _currWidgetModel = _ui->widgetModel();
       if (b->onPressed != 0) b->onPressed(b->getValue(), _currWidgetModel);
       if (b->onReleased != 0) b->onReleased(b->getValue(), _currWidgetModel);
+    };
+
+    void longPress(Button* b) {
+      WidgetModel* _currWidgetModel = _ui->widgetModel();
+      if (b->onLongPress != 0) b->onLongPress(b->getValue(), _currWidgetModel);
     };
 
     void resetLastSelected(UIElement* element) {

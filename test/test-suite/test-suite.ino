@@ -116,6 +116,66 @@ void testTextInputWidget(TestInvocation* t) {
   t->assertEqual(MODEL.getTitleLine_P(), F("First"), F("Should have returned to parent"));
 }
 
+void testTextInputWidget_cursor(TestInvocation* t) {
+  t->setName(F("TextInput cursor functionality"));
+  t->assert(helper.goToNamedElement(F("TextBox")), F("Element not found"));
+  t->assertEqual(MODEL.getInteractiveLine(), F("bar"));
+  t->assert(MODEL.cursorPosition == 2, F("Expected cursor at 2"));
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getInteractiveLine(), F("bar "));
+  t->assert(MODEL.cursorPosition == 3, F("Expected cursor at 3"));
+  helper.longPressLeft();
+  t->assertEqual(MODEL.getInteractiveLine(), F(" "));
+  t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+  helper.pressAndReleaseLeft();
+  t->assert(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
+}
+
+void testDefaultComboBoxWidget(TestInvocation* t) {
+  t->setName(F("ComboBox core functionality"));
+  t->assert(helper.goToNamedElement(F("DefaultComboBox")), F("Element not found"));
+  t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' on initial load"));
+  t->assert(MODEL.isSelectable, F("Expected 'a' to be selectable"));
+  t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+  helper.pressAndReleaseLeft(); // no change, already max left
+  t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected no change onLeft"));
+  t->assert(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
+  helper.pressAndReleaseDown();
+  t->assertEqual(MODEL.getInteractiveLine(), F("b"));
+  t->assert(!MODEL.isSelectable, F("Expected 'b' NOT to be selectable"));
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  t->assert(MODEL.isSelectable, F("Expected 'be' to be selectable"));
+  t->assert(MODEL.cursorPosition == 1, F("Expected cursor at 1"));
+  helper.pressAndReleaseLeft(); 
+  t->assertEqual(MODEL.getInteractiveLine(), F("b"), F("Should have retained 'b'"));
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  helper.longPressLeft();
+  t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' after long-hold left"));
+  t->assert(MODEL.isSelectable, F("Expected 'a' to be selectable after long-hold left"));
+  helper.pressAndReleaseDown();
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  helper.pressAndReleaseRight(); // no change, already max right
+  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  t->assert(MODEL.cursorPosition == 1, F("Expected cursor still at 1"));
+}
+
+void testPreloadedComboBoxWidget(TestInvocation* t) {
+  t->setName(F("ComboBox with preloaded initial value"));
+  t->assert(helper.goToNamedElement(F("PreloadedComboBox")), F("Element not found"));
+  t->assertEqual(MODEL.getInteractiveLine_P(), F("be"), F("Expected 'be' on initial load"));
+  t->assert(MODEL.isSelectable, F("Expected 'be' to be selectable"));
+  t->assert(MODEL.cursorMode == ViewModel::CursorMode::NO_CURSOR, F("Expected no cursor"));
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  t->assert(MODEL.cursorMode != ViewModel::CursorMode::NO_CURSOR, F("Expected cursor active"));
+  t->assert(MODEL.cursorPosition == 1, F("Expected cursor at 1 after right")); // no other 'be' completions
+  helper.pressAndReleaseLeft();
+  t->assertEqual(MODEL.getInteractiveLine(), F("b"));
+  t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+}
 
 
 void after() {
@@ -147,6 +207,9 @@ void setup() {
     testSelectorWidget_ramOptions,
     testSelectorWidget_pmemOptions,
     testTextInputWidget,
+    testTextInputWidget_cursor,
+    testDefaultComboBoxWidget,
+    testPreloadedComboBoxWidget,
     testRootLevelSelectionPreserved,
     testBackToSubMenu,
     testSubMenuWidget

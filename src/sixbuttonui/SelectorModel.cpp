@@ -67,6 +67,35 @@ void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
   _isOwnsSearchPrefix = allocate;
 }
 
+bool SelectorModel::selectOptionWithValue(char* value) {
+  return selectOptionBy(value, _optionValues, _isOptionValuePmem);
+}
+
+bool SelectorModel::selectOptionWithName(char* name) {
+  return selectOptionBy(name, _optionNames, _isOptionNamePmem);
+}
+
+bool SelectorModel::selectOptionBy(char* key, const char** arr, const bool* isPmemArr) {
+  _currIndex = 0;
+  if (!key || strlen(key) == 0) return true;
+  bool match = false;
+  for (uint8_t i = 0; i < _numOptions; i++) {
+    if ((!isPmemArr[i] && strcmp(key, arr[i]) == 0)
+        || (isPmemArr[i] && strcmp_P(key, arr[i]) == 0)) {
+      _currIndex = i;
+      match = true;
+      break;
+    }
+  }
+#if defined(DEBUG)
+  if (!match) {
+    Serial.print(F("Option not found for key: "));
+    Serial.println(key);
+  }
+#endif
+  return match;
+}
+
 void SelectorModel::resetOptions() {
   for (uint8_t i = 0; i < _numOptions; i++) {
     setOptionRaw(i, nullptr, false, nullptr, false, false, false);
