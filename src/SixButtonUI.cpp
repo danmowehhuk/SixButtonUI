@@ -1,10 +1,11 @@
 #include "SixButtonUI.h"
+#include "sixbuttonui/ComboBoxWidget.h"
 #include "sixbuttonui/SelectorWidget.h"
 #include "sixbuttonui/SubMenuWidget.h"
 #include "sixbuttonui/TextInputWidget.h"
-#include "sixbuttonui/ComboBoxWidget.h"
 #include "sixbuttonui/ViewModel.h"
 #include "sixbuttonui/WidgetModel.h"
+#include "sixbuttonui/WizardWidget.h"
 
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
@@ -202,9 +203,9 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
     case UIElement::Type::COMBO_BOX:
       out = new ComboBoxWidget(static_cast<ComboBoxElement*>(_currConfig));
       break;
-    // case UIElement::Type::WIZARD:
-
-    //   break;
+    case UIElement::Type::WIZARD:
+      out = new WizardWidget(static_cast<WizardElement*>(_currConfig));
+      break;
     default:
 #if (defined(DEBUG))
       Serial.print(F("ERROR: Invalid widget type: "));

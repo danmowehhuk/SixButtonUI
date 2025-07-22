@@ -53,14 +53,6 @@ class SubMenuWidget: public SelectorWidget {
       _model->_currIndex = _config->lastSelected;
     };
 
-    ViewModel getViewModel() override {
-      ViewModel vm(UIElement::Type::SUB_MENU, _model);
-      if (_model->getNumOptions() > 0) {
-        vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
-      }
-      return vm;
-    };
-
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       if (m->getNumOptions() == 0) return state; // nothing to select
@@ -74,6 +66,14 @@ class SubMenuWidget: public SelectorWidget {
 
   private:
     SubMenuElement* _config;
+
+    ViewModel getViewModel() override {
+      ViewModel vm(UIElement::Type::SUB_MENU, _model);
+      if (_model->getNumOptions() > 0) {
+        vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
+      }
+      return vm;
+    };
 
 };
 

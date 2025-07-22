@@ -4,14 +4,15 @@
 
 #include <Eventuino.h>
 #include <eventuino/Button.h>
+#include "sixbuttonui/ComboBoxElement.h"
 #include "sixbuttonui/NavigationConfig.h"
 #include "sixbuttonui/SelectorElement.h"
 #include "sixbuttonui/SubMenuElement.h"
 #include "sixbuttonui/TextInputElement.h"
-#include "sixbuttonui/ComboBoxElement.h"
 #include "sixbuttonui/UIElement.h"
 #include "sixbuttonui/ViewModel.h"
 #include "sixbuttonui/Widget.h"
+#include "sixbuttonui/WizardElement.h"
 
 using namespace eventuino;
 
@@ -77,6 +78,7 @@ namespace sixbuttonui {
   inline SubMenuElement*   subMenu()    { return new SubMenuElement();    };
   inline TextInputElement* textInput()  { return new TextInputElement();  };
   inline ComboBoxElement*  comboBox()   { return new ComboBoxElement();   };
+  inline WizardElement*    wizard()     { return new WizardElement();     };
 
 };
 

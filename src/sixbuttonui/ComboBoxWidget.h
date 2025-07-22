@@ -12,7 +12,7 @@ using namespace SixButtonUIStrings;
 class ComboBoxWidget: public SelectorWidget {
 
   public:
-  ComboBoxWidget(const ComboBoxElement* config): SelectorWidget(config), _config(config) {};
+    ComboBoxWidget(const ComboBoxElement* config): SelectorWidget(config), _config(config) {};
     ~ComboBoxWidget() override {
       if (_prevSearchPrefix) free(_prevSearchPrefix);
       if (_tmpInteractiveLine) free(_tmpInteractiveLine);
@@ -23,7 +23,7 @@ class ComboBoxWidget: public SelectorWidget {
       SelectorWidget::initModel();
       // model is dynamic, so attempt reload on every render
       _noRefreshModel = false;
-    }
+    };
 
     void loadModel(void* state) override {
       if (!_doModelReload) return; // up/down triggers re-render but not reload
@@ -65,38 +65,6 @@ class ComboBoxWidget: public SelectorWidget {
       _cursorPos = strlen(_model->_searchPrefix);
       validateOptions();
       _doModelReload = false;
-    };
-
-    ViewModel getViewModel() override {
-      ViewModel vm(UIElement::Type::COMBO_BOX, _model);
-      if (_model->getNumOptions() > 0) {
-        if (_invalidOption) {
-          // Indicates that one or more options don't start with the search prefix
-          vm.setInteractiveLine(PSTR("  err"), true);
-        } else {
-          if (_isInitialRender) {
-            // Option name is initial value - display as-is
-            vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
-          } else {
-            // Prepend option name with search prefix
-            setTmpInteractiveLine();
-            vm.setInteractiveLine(_tmpInteractiveLine, false);
-          }
-          vm.cursorPosition = _cursorPos;
-          if (_model->getOptionValue() == nullptr) {
-            vm.isSelectable = false;
-          } else {
-            vm.isSelectable = true;
-          }  
-        }
-
-      if (_isInitialRender) {
-          vm.cursorMode = ViewModel::NO_CURSOR;
-        } else {
-          vm.cursorMode = ViewModel::UNDERLINE;
-        }
-      }
-      return vm;
     };
 
     /*
@@ -168,16 +136,16 @@ class ComboBoxWidget: public SelectorWidget {
     void setPrevSearchPrefix(const char* prefix) {
       if (_prevSearchPrefix) free(_prevSearchPrefix);
       _prevSearchPrefix = strdup(prefix);
-    }
+    };
 
     void setTmpInteractiveLine() {
       if (_tmpInteractiveLine) free(_tmpInteractiveLine);
       _tmpInteractiveLine = dupOptionName();
-    }
+    };
 
     char* dupOptionName() {
       return dupOptionName(_model->_currIndex);
-    }
+    };
 
     char* dupOptionName(uint8_t i) {
       const char* searchPrefix = _model->_searchPrefix ? _model->_searchPrefix : "";
@@ -193,7 +161,7 @@ class ComboBoxWidget: public SelectorWidget {
       }
       free(optionName);
       return result;
-    }
+    };
 
     void validateOptions() {
       for (uint8_t i = 0; i < _model->_numOptions; i++) {
@@ -210,7 +178,39 @@ class ComboBoxWidget: public SelectorWidget {
         }
         free(optionName);
       }
-    }
+    };
+
+    ViewModel getViewModel() override {
+      ViewModel vm(UIElement::Type::COMBO_BOX, _model);
+      if (_model->getNumOptions() > 0) {
+        if (_invalidOption) {
+          // Indicates that one or more options don't start with the search prefix
+          vm.setInteractiveLine(PSTR("  err"), true);
+        } else {
+          if (_isInitialRender) {
+            // Option name is initial value - display as-is
+            vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
+          } else {
+            // Prepend option name with search prefix
+            setTmpInteractiveLine();
+            vm.setInteractiveLine(_tmpInteractiveLine, false);
+          }
+          vm.cursorPosition = _cursorPos;
+          if (_model->getOptionValue() == nullptr) {
+            vm.isSelectable = false;
+          } else {
+            vm.isSelectable = true;
+          }  
+        }
+
+      if (_isInitialRender) {
+          vm.cursorMode = ViewModel::NO_CURSOR;
+        } else {
+          vm.cursorMode = ViewModel::UNDERLINE;
+        }
+      }
+      return vm;
+    };
 
 };
 

@@ -13,11 +13,12 @@ class TextInputWidget: public Widget {
       if (_model) delete _model;
     };
 
+  protected:
     void initModel() override {
       _model = new TextInputModel(_config->getInitialValue(), _config->isInitialValuePmem());
       // model is static so only loads once
       _noRefreshModel = true;
-    }
+    };
 
     void loadModel(void* state) override {
       if (_config->modelLoader != 0) {
@@ -25,15 +26,6 @@ class TextInputWidget: public Widget {
       }
     };
 
-    ViewModel getViewModel() override {
-      ViewModel vm(UIElement::Type::TEXT_INPUT, _model);
-      vm.setInteractiveLine(_model->getValue(), false);
-      vm.cursorMode = ViewModel::CursorMode::UNDERLINE;
-      vm.cursorPosition = _model->getCursorPos();
-      return vm;
-    };
-
-  protected:
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       m->getController()->goTo(_config->getParent());
@@ -89,8 +81,17 @@ class TextInputWidget: public Widget {
   private:
     TextInputElement* _config;
     TextInputModel* _model;
+
     virtual WidgetModel* getModel() override {
       return _model;
+    };
+
+    ViewModel getViewModel() override {
+      ViewModel vm(UIElement::Type::TEXT_INPUT, _model);
+      vm.setInteractiveLine(_model->getValue(), false);
+      vm.cursorMode = ViewModel::CursorMode::UNDERLINE;
+      vm.cursorPosition = _model->getCursorPos();
+      return vm;
     };
 
 };

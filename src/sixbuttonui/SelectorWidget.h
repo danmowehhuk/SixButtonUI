@@ -13,6 +13,9 @@ class SelectorWidget: public Widget {
       if (_model) delete _model;
     };
 
+  protected:
+    SelectorModel* _model = nullptr;
+
     virtual void initModel() override {
       _model = new SelectorModel();
       // model is static so only loads once
@@ -25,17 +28,6 @@ class SelectorWidget: public Widget {
       }
       _model->selectOptionWithValue(_model->_currValue);
     };
-
-    ViewModel getViewModel() override {
-      ViewModel vm(UIElement::Type::SELECTOR, _model);
-      if (_model->getNumOptions() > 0) {
-        vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
-      }
-      return vm;
-    };
-
-  protected:
-    SelectorModel* _model = nullptr;
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
@@ -67,8 +59,17 @@ class SelectorWidget: public Widget {
 
   private:
     SelectorElement* _config;
+
     virtual WidgetModel* getModel() override {
       return _model;
+    };
+
+    ViewModel getViewModel() override {
+      ViewModel vm(UIElement::Type::SELECTOR, _model);
+      if (_model->getNumOptions() > 0) {
+        vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
+      }
+      return vm;
     };
 
 };
