@@ -2,26 +2,37 @@
 #define _sixbuttonui_WizardElement_h
 
 
+#include "SelectorElement.h"
 #include "UIElement.h"
+#include "WizardModel.h"
 
 class WizardElement: public UIElementBase<WizardElement> {
 
   public:
-  WizardElement(): UIElementBase(UIElement::Type::WIZARD) {};
+    WizardElement(): UIElementBase(UIElement::Type::WIZARD) {};
 
-    // typedef void (*SelectorModelFunction)(SelectorModel* model, void* state);
-    // SelectorModelFunction modelLoader = 0;
-    // SelectorElement* withModelFunction(SelectorModelFunction modelFunction) {
-    //   modelLoader = modelFunction;
-    //   return this;
-    // };
+    template <typename... Args>
+    WizardElement* withSteps(SelectorElement* selectorElement, Args... moreSelectorElements) {
+      return static_cast<WizardElement*>(withChildren(selectorElement, moreSelectorElements...));
+    };
 
-    // typedef void* (*SelectorOnEnterFunction)(char* selectionName, bool namePmem, char* selectionValue, bool valuePmem, void* state);
-    // SelectorOnEnterFunction onEnterFunc = 0;
-    // SelectorElement* onEnter(SelectorOnEnterFunction func) {
-    //   onEnterFunc = func;
-    //   return this;
-    // };
+    typedef void (*WizardModelFunction)(WizardModel* model, void* state);
+    WizardModelFunction modelLoader = 0;
+    WizardElement* withModelFunction(WizardModelFunction modelFunction) {
+      modelLoader = modelFunction;
+      return this;
+    };
+
+    typedef void* (*WizardOnEnterFunction)(
+          char** selectionNames, 
+          char** selectionValues, 
+          uint8_t numSelections, 
+          void* state);
+    WizardOnEnterFunction onEnterFunc = 0;
+    WizardElement* onEnter(WizardOnEnterFunction func) {
+      onEnterFunc = func;
+      return this;
+    };
 
     // Disable moving and copying
     WizardElement(WizardElement&& other) = delete;

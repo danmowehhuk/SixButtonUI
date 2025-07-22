@@ -79,6 +79,26 @@ void* captureTextValue(const char* value, void* state) {
   return state;
 }
 
+char** capturedWizardNames = nullptr;
+char** capturedWizardValues = nullptr;
+uint8_t capturedWizardNumSelections = 0;
+void* captureWizardValues(const char** selectionNames, const char** selectionValues, uint8_t numSelections, void* state) {
+  capturedWizardNumSelections = numSelections;
+  capturedWizardNames = new char*[numSelections]();
+  capturedWizardValues = new char*[numSelections]();
+  for (uint8_t i = 0; i < numSelections; i++) {
+    capturedWizardNames[i] = strdup(selectionNames[i]);
+    capturedWizardValues[i] = strdup(selectionValues[i]);
+  }
+  return state;
+}
+
+void loadWizardModel(WizardModel* model, void* state) {
+  model->setStepInitialValue(0, F("shoe"));
+  model->setStepInitialValue(1, "shoe");
+  model->setStepInitialValue(2, F("buckle"));
+}
+
 SixButtonUI* sixButtonUI = nullptr;
 SixButtonUI* initSixButtonUI() {
   sixButtonUI = new SixButtonUI(
@@ -132,7 +152,24 @@ SixButtonUI* initSixButtonUI() {
                 ->withInstruction(F("Check"))
                 ->withFooter(F("Enter"))
                 ->withModelFunction(loadSelectorModelRAM)
-                ->onEnter(captureSelectorValue)
+                ->onEnter(captureSelectorValue),
+              wizard()
+                ->withTitle(F("SetupWizard"))
+                ->withInstruction(F("Setup"))
+                ->withFooter(F("Enter"))
+                ->withModelFunction(loadWizardModel)
+                ->withSteps(
+                  selector()
+                    ->withTitle(F("1st Step"))
+                    ->withModelFunction(loadSelectorModel),
+                  selector()
+                    ->withTitle(F("Middle Step"))
+                    ->withModelFunction(loadSelectorModel),
+                  selector()
+                    ->withTitle(F("Last Step"))
+                    ->withModelFunction(loadSelectorModel)
+                )
+                ->onEnter(captureWizardValues)
             ),
           subMenu()
             ->withTitle(F("Settings"))
@@ -140,7 +177,7 @@ SixButtonUI* initSixButtonUI() {
               subMenu()
                 ->withTitle(F("Clock")),
               subMenu()
-                ->withTitle(F("Date"))    
+                ->withTitle(F("Date"))
         )
       )
   );

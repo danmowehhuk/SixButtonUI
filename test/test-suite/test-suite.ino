@@ -184,9 +184,18 @@ void after() {
   if (capturedText) free(capturedText);
   if (capturedSelectionName) free(capturedSelectionName);
   if (capturedSelectionValue) free(capturedSelectionValue);
+  for (uint8_t i = 0; i <  capturedWizardNumSelections; i++) {
+    if (capturedWizardNames[i]) free(capturedWizardNames[i]);
+    if (capturedWizardValues[i]) free(capturedWizardValues[i]);    
+  }
+  if (capturedWizardNames) delete[] capturedWizardNames;
+  if (capturedWizardValues) delete[] capturedWizardValues;
   capturedText = nullptr;
   capturedSelectionName = nullptr;
   capturedSelectionValue = nullptr;
+  capturedWizardNames = nullptr;
+  capturedWizardValues = nullptr;
+  capturedWizardNumSelections = 0;
 }
 
 Eventuino evt;

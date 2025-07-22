@@ -33,10 +33,26 @@ void renderLCDDisplay(ViewModel* viewModel) {
   lcd.noCursor();
   lcd.clear();
   lcd.setCursor(0, 0);
+  if (viewModel->getType() == UIElement::WIZARD) {
+    if (viewModel->hasPrev) {
+      lcd.print("< ");
+    } else {
+      lcd.print("  ");
+    }
+    lcd.setCursor(2, 0);
+  }
   if (viewModel->isTitlePmem()) {
     lcd.print(viewModel->getTitleLine_P());
   } else {
     lcd.print(viewModel->getTitleLine());
+  }
+  if (viewModel->getType() == UIElement::WIZARD) {
+    lcd.setCursor(14, 0);
+    if (viewModel->hasNext) {
+      lcd.print(" >");
+    } else {
+      lcd.print("  ");
+    }
   }
   lcd.setCursor(0, 1);
   if (viewModel->isInteractivePmem()) {
@@ -140,6 +156,22 @@ void loadComboBoxEmpty(SelectorModel* model, void* state) {
   model->setNumOptions(0);
 }
 
+void loadWizardModel(WizardModel* model, void* state) {
+  model->setStepInitialValue(0, F("shoe"));
+  model->setStepInitialValue(1, "shoe");
+  model->setStepInitialValue(2, F("buckle"));
+}
+
+void captureWizardValues(char** selectionNames, char** selectionValues, uint8_t numSteps, void* state) {
+  Serial.println(F("Got from wizard:"));
+  for (uint8_t i = 0; i < numSteps; i++) {
+    Serial.print(F("  "));
+    Serial.print(selectionNames[i]);
+    Serial.print(F(": "));
+    Serial.println(selectionValues[i]);
+  }
+}
+
 extern char __heap_start, *__brkval;
 
 int freeMemory() {
@@ -207,7 +239,24 @@ SixButtonUI* initSixButtonUI() {
                 ->withInstruction(F("Check"))
                 ->withFooter(F("Enter"))
                 ->withModelFunction(loadSelectorModelRAM)
-                ->onEnter(selectorOnEnter)
+                ->onEnter(selectorOnEnter),
+              wizard()
+                ->withTitle(F("SetupWizard"))
+                ->withInstruction(F("Setup"))
+                ->withFooter(F("Enter"))
+                ->withModelFunction(loadWizardModel)
+                ->withSteps(
+                  selector()
+                    ->withTitle(F("1st Step"))
+                    ->withModelFunction(loadSelectorModel),
+                  selector()
+                    ->withTitle(F("Middle Step"))
+                    ->withModelFunction(loadSelectorModel),
+                  selector()
+                    ->withTitle(F("Last Step"))
+                    ->withModelFunction(loadSelectorModel)
+                )
+                ->onEnter(captureWizardValues)
             ),
           subMenu()
             ->withTitle(F("Settings"))

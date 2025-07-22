@@ -83,6 +83,7 @@ class SelectorModel : public WidgetModel {
     friend class SelectorWidget;
     friend class SubMenuWidget;
     friend class ComboBoxWidget;
+    friend class WizardWidget;
 
 };
 
