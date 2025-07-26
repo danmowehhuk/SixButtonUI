@@ -162,11 +162,11 @@ void loadWizardModel(WizardModel* model, void* state) {
   model->setStepInitialValue(2, F("buckle"));
 }
 
-void captureWizardValues(char** selectionNames, char** selectionValues, uint8_t numSteps, void* state) {
+void captureWizardValues(char** selectionValues, uint8_t numSteps, void* state) {
   Serial.println(F("Got from wizard:"));
   for (uint8_t i = 0; i < numSteps; i++) {
     Serial.print(F("  "));
-    Serial.print(selectionNames[i]);
+    Serial.print(i);
     Serial.print(F(": "));
     Serial.println(selectionValues[i]);
   }

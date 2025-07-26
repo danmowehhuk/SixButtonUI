@@ -62,7 +62,13 @@ class SelectorModel : public WidgetModel {
 
   protected:
     uint8_t _numOptions = 0;
-    uint8_t _currIndex = 0;    
+    uint8_t _currIndex = 0;
+    void prev() {
+      if (_currIndex > 0) _currIndex--;
+    };
+    void next() {
+      if (_currIndex < _numOptions - 1) _currIndex++;
+    };
 
   private:
     const char** _optionNames = nullptr;
@@ -83,7 +89,7 @@ class SelectorModel : public WidgetModel {
     friend class SelectorWidget;
     friend class SubMenuWidget;
     friend class ComboBoxWidget;
-    friend class WizardWidget;
+    friend class WizardModel;
 
 };
 

@@ -24,7 +24,6 @@ class WizardElement: public UIElementBase<WizardElement> {
     };
 
     typedef void* (*WizardOnEnterFunction)(
-          char** selectionNames, 
           char** selectionValues, 
           uint8_t numSelections, 
           void* state);

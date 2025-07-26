@@ -48,12 +48,12 @@ class SelectorWidget: public Widget {
 
     void onUpPressed(uint8_t value, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      if (m->_currIndex > 0) m->_currIndex--;
+      m->prev();
     };
 
     void onDownPressed(uint8_t value, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      if (m->_currIndex < m->_numOptions - 1) m->_currIndex++;
+      m->next();
     };
 
 

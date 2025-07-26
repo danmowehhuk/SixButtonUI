@@ -14,6 +14,7 @@ class WizardModel : public WidgetModel {
       _selectionNames = new char*[numSteps]();
       _selectionValues = new char*[numSteps]();
     };
+
     ~WizardModel() override { 
       if (_selectorModel) delete _selectorModel;
       clear();
@@ -48,6 +49,30 @@ class WizardModel : public WidgetModel {
     char** _selectionNames = nullptr;
     char** _selectionValues = nullptr;
 
+    bool nextStep() {
+      if (_currStep == _numSteps - 1) return false;
+      captureStepSelection();
+      _currStep++;
+      return true;
+    }
+
+    bool prevStep() {
+      if (_currStep == 0) return false;
+      captureStepSelection();
+      _currStep--;
+      return true;
+    }
+
+    void nextSelection() {
+      if (!_selectorModel) return;
+      _selectorModel->next();
+    }
+
+    void prevSelection() {
+      if (!_selectorModel) return;
+      _selectorModel->prev();
+    }
+
     void loadSelectorModel(SelectorElement* selectorElement, void* state) {
       if (_selectorModel) delete _selectorModel;
       _selectorModel = new SelectorModel();
@@ -76,10 +101,10 @@ class WizardModel : public WidgetModel {
       for (uint8_t i = 0; i < _numSteps; i++) {
         if (_selectionNames[i]) free(_selectionNames[i]);
         if (_selectionValues[i]) free(_selectionValues[i]);
-        delete[] _selectionNames;
-        delete[] _selectionValues;
       }
-    };
+      delete[] _selectionNames;
+      delete[] _selectionValues;
+  };
 
     friend class WizardWidget;
 

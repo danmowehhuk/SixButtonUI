@@ -39,31 +39,22 @@ class WizardWidget: public Widget {
 
     void onUpPressed(uint8_t value, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
-      if (m->_selectorModel->_currIndex > 0) m->_selectorModel->_currIndex--;
+      m->prevSelection();
     };
 
     void onDownPressed(uint8_t value, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
-      if (m->_selectorModel->_currIndex < m->_selectorModel->_numOptions - 1) m->_selectorModel->_currIndex++;
+      m->nextSelection();
     };
 
     void onLeftPressed(uint8_t value, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
-      if (_model->_currStep == 0) return;
-      _model->captureStepSelection();
-      _model->_currStep--;
-      _doModelReload = true;
+      _doModelReload = m->prevStep();
     };
 
-    /*
-     * Update model's searchPrefix appending the character at the cursor position
-     */
     void onRightPressed(uint8_t value, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
-      if (_model->_currStep == _model->_numSteps - 1) return;
-      _model->captureStepSelection();
-      _model->_currStep++;
-      _doModelReload = true;
+      _doModelReload = m->nextStep();
     };
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
@@ -71,7 +62,8 @@ class WizardWidget: public Widget {
       if (m->_numSteps > 0) {
         m->getController()->goTo(_config->getParent());
         if (_config->onEnterFunc != 0) {
-          state = _config->onEnterFunc(m->_selectionNames, m->_selectionValues, m->_numSteps, state);
+          m->captureStepSelection();
+          state = _config->onEnterFunc(m->_selectionValues, m->_numSteps, state);
         }
       }
       return state;
@@ -80,7 +72,7 @@ class WizardWidget: public Widget {
 
   private:
     WizardElement* _config;
-    WizardModel* _model;
+    WizardModel* _model = nullptr;
     bool _doModelReload = true;
     bool _wizardModelLoaded = false;
     
@@ -106,6 +98,6 @@ class WizardWidget: public Widget {
       return vm;
     };
 
-  };
+};
 
 #endif
