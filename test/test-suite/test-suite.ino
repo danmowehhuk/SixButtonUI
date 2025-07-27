@@ -177,6 +177,46 @@ void testPreloadedComboBoxWidget(TestInvocation* t) {
   t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
 }
 
+void testWizardWidget_coreFunctionality(TestInvocation* t) {
+  t->setName(F("Wizard core functionality"));
+  t->assert(helper.goToNamedElement(F("FullWizard")), F("Element not found"));
+  t->assertEqual(MODEL.getTitleLine_P(), F("1st Step"));
+  t->assert(!MODEL.hasPrev, F("Expected hasPrev to be false"));
+  t->assert(MODEL.hasNext, F("Expected hasNext to be true"));
+  helper.pressAndReleaseLeft();
+  t->assertEqual(MODEL.getTitleLine_P(), F("1st Step")); // no change
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getTitleLine_P(), F("Middle Step"));
+  t->assertEqual(MODEL.getInteractiveLine_P(), F("two")); // preloaded value
+  helper.pressAndReleaseUp();
+  t->assertEqual(MODEL.getInteractiveLine_P(), F("one"));
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getTitleLine_P(), F("Last Step"));
+  t->assert(!MODEL.hasNext, F("Expected hasNext to be false"));
+  t->assert(MODEL.hasPrev, F("Expected hasPrev to be true"));
+  helper.pressAndReleaseRight();
+  t->assertEqual(MODEL.getTitleLine_P(), F("Last Step")); // no change
+  helper.pressAndReleaseLeft();
+  t->assertEqual(MODEL.getInteractiveLine_P(), F("one")); // remembers new selection
+  helper.pressAndReleaseSelectEnter();
+  t->assertEqual(capturedWizardValues[0], F("shoe"));
+  t->assertEqual(capturedWizardValues[1], F("buckle")); // changed this one
+  t->assertEqual(capturedWizardValues[2], F("buckle"));
+  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"));
+}
+
+void testWizardWidget_emptyModel(TestInvocation* t) {
+  t->setName(F("Wizard with empty model"));
+  t->assert(helper.goToNamedElement(F("EmptyWizard")), F("Element not found"));
+  t->assertEqual(MODEL.getTitleLine_P(), F("1st Step"));
+  t->assertEqual(MODEL.getInteractiveLine_P(), F("one"));
+  helper.pressAndReleaseSelectEnter();
+  t->assertEqual(capturedWizardValues[0], F("buckle"));
+  t->assert(capturedWizardValues[1] == nullptr, F("Expected nullptr for step 2"));
+  t->assert(capturedWizardValues[2] == nullptr, F("Expected nullptr for step 3"));
+  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"));
+}
+
 
 void after() {
   // Return to initial state so memory matches
@@ -185,15 +225,12 @@ void after() {
   if (capturedSelectionName) free(capturedSelectionName);
   if (capturedSelectionValue) free(capturedSelectionValue);
   for (uint8_t i = 0; i <  capturedWizardNumSelections; i++) {
-    if (capturedWizardNames[i]) free(capturedWizardNames[i]);
     if (capturedWizardValues[i]) free(capturedWizardValues[i]);    
   }
-  if (capturedWizardNames) delete[] capturedWizardNames;
   if (capturedWizardValues) delete[] capturedWizardValues;
   capturedText = nullptr;
   capturedSelectionName = nullptr;
   capturedSelectionValue = nullptr;
-  capturedWizardNames = nullptr;
   capturedWizardValues = nullptr;
   capturedWizardNumSelections = 0;
 }
@@ -219,6 +256,8 @@ void setup() {
     testTextInputWidget_cursor,
     testDefaultComboBoxWidget,
     testPreloadedComboBoxWidget,
+    testWizardWidget_coreFunctionality,
+    testWizardWidget_emptyModel,
     testRootLevelSelectionPreserved,
     testBackToSubMenu,
     testSubMenuWidget

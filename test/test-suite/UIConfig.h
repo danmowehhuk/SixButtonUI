@@ -79,21 +79,30 @@ void* captureTextValue(const char* value, void* state) {
   return state;
 }
 
-char** capturedWizardNames = nullptr;
 char** capturedWizardValues = nullptr;
 uint8_t capturedWizardNumSelections = 0;
-void* captureWizardValues(const char** selectionNames, const char** selectionValues, uint8_t numSelections, void* state) {
+void* captureWizardValues(const char** selectionValues, uint8_t numSelections, void* state) {
+  if (capturedWizardValues) {
+    for (uint8_t i = 0; i < capturedWizardNumSelections; i++) {
+      if (capturedWizardValues[i]) free(capturedWizardValues[i]);
+    }
+    delete[] capturedWizardValues;
+    capturedWizardValues = nullptr;
+  }
   capturedWizardNumSelections = numSelections;
-  capturedWizardNames = new char*[numSelections]();
   capturedWizardValues = new char*[numSelections]();
   for (uint8_t i = 0; i < numSelections; i++) {
-    capturedWizardNames[i] = strdup(selectionNames[i]);
-    capturedWizardValues[i] = strdup(selectionValues[i]);
+    capturedWizardValues[i] = selectionValues[i] ? strdup(selectionValues[i]) : nullptr;
   }
   return state;
 }
 
 void loadWizardModel(WizardModel* model, void* state) {
+  // No initial values for the step selectors,
+  // any step that is never viewed will have value nullptr
+}
+
+void loadWizardModelFull(WizardModel* model, void* state) {
   model->setStepInitialValue(0, F("shoe"));
   model->setStepInitialValue(1, "shoe");
   model->setStepInitialValue(2, F("buckle"));
@@ -154,7 +163,7 @@ SixButtonUI* initSixButtonUI() {
                 ->withModelFunction(loadSelectorModelRAM)
                 ->onEnter(captureSelectorValue),
               wizard()
-                ->withTitle(F("SetupWizard"))
+                ->withTitle(F("EmptyWizard"))
                 ->withInstruction(F("Setup"))
                 ->withFooter(F("Enter"))
                 ->withModelFunction(loadWizardModel)
@@ -169,8 +178,25 @@ SixButtonUI* initSixButtonUI() {
                     ->withTitle(F("Last Step"))
                     ->withModelFunction(loadSelectorModel)
                 )
+                ->onEnter(captureWizardValues),
+              wizard()
+                ->withTitle(F("FullWizard"))
+                ->withInstruction(F("Setup"))
+                ->withFooter(F("Enter"))
+                ->withModelFunction(loadWizardModelFull)
+                ->withSteps(
+                  selector()
+                    ->withTitle(F("1st Step"))
+                    ->withModelFunction(loadSelectorModel),
+                  selector()
+                    ->withTitle(F("Middle Step"))
+                    ->withModelFunction(loadSelectorModel),
+                  selector()
+                    ->withTitle(F("Last Step"))
+                    ->withModelFunction(loadSelectorModel)
+                )
                 ->onEnter(captureWizardValues)
-            ),
+              ),
           subMenu()
             ->withTitle(F("Settings"))
             ->withMenuItems(
@@ -178,8 +204,8 @@ SixButtonUI* initSixButtonUI() {
                 ->withTitle(F("Clock")),
               subMenu()
                 ->withTitle(F("Date"))
+            )
         )
-      )
   );
   return sixButtonUI;
 }
