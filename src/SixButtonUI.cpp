@@ -10,16 +10,16 @@
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
       uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
-      RenderFunction renderFunction, NavigationConfig&& navConfig):
+      RenderFunction renderFunction, NavigationConfig* navConfig):
           _up(upButtonPin, 0), 
           _down(downButtonPin, 0), 
           _left(leftButtonPin, 0),
           _right(rightButtonPin, 0),
           _menuBack(menuBackButtonPin, 0),
           _selectEnter(enterSelectButtonPin, 0),
-          _nav(static_cast<NavigationConfig&&>(navConfig)),
+          _nav(navConfig),
           _rootElementIdx(0),
-          _currConfig(_nav.getChild(_rootElementIdx)),
+          _currConfig(_nav->getChild(_rootElementIdx)),
           _renderFunction(renderFunction) {};
 
 void SixButtonUI::setup() {

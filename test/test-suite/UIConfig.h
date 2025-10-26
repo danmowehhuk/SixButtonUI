@@ -109,103 +109,107 @@ void loadWizardModelFull(WizardModel* model, void* state) {
 }
 
 SixButtonUI* sixButtonUI = nullptr;
+NavigationConfig* navConfig = nullptr;
+
 SixButtonUI* initSixButtonUI() {
+  navConfig = new NavigationConfig(
+    subMenu()
+      ->withTitle(F("Main Menu"))
+      ->withInstruction(F("Press"))
+      ->withFooter(F("Back"))
+      ->withMenuItems(
+        subMenu()
+          ->withTitle(F("First"))
+          ->withMenuItems(
+            selector()
+              ->withTitle("RAM-selector") // non-PROGMEM for test
+              ->withInstruction("Press")
+              ->withFooter("Enter")
+              ->withModelFunction(loadSelectorModel)
+              ->onEnter(captureSelectorValue),
+            selector()
+              ->withTitle(F("PMEM-selector")) // PROGMEM for test
+              ->withInstruction(F("Drink"))
+              ->withFooter(F("Back"))
+              ->withModelFunction(loadSelectorModel)
+              ->onEnter(captureSelectorValue),
+            textInput()
+              ->withTitle(F("TextBox"))
+              ->withInitialValue(F("foo")) // model function overrides this
+              ->withModelFunction(initializeTextBox)
+              ->onEnter(captureTextValue),
+            comboBox()
+              ->withTitle(F("DefaultComboBox"))
+              ->withModelFunction(loadBasicComboBoxModel)
+              ->onEnter(captureSelectorValue),
+            comboBox()
+              ->withTitle(F("PreloadedComboBox"))
+              ->withModelFunction(loadPreloadedComboBoxModel)
+              ->onEnter(captureSelectorValue)
+          ),
+        selector()
+          ->withTitle(F("Second"))
+          ->withInstruction(F("Check"))
+          ->withFooter(F("Enter"))
+          ->withModelFunction(loadSelectorModel)
+          ->onEnter(captureSelectorValue),
+        selector()
+          ->withTitle(F("Third"))
+          ->withInstruction(F("Check"))
+          ->withFooter(F("Enter"))
+          ->withModelFunction(loadSelectorModelRAM)
+          ->onEnter(captureSelectorValue),
+        wizard()
+          ->withTitle(F("EmptyWizard"))
+          ->withInstruction(F("Setup"))
+          ->withFooter(F("Enter"))
+          ->withModelFunction(loadWizardModel)
+          ->withSteps(
+            selector()
+              ->withTitle(F("1st Step"))
+              ->withModelFunction(loadSelectorModel),
+            selector()
+              ->withTitle(F("Middle Step"))
+              ->withModelFunction(loadSelectorModel),
+            selector()
+              ->withTitle(F("Last Step"))
+              ->withModelFunction(loadSelectorModel)
+          )
+          ->onEnter(captureWizardValues),
+        wizard()
+          ->withTitle(F("FullWizard"))
+          ->withInstruction(F("Setup"))
+          ->withFooter(F("Enter"))
+          ->withModelFunction(loadWizardModelFull)
+          ->withSteps(
+            selector()
+              ->withTitle(F("1st Step"))
+              ->withModelFunction(loadSelectorModel),
+            selector()
+              ->withTitle(F("Middle Step"))
+              ->withModelFunction(loadSelectorModel),
+            selector()
+              ->withTitle(F("Last Step"))
+              ->withModelFunction(loadSelectorModel)
+          )
+          ->onEnter(captureWizardValues)
+        ),
+    subMenu()
+      ->withTitle(F("Settings"))
+      ->withMenuItems(
+        subMenu()
+          ->withTitle(F("Clock")),
+        subMenu()
+          ->withTitle(F("Date"))
+      )
+  );
+
   sixButtonUI = new SixButtonUI(
         UP_BUTTON_PIN,    DOWN_BUTTON_PIN,
         LEFT_BUTTON_PIN,  RIGHT_BUTTON_PIN,
         MENU_BUTTON_PIN,  ENTER_BUTTON_PIN,
         render,
-        NavigationConfig(
-          subMenu()
-            ->withTitle(F("Main Menu"))
-            ->withInstruction(F("Press"))
-            ->withFooter(F("Back"))
-            ->withMenuItems(
-              subMenu()
-                ->withTitle(F("First"))
-                ->withMenuItems(
-                  selector()
-                    ->withTitle("RAM-selector") // non-PROGMEM for test
-                    ->withInstruction("Press")
-                    ->withFooter("Enter")
-                    ->withModelFunction(loadSelectorModel)
-                    ->onEnter(captureSelectorValue),
-                  selector()
-                    ->withTitle(F("PMEM-selector")) // PROGMEM for test
-                    ->withInstruction(F("Drink"))
-                    ->withFooter(F("Back"))
-                    ->withModelFunction(loadSelectorModel)
-                    ->onEnter(captureSelectorValue),
-                  textInput()
-                    ->withTitle(F("TextBox"))
-                    ->withInitialValue(F("foo")) // model function overrides this
-                    ->withModelFunction(initializeTextBox)
-                    ->onEnter(captureTextValue),
-                  comboBox()
-                    ->withTitle(F("DefaultComboBox"))
-                    ->withModelFunction(loadBasicComboBoxModel)
-                    ->onEnter(captureSelectorValue),
-                  comboBox()
-                    ->withTitle(F("PreloadedComboBox"))
-                    ->withModelFunction(loadPreloadedComboBoxModel)
-                    ->onEnter(captureSelectorValue)
-                ),
-              selector()
-                ->withTitle(F("Second"))
-                ->withInstruction(F("Check"))
-                ->withFooter(F("Enter"))
-                ->withModelFunction(loadSelectorModel)
-                ->onEnter(captureSelectorValue),
-              selector()
-                ->withTitle(F("Third"))
-                ->withInstruction(F("Check"))
-                ->withFooter(F("Enter"))
-                ->withModelFunction(loadSelectorModelRAM)
-                ->onEnter(captureSelectorValue),
-              wizard()
-                ->withTitle(F("EmptyWizard"))
-                ->withInstruction(F("Setup"))
-                ->withFooter(F("Enter"))
-                ->withModelFunction(loadWizardModel)
-                ->withSteps(
-                  selector()
-                    ->withTitle(F("1st Step"))
-                    ->withModelFunction(loadSelectorModel),
-                  selector()
-                    ->withTitle(F("Middle Step"))
-                    ->withModelFunction(loadSelectorModel),
-                  selector()
-                    ->withTitle(F("Last Step"))
-                    ->withModelFunction(loadSelectorModel)
-                )
-                ->onEnter(captureWizardValues),
-              wizard()
-                ->withTitle(F("FullWizard"))
-                ->withInstruction(F("Setup"))
-                ->withFooter(F("Enter"))
-                ->withModelFunction(loadWizardModelFull)
-                ->withSteps(
-                  selector()
-                    ->withTitle(F("1st Step"))
-                    ->withModelFunction(loadSelectorModel),
-                  selector()
-                    ->withTitle(F("Middle Step"))
-                    ->withModelFunction(loadSelectorModel),
-                  selector()
-                    ->withTitle(F("Last Step"))
-                    ->withModelFunction(loadSelectorModel)
-                )
-                ->onEnter(captureWizardValues)
-              ),
-          subMenu()
-            ->withTitle(F("Settings"))
-            ->withMenuItems(
-              subMenu()
-                ->withTitle(F("Clock")),
-              subMenu()
-                ->withTitle(F("Date"))
-            )
-        )
+        navConfig
   );
   return sixButtonUI;
 }

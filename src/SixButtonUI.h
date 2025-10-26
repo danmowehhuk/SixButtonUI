@@ -22,7 +22,7 @@ class SixButtonUI: public EventSource {
     typedef void (*RenderFunction)(ViewModel viewModel);
     SixButtonUI(uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
                 uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
-                RenderFunction renderFunction, NavigationConfig&& navConfig);
+                RenderFunction renderFunction, NavigationConfig* navConfig);
 
     // Tells SixButtonUI to switch to a different element in the nav config
     void goTo(UIElement* element);
@@ -38,7 +38,7 @@ class SixButtonUI: public EventSource {
     Button _right;
     Button _menuBack;
     Button _selectEnter;
-    NavigationConfig _nav;
+    NavigationConfig* _nav;
     RenderFunction _renderFunction;
 
     // When menu/back button is pressed, return to the parent node in the 

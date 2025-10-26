@@ -34,13 +34,13 @@ class SixButtonUITestHelper {
 
 
     void reset() {
-      resetLastSelected(&(_ui->_nav));
+      resetLastSelected(_ui->_nav);
       _ui->_rootElementIdx = 0;
       goToRoot();
     };
 
     void goToRoot() {
-      goToElement(_ui->_nav.getChild(0));
+      goToElement(_ui->_nav->getChild(0));
     };
 
     bool goToNamedElement(const __FlashStringHelper* name) {
@@ -48,7 +48,7 @@ class SixButtonUITestHelper {
     };
 
     bool goToNamedElement(const char* name, bool namePmem = false) {
-      UIElement* rootElement = &(_ui->_nav);
+      UIElement* rootElement = _ui->_nav;
       UIElement* element = nullptr;
       if (!name) {
         element = rootElement->getChild(0);
