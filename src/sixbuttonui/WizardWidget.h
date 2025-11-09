@@ -87,6 +87,7 @@ class WizardWidget: public Widget {
       }
       if (_model->_selectorModel && _model->_selectorModel->getNumOptions() > 0) {
         vm.setInteractiveLine(_model->_selectorModel->getOptionName(), _model->_selectorModel->isOptionNamePmem());
+        vm.isSelected = _model->_selectorModel->isCurrValueSelected();
       }
       if (_model->_currStep > 0) {
         vm.hasPrev = true;

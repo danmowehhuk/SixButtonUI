@@ -59,6 +59,18 @@ void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
   _isOwnsCurrValue = allocate;
 }
 
+bool SelectorModel::isCurrValueSelected() {
+  if (_currValue && _isOptionValuePmem[_currIndex] 
+      && strcmp_P(_currValue, _optionValues[_currIndex]) == 0) {
+    return true;
+  } else if (_currValue && !_isOptionValuePmem[_currIndex] 
+      && strcmp(_currValue, _optionValues[_currIndex]) == 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
   if (_searchPrefix && _isOwnsSearchPrefix) {
     free(_searchPrefix);

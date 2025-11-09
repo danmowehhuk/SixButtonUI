@@ -40,6 +40,7 @@ class SelectorModel : public WidgetModel {
     void setOptionRaw(uint8_t i, const char* name, bool namePmem, const char* value, bool valuePmem, 
           bool allocateName = false, bool allocateValue = false);
     void setCurrValue(const char* currValue, bool allocate = true);
+    bool isCurrValueSelected();
 
     // Set an initial selection
     bool selectOptionWithName(char* name);
