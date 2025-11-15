@@ -34,7 +34,10 @@ class SelectorWidget: public Widget {
       if (m->_numOptions > 0) {
         char* selectionValue = m->_optionValues[m->_currIndex];
         if (selectionValue != nullptr) {
-          m->getController()->goTo(_config->getParent());
+
+          // Do this before calling onEnterFunc so it can be overridden
+          m->getController()->goToDefault();
+
           if (_config->onEnterFunc != 0) {
             char* selectionName = m->_optionNames[m->_currIndex];
             bool isNamePmem = m->_isOptionNamePmem[m->_currIndex];

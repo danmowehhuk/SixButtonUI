@@ -124,10 +124,27 @@ void SixButtonUI::render() {
     UI(widgetModel)->render();
   };
 
+// #if (defined(DEBUG))
+//   Serial.print(F("SixButtonUI.h: Free memory after render: "));
+//   Serial.println(sixbuttonui::freeMemory());
+// #endif
 }
 
 void SixButtonUI::goTo(UIElement* element) {
   _currConfig = element;
+}
+
+void SixButtonUI::reload() {
+  // Force SixButtonUI to reload the current widget
+  _forceReloadWidget = true;
+}
+
+void SixButtonUI::goToDefault() {
+  if (_currConfig->getParent()->type == UIElement::Type::ROOT) {
+    reload();
+  } else {
+    goTo(_currConfig->getParent());
+  }
 }
 
 void SixButtonUI::menuBack() {
@@ -182,9 +199,10 @@ void SixButtonUI::clearHandlers() {
 }
 
 void SixButtonUI::maybeInitWidget() {
-  if (!_currWidget || _currWidget->_wConf != _currConfig) {
+  if (_forceReloadWidget || !_currWidget || _currWidget->_wConf != _currConfig) {
     if (_currWidget) delete _currWidget;
     _currWidget = newForType(_currConfig->type);
+    _forceReloadWidget = false; // reset the flag
   }
 }
 

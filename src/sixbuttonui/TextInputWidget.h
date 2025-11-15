@@ -28,7 +28,10 @@ class TextInputWidget: public Widget {
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
-      m->getController()->goTo(_config->getParent());
+
+      // Do this before calling onEnterFunc so it can be overridden
+      m->getController()->goToDefault();
+
       if (_config->onEnterFunc != 0) {
         state = _config->onEnterFunc(m->getValue(), state);
       }

@@ -60,7 +60,10 @@ class WizardWidget: public Widget {
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
       if (m->_numSteps > 0) {
-        m->getController()->goTo(_config->getParent());
+
+        // Do this before calling onEnterFunc so it can be overridden
+        m->getController()->goToDefault();
+
         if (_config->onEnterFunc != 0) {
           m->captureStepSelection();
           state = _config->onEnterFunc(m->_selectionValues, m->_numSteps, state);

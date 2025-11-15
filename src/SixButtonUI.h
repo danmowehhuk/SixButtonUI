@@ -27,6 +27,14 @@ class SixButtonUI: public EventSource {
     // Tells SixButtonUI to switch to a different element in the nav config
     void goTo(UIElement* element);
 
+    // Reload the current widget
+    void reload();
+
+    // If the widget's onEnter function doesn't define what UI element to load next,
+    // the default behavior is to load the parent element, or if the parent is the root,
+    // reload the current element
+    void goToDefault();
+
     // Required by EventSource
     void setup() override;
     void poll(void* state = nullptr) override;
@@ -54,6 +62,9 @@ class SixButtonUI: public EventSource {
     UIElement* _currConfig;
     Widget* _currWidget = nullptr;
 
+    // Destroy and reload the widget and its state on the next render cycle
+    bool _forceReloadWidget = false;
+
     // The state object and SixButtonUI itself are stored to be made 
     // available to the widget model for use in button event handlers.
     void* _state = nullptr;
@@ -72,6 +83,11 @@ class SixButtonUI: public EventSource {
 
 };
 
+// AVR linker symbols for heap tracking (must be declared outside namespace)
+#if defined(DEBUG)
+extern char __heap_start, *__brkval;
+#endif
+
 namespace sixbuttonui {
 
   inline SelectorElement*  selector()   { return new SelectorElement();   };
@@ -80,6 +96,18 @@ namespace sixbuttonui {
   inline ComboBoxElement*  comboBox()   { return new ComboBoxElement();   };
   inline WizardElement*    wizard()     { return new WizardElement();     };
 
+#if defined(DEBUG)
+  // Free memory debugging function
+  // Uses AVR-specific heap variables to calculate available RAM
+  inline int freeMemory() {
+    char top;
+    if (__brkval == 0) {
+      return &top - &__heap_start;
+    } else {
+      return &top - __brkval;
+    }
+  };
+#endif
 };
 
 
