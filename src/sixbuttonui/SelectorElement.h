@@ -36,6 +36,7 @@ class SelectorElement: public UIElementBase<SelectorElement> {
 
   public:
     SelectorElement(): UIElementBase(UIElement::Type::SELECTOR) {};
+    SelectorElement(uint8_t id): UIElementBase(UIElement::Type::SELECTOR, id) {};
 
     typedef void (*SelectorModelFunction)(SelectorModel* model, void* state);
     SelectorModelFunction modelLoader = 0;
@@ -59,6 +60,7 @@ class SelectorElement: public UIElementBase<SelectorElement> {
 
   protected:
     SelectorElement(UIElement::Type type): UIElementBase(type) {};
+    SelectorElement(UIElement::Type type, uint8_t id): UIElementBase(type, id) {};
 
 };
 

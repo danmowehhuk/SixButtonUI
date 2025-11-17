@@ -23,6 +23,7 @@ class SubMenuElement: public SelectorElement {
 
   public:
     SubMenuElement(): SelectorElement(UIElement::Type::SUB_MENU) {};
+    SubMenuElement(uint8_t id): SelectorElement(UIElement::Type::SUB_MENU, id) {};
 
     template <typename... Args>
     SubMenuElement* withMenuItems(UIElement* childElement, Args... moreChildElements) {

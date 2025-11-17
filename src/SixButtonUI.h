@@ -26,6 +26,7 @@ class SixButtonUI: public EventSource {
 
     // Tells SixButtonUI to switch to a different element in the nav config
     void goTo(UIElement* element);
+    void goTo(uint8_t id);
 
     // Reload the current widget
     void reload();
@@ -53,6 +54,10 @@ class SixButtonUI: public EventSource {
     // nav config. If the parent is the NavigationConfig object itself, 
     // switch to the next child instead.
     void menuBack();
+
+    // Find an element by its id
+    UIElement* findElementById(uint8_t id);
+    UIElement* findElementByIdRecursive(UIElement* element, uint8_t id);
 
     // The nav config may contain multiple root elements,
     // so this keeps track of which one we're on
@@ -91,10 +96,15 @@ extern char __heap_start, *__brkval;
 namespace sixbuttonui {
 
   inline SelectorElement*  selector()   { return new SelectorElement();   };
+  inline SelectorElement*  selector(uint8_t id) { return new SelectorElement(id); };
   inline SubMenuElement*   subMenu()    { return new SubMenuElement();    };
+  inline SubMenuElement*   subMenu(uint8_t id) { return new SubMenuElement(id); };
   inline TextInputElement* textInput()  { return new TextInputElement();  };
+  inline TextInputElement* textInput(uint8_t id) { return new TextInputElement(id); };
   inline ComboBoxElement*  comboBox()   { return new ComboBoxElement();   };
+  inline ComboBoxElement*  comboBox(uint8_t id) { return new ComboBoxElement(id); };
   inline WizardElement*    wizard()     { return new WizardElement();     };
+  inline WizardElement*    wizard(uint8_t id) { return new WizardElement(id); };
 
 #if defined(DEBUG)
   // Free memory debugging function

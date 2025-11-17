@@ -24,10 +24,12 @@ class UIElement {
       COMBO_BOX,     // Like TEXT_INPUT, but UP/DOWN/LEFT/RIGHT move char by char through a trie of the options
       WIZARD         // Like SELECTOR, but LEFT/RIGHT move thru series of SELECTORS
     };
+    const uint8_t id; // Optional unique identifier for the element used in goTo()
     const UIElement::Type type;
     const UIElement* getParent() const;
     const uint8_t getChildCount() const;
     const UIElement* getChild(uint8_t index) const;
+    const uint8_t getChildIndex(UIElement* child) const;
 
     const char* getTitle() const { return _title; };
     bool isTitlePmem() { return _isTitlePmem; };
@@ -37,6 +39,9 @@ class UIElement {
 
     const char* getFooter() const { return _footer; };
     bool isFooterPmem() { return _isFooterPmem; };
+
+    bool isHidden() { return _isHidden; };
+    bool hasId() const { return _hasId; };
 
     // Make the class pure virtual
     virtual ~UIElement() = 0;
@@ -48,7 +53,8 @@ class UIElement {
     UIElement& operator=(const UIElement&) = delete;
 
   protected:
-    UIElement(UIElement::Type type): type(type) {};
+    UIElement(UIElement::Type type): type(type), id(0), _hasId(false) {};
+    UIElement(UIElement::Type type, uint8_t id): type(type), id(id), _hasId(true) {};
     void setParent(UIElement* parent);
     UIElement** _children = nullptr;
     uint8_t _numChildren = 0;
@@ -63,6 +69,8 @@ class UIElement {
     UIElement() = delete;
     UIElement(UIElement &t) = delete;
     UIElement* _parent = nullptr;
+    const bool _hasId = false;
+    bool _isHidden = false; // If true, can only be accessed via goTo()
 
     // Grant friend access to all UIElementBase specializations
     template <typename DerivedElement>
@@ -94,9 +102,11 @@ class UIElementBase: public UIElement {
     DerivedElement* withInstruction(const __FlashStringHelper* instruction);
     DerivedElement* withFooter(const char* footer, bool pmem = false);
     DerivedElement* withFooter(const __FlashStringHelper* footer);
+    DerivedElement* setHidden(bool hidden);
 
- protected:
+  protected:
     UIElementBase(const UIElement::Type type): UIElement(type) {};
+    UIElementBase(const UIElement::Type type, uint8_t id): UIElement(type, id) {};
 
     template <typename... Args>
     DerivedElement* withChildren(UIElement* childElement, Args... moreChildElements);
@@ -149,6 +159,12 @@ template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withFooter(const __FlashStringHelper* footer) {
   _footer = reinterpret_cast<const char*>(footer);
   _isFooterPmem = true;
+  return static_cast<DerivedElement*>(this);
+};
+
+template <typename DerivedElement>
+DerivedElement* UIElementBase<DerivedElement>::setHidden(bool hidden) {
+  _isHidden = hidden;
   return static_cast<DerivedElement*>(this);
 };
 

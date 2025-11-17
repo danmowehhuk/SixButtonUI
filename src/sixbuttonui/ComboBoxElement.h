@@ -25,9 +25,10 @@
 class ComboBoxElement: public SelectorElement {
 
   public:
-  ComboBoxElement(): SelectorElement(UIElement::Type::COMBO_BOX) {};
+    ComboBoxElement(): SelectorElement(UIElement::Type::COMBO_BOX) {};
+    ComboBoxElement(uint8_t id): SelectorElement(UIElement::Type::COMBO_BOX, id) {};
 
-  ComboBoxElement* withTitle(const char* title, bool pmem = false) {
+    ComboBoxElement* withTitle(const char* title, bool pmem = false) {
       SelectorElement::withTitle(title, pmem);
       return this;
     };

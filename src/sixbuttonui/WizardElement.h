@@ -10,6 +10,7 @@ class WizardElement: public UIElementBase<WizardElement> {
 
   public:
     WizardElement(): UIElementBase(UIElement::Type::WIZARD) {};
+    WizardElement(uint8_t id): UIElementBase(UIElement::Type::WIZARD, id) {};
 
     template <typename... Args>
     WizardElement* withSteps(SelectorElement* selectorElement, Args... moreSelectorElements) {

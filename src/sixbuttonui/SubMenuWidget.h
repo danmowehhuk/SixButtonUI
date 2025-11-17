@@ -13,8 +13,16 @@ class SubMenuWidget: public SelectorWidget {
   protected:
     void initModel() override {
       SelectorWidget::initModel();
-      uint8_t count = _config->getChildCount();
-      _model->setNumOptions(count);
+      // Count only non-hidden children
+      uint8_t totalCount = _config->getChildCount();
+      uint8_t visibleCount = 0;
+      for (uint8_t i = 0; i < totalCount; i++) {
+        UIElement* child = _config->getChild(i);
+        if (!child->isHidden()) {
+          visibleCount++;
+        }
+      }
+      _model->setNumOptions(visibleCount);
     }
 
     void loadModel(void* state) override {
@@ -39,14 +47,21 @@ class SubMenuWidget: public SelectorWidget {
       }
 
       uint8_t count = _config->getChildCount();
+      uint8_t visibleIndex = 0;
       for (uint8_t i = 0; i < count; i++) {
         UIElement* child = _config->getChild(i);
+        
+        // Skip hidden elements
+        if (child->isHidden()) {
+          continue;
+        }
 
         // Force the UIElement* into a char* but set allocate* to false so it's
         // not strdup'ed
-        _model->setOptionRaw(i, child->getTitle(), child->isTitlePmem(), 
+        _model->setOptionRaw(visibleIndex, child->getTitle(), child->isTitlePmem(), 
         reinterpret_cast<char*>(child), false, false,
          false);
+        visibleIndex++;
       }
 
       // Restore last selected if we backed into this submenu

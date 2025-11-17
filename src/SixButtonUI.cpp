@@ -134,6 +134,14 @@ void SixButtonUI::goTo(UIElement* element) {
   _currConfig = element;
 }
 
+void SixButtonUI::goTo(uint8_t id) {
+  UIElement* element = findElementById(id);
+  if (element->getParent()->type == UIElement::Type::ROOT) {
+    _rootElementIdx = element->getParent()->getChildIndex(element);
+  }
+  goTo(element);
+}
+
 void SixButtonUI::reload() {
   // Force SixButtonUI to reload the current widget
   _forceReloadWidget = true;
@@ -143,7 +151,7 @@ void SixButtonUI::goToDefault() {
   if (_currConfig->getParent()->type == UIElement::Type::ROOT) {
     reload();
   } else {
-    goTo(_currConfig->getParent());
+    goTo(const_cast<UIElement*>(_currConfig->getParent()));
   }
 }
 
@@ -152,12 +160,27 @@ void SixButtonUI::menuBack() {
   if (parent->type == UIElement::Type::ROOT) {
 
     // Parent element is the ROOT node (NavigationConfig). Go to
-    // the next child element, not the parent.
-    if (_rootElementIdx < parent->getChildCount() - 1) {
-      _rootElementIdx++;
-    } else {
-      _rootElementIdx = 0;
-    }
+    // the next child element, not the parent. Skip hidden elements.
+    uint8_t childCount = parent->getChildCount();
+    UIElement* nextConfig = nullptr;
+    uint8_t startIdx = _rootElementIdx;
+    uint8_t checkedCount = 0;
+    
+    // Search forward from the next index, wrapping around if needed
+    do {
+      if (startIdx < childCount - 1) {
+        startIdx++;
+      } else {
+        startIdx = 0;
+      }
+      UIElement* candidate = const_cast<UIElement*>(parent->getChild(startIdx));
+      if (!candidate->isHidden()) {
+        nextConfig = candidate;
+        _rootElementIdx = startIdx;
+        break;
+      }
+      checkedCount++;
+    } while (checkedCount < childCount);
 
     // Store the selected index of the current sub-menu so we can 
     // keep it selected while toggling through the root menus.
@@ -167,7 +190,7 @@ void SixButtonUI::menuBack() {
     }
 
     // Switch to the next child element
-    _currConfig = parent->getChild(_rootElementIdx);
+    _currConfig = nextConfig;
 
   } else {
 
@@ -177,7 +200,7 @@ void SixButtonUI::menuBack() {
     }
 
     // Switch to the parent element
-    goTo(parent);
+    goTo(const_cast<UIElement*>(parent));
   }
 }
 
@@ -200,9 +223,12 @@ void SixButtonUI::clearHandlers() {
 
 void SixButtonUI::maybeInitWidget() {
   if (_forceReloadWidget || !_currWidget || _currWidget->_wConf != _currConfig) {
-    if (_currWidget) delete _currWidget;
-    _currWidget = newForType(_currConfig->type);
     _forceReloadWidget = false; // reset the flag
+    if (_currWidget) delete _currWidget;
+    if (!_currConfig) {
+      return;
+    }
+    _currWidget = newForType(_currConfig->type);
   }
 }
 
@@ -233,6 +259,36 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
       break;
   }
   return out;
+}
+
+UIElement* SixButtonUI::findElementById(uint8_t id) {
+  if (!_nav) {
+    return nullptr;
+  }
+  return findElementByIdRecursive(static_cast<UIElement*>(_nav), id);
+}
+
+UIElement* SixButtonUI::findElementByIdRecursive(UIElement* element, uint8_t id) {
+  if (!element) {
+    return nullptr;
+  }
+  
+  // Check if current element matches (only if it has an id set)
+  if (element->hasId() && element->id == id) {
+    return element;
+  }
+  
+  // Recursively search children
+  uint8_t childCount = element->getChildCount();
+  for (uint8_t i = 0; i < childCount; i++) {
+    UIElement* child = const_cast<UIElement*>(element->getChild(i));
+    UIElement* found = findElementByIdRecursive(child, id);
+    if (found) {
+      return found;
+    }
+  }
+  
+  return nullptr;
 }
 
 WidgetModel* SixButtonUI::widgetModel() {

@@ -8,7 +8,8 @@
 class TextInputElement: public UIElementBase<TextInputElement> {
 
   public:
-    TextInputElement(): UIElementBase(TEXT_INPUT) {};
+    TextInputElement(): UIElementBase(UIElement::Type::TEXT_INPUT) {};
+    TextInputElement(uint8_t id): UIElementBase(UIElement::Type::TEXT_INPUT, id) {};
 
     TextInputElement* withInitialValue(const char* initValue, bool pmem = false) {
       _initValue = initValue;
