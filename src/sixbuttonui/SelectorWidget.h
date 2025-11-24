@@ -34,7 +34,7 @@ class SelectorWidget: public Widget {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       if (m->_numOptions > 0) {
         char* selectionValue = m->_optionValues[m->_currIndex];
-        if (selectionValue != nullptr) {
+        if (selectionValue != nullptr && strlen(selectionValue) > 0) {
 
           // Do this before calling onEnterFunc so it can be overridden
           m->getController()->goToDefault();

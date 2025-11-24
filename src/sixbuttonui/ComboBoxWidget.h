@@ -125,12 +125,13 @@ class ComboBoxWidget: public SelectorWidget {
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      if (m->_numOptions > 0) {
+      if (m->_numOptions > 0 && m->getOptionValue() != nullptr && strlen(m->getOptionValue()) > 0) {
         m->_selectionName = dupOptionName();
         m->_isSelectionNamePmem = false;
         m->_isOwnsSelectionName = true;
+        return SelectorWidget::onEnter(value, widgetModel, state);
       }
-      return SelectorWidget::onEnter(value, widgetModel, state);
+      return state;
     };
 
   private:
