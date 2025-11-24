@@ -82,6 +82,9 @@ class SelectorModel : public WidgetModel {
     bool _isOwnsCurrValue = false;
     const char* _searchPrefix = nullptr;
     bool _isOwnsSearchPrefix = false;
+    const char* _selectionName = nullptr;
+    bool _isSelectionNamePmem = false;
+    bool _isOwnsSelectionName = false;
     bool selectOptionBy(char* key, const char** arr, const bool* isPmemArr);
     void setSearchPrefix(const char* searchPrefix, bool allocate = true);
     void resetOptions();

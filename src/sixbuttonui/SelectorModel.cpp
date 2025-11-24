@@ -135,9 +135,15 @@ void SelectorModel::clear() {
   if (_searchPrefix && _isOwnsSearchPrefix) {
     free(_searchPrefix);
   }
+  if (_selectionName && _isOwnsSelectionName) {
+    free(_selectionName);
+  }
   _currValue = nullptr;
   _isOwnsCurrValue = false;
   _searchPrefix = nullptr;
   _isOwnsSearchPrefix = false;
+  _selectionName = nullptr;
+  _isSelectionNamePmem = false;
+  _isOwnsSelectionName = false;
   _currIndex = 0;
 }
