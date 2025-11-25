@@ -124,10 +124,10 @@ void SixButtonUI::render() {
     UI(widgetModel)->render();
   };
 
-// #if (defined(DEBUG))
-//   Serial.print(F("SixButtonUI.h: Free memory after render: "));
-//   Serial.println(sixbuttonui::freeMemory());
-// #endif
+#if (defined(DEBUG_6BUI_MEM))
+  Serial.print(F("SixButtonUI.h: Free memory after render: "));
+  Serial.println(sixbuttonui::freeMemory());
+#endif
 }
 
 void SixButtonUI::goTo(UIElement* element) {

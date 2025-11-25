@@ -106,7 +106,7 @@ namespace sixbuttonui {
   inline WizardElement*    wizard()     { return new WizardElement();     };
   inline WizardElement*    wizard(uint8_t id) { return new WizardElement(id); };
 
-#if defined(DEBUG)
+#if defined(DEBUG_6BUI_MEM)
   // Free memory debugging function
   // Uses AVR-specific heap variables to calculate available RAM
   inline int freeMemory() {
