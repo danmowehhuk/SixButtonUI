@@ -37,7 +37,7 @@ class SelectorWidget: public Widget {
         if (selectionValue != nullptr && strlen(selectionValue) > 0) {
 
           // Do this before calling onEnterFunc so it can be overridden
-          m->getController()->goToDefault();
+          m->getController()->setNextDefault();
 
           if (_config->onEnterFunc != 0) {
             // If these fields were populated (e.g. by a subclass), use them instead.

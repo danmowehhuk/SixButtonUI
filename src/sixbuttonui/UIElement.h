@@ -22,7 +22,8 @@ class UIElement {
       SUB_MENU,      // Like SELECTOR, but options are child menu elements, LEFT/RIGHT non-functional
       TEXT_INPUT,    // UP/DOWN select character, LEFT/RIGHT move cursor, ENTER and BACK function as expected
       COMBO_BOX,     // Like TEXT_INPUT, but UP/DOWN/LEFT/RIGHT move char by char through a trie of the options
-      WIZARD         // Like SELECTOR, but LEFT/RIGHT move thru series of SELECTORS
+      WIZARD,        // Like SELECTOR, but LEFT/RIGHT move thru series of SELECTORS
+      POPUP          // A temporary message element
     };
     const uint8_t id; // Optional unique identifier for the element used in goTo()
     const UIElement::Type type;

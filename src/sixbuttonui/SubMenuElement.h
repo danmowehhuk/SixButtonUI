@@ -60,6 +60,11 @@ class SubMenuElement: public SelectorElement {
       return this;
     };
 
+    SubMenuElement* setHidden(bool hidden) {
+      SelectorElement::setHidden(hidden);
+      return this;
+    };
+
     SubMenuElement* withModelFunction(SelectorModelFunction modelFunction) {
       SelectorElement::withModelFunction(modelFunction);
       return this;

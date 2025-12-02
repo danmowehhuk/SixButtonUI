@@ -6,6 +6,9 @@
 #include "sixbuttonui/ViewModel.h"
 #include "sixbuttonui/WidgetModel.h"
 #include "sixbuttonui/WizardWidget.h"
+#include "sixbuttonui/PopupWidget.h"
+
+using namespace eventuino;
 
 SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
@@ -17,6 +20,7 @@ SixButtonUI::SixButtonUI(
           _right(rightButtonPin, 0),
           _menuBack(menuBackButtonPin, 0),
           _selectEnter(enterSelectButtonPin, 0),
+          _timer(0),
           _nav(navConfig),
           _rootElementIdx(0),
           _currConfig(_nav->getChild(_rootElementIdx)),
@@ -29,6 +33,7 @@ void SixButtonUI::setup() {
   _right.setup();
   _menuBack.setup();
   _selectEnter.setup();
+  _timer.setup();
   render();
 }
 
@@ -45,12 +50,14 @@ void SixButtonUI::poll(void* state) {
     _right.poll(_currWidget->getModel());
     _menuBack.poll(_currWidget->getModel());
     _selectEnter.poll(_currWidget->getModel());
+    _timer.poll(_currWidget->getModel());
   }
 }
 
 void SixButtonUI::render() {
 
   clearHandlers();
+  _oldCurrConfig = nullptr;
 
   // If we've moved to a different UIElement, clean up the old state
   // and instantiate the new _currWidget.
@@ -124,22 +131,49 @@ void SixButtonUI::render() {
     UI(widgetModel)->render();
   };
 
+  _timer.onExpire = [](uint8_t value, void* widgetModel) {
+    void* stateIn = static_cast<WidgetModel*>(widgetModel)->_state;
+    void* stateOut = UI(widgetModel)->_currWidget->onTimerExpired(value, widgetModel, stateIn);
+    UI(widgetModel)->_state = stateOut;
+    UI(widgetModel)->render();
+  };
+
 #if (defined(DEBUG_6BUI_MEM))
   Serial.print(F("SixButtonUI.h: Free memory after render: "));
   Serial.println(sixbuttonui::freeMemory());
 #endif
 }
 
-void SixButtonUI::goTo(UIElement* element) {
+void SixButtonUI::setNext(UIElement* element) {
+  if (_oldCurrConfig == nullptr) {
+    // Multiple calls to setNext should not overwrite the initial value
+    _oldCurrConfig = _currConfig;
+  }
   _currConfig = element;
 }
 
-void SixButtonUI::goTo(uint8_t id) {
+void SixButtonUI::setNext(uint8_t id) {
   UIElement* element = findElementById(id);
   if (element->getParent()->type == UIElement::Type::ROOT) {
     _rootElementIdx = element->getParent()->getChildIndex(element);
   }
-  goTo(element);
+  setNext(element);
+}
+
+void SixButtonUI::setNextDefault() {
+  if (_currConfig->getParent()->type == UIElement::Type::ROOT) {
+    reload();
+  } else {
+    setNext(const_cast<UIElement*>(_currConfig->getParent()));
+  }
+}
+
+void SixButtonUI::unsetNext() {
+  if (_oldCurrConfig != nullptr) {
+    _currConfig = _oldCurrConfig;
+    _oldCurrConfig = nullptr;
+  }
+  _forceReloadWidget = false;
 }
 
 void SixButtonUI::reload() {
@@ -147,15 +181,66 @@ void SixButtonUI::reload() {
   _forceReloadWidget = true;
 }
 
-void SixButtonUI::goToDefault() {
-  if (_currConfig->getParent()->type == UIElement::Type::ROOT) {
-    reload();
-  } else {
-    goTo(const_cast<UIElement*>(_currConfig->getParent()));
+void SixButtonUI::showPopup(PopupWidget::Type type, const __FlashStringHelper* message) {
+  showPopup(type, reinterpret_cast<const char*>(message), true);
+}
+
+void SixButtonUI::showPopup(PopupWidget::Type type, const char* message, bool pmem = false) {
+  showPopup(type, 1000, message, pmem);
+}
+
+void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const __FlashStringHelper* message) {
+  showPopup(type, duration, reinterpret_cast<const char*>(message), true);
+}
+
+void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool pmem = false) {
+
+  // Override any previous setNext() calls. Dismissing the popup will always restore the last UI state.
+  unsetNext();
+
+  PopupWidget::PopupElement* popupElement = PopupWidget::getPopupElement();
+  popupElement->setPopupType(type);
+  popupElement->setMessage(message, pmem);
+
+  // Store references to the current widget and state so we can restore it after the popup is dismissed
+  popupElement->setReturnTo(_currConfig, _currWidget, _state);
+  _currWidget = nullptr;
+  _state = nullptr;
+
+  _menuBackDisabled = true;
+  if (type == PopupWidget::Type::TIMER_CANCELABLE) {
+    _timer.cancel();
+    _timer.start(duration);
   }
+  setNext(popupElement);
+}
+
+void SixButtonUI::dismissPopup() {
+  _menuBackDisabled = false;
+  if (_currConfig->type != UIElement::Type::POPUP) {
+    return;
+  }
+  _timer.cancel();
+  
+  // Save the pointers before deleting the widget
+  PopupWidget::PopupElement* popupElement = PopupWidget::getPopupElement();  
+  UIElement* savedConfig = popupElement->getReturnToConfig();
+  Widget* savedWidget = popupElement->getReturnToWidget();
+  void* savedState = popupElement->getReturnToState();
+  
+  // Now delete the widget, which will clear the popup element
+  if (_currWidget) delete _currWidget;
+  
+  // Restore the previous UI state
+  _currConfig = savedConfig;
+  _currWidget = savedWidget;
+  _state = savedState;
 }
 
 void SixButtonUI::menuBack() {
+  if (_menuBackDisabled) {
+    return;
+  }
   const UIElement* parent = _currConfig->getParent();
   if (parent->type == UIElement::Type::ROOT) {
 
@@ -200,7 +285,7 @@ void SixButtonUI::menuBack() {
     }
 
     // Switch to the parent element
-    goTo(const_cast<UIElement*>(parent));
+    setNext(const_cast<UIElement*>(parent));
   }
 }
 
@@ -249,6 +334,9 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
       break;
     case UIElement::Type::WIZARD:
       out = new WizardWidget(static_cast<WizardElement*>(_currConfig));
+      break;
+    case UIElement::Type::POPUP:
+      out = new PopupWidget(static_cast<PopupWidget::PopupElement*>(_currConfig));
       break;
     default:
 #if (defined(DEBUG))

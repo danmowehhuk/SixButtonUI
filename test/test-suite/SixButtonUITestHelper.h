@@ -60,7 +60,7 @@ class SixButtonUITestHelper {
 
     bool goToElement(UIElement* element) {
       if (element) {
-        _ui->goTo(element);
+        _ui->setNext(element);
         if (_ui->_currWidget) {
           delete _ui->_currWidget;
           _ui->_currWidget = nullptr;

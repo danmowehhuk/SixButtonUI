@@ -35,20 +35,15 @@ class Widget {
     virtual void loadModel(void* state) = 0;
 
     /*
-     * By default, navigate to the parent node after processing the onEnter
-     * function. Or, if the parent is the root, simply reload the current
-     * element after onEnter.
-     *
-     * Widgets should call this method BEFORE any custom onEnter function
-     * so that the custom function can override this behavior.
-     */
-//    void setDefaultNextUIElement(WidgetModel* widgetModel);
-
-    /*
      * onEnter returns either the same state object passed in or
      * a new one to be passed to future onEnter calls
      */
     virtual void* onEnter(uint8_t value, void* widgetModel, void* state) {};
+
+    /*
+     * onTimerExpired is used for automatically dismissing a popup widget.
+     */
+    virtual void* onTimerExpired(uint8_t value, void* widgetModel, void* state) {};
 
     /*
      * Default implementations of the button handlers.

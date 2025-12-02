@@ -30,7 +30,7 @@ class TextInputWidget: public Widget {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
 
       // Do this before calling onEnterFunc so it can be overridden
-      m->getController()->goToDefault();
+      m->getController()->setNextDefault();
 
       if (_config->onEnterFunc != 0) {
         state = _config->onEnterFunc(m->getValue(), state);

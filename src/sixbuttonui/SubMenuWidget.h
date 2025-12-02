@@ -75,7 +75,7 @@ class SubMenuWidget: public SelectorWidget {
       _config->lastSelected = currIdx;
       char* uiePtr = m->_optionValues[m->_currIndex];
       UIElement* element = reinterpret_cast<UIElement*>(uiePtr);
-      m->getController()->goTo(element);
+      m->getController()->setNext(element);
       return state;
     };
 

@@ -4,6 +4,7 @@
 
 #include <Eventuino.h>
 #include <eventuino/Button.h>
+#include <eventuino/Timer.h>
 #include "sixbuttonui/ComboBoxElement.h"
 #include "sixbuttonui/NavigationConfig.h"
 #include "sixbuttonui/SelectorElement.h"
@@ -13,6 +14,7 @@
 #include "sixbuttonui/ViewModel.h"
 #include "sixbuttonui/Widget.h"
 #include "sixbuttonui/WizardElement.h"
+#include "sixbuttonui/PopupWidget.h"
 
 using namespace eventuino;
 
@@ -23,18 +25,28 @@ class SixButtonUI: public EventSource {
     SixButtonUI(uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
                 uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
                 RenderFunction renderFunction, NavigationConfig* navConfig);
+    ~SixButtonUI() = default;
 
     // Tells SixButtonUI to switch to a different element in the nav config
-    void goTo(UIElement* element);
-    void goTo(uint8_t id);
-
-    // Reload the current widget
-    void reload();
+    void setNext(UIElement* element);
+    void setNext(uint8_t id);
 
     // If the widget's onEnter function doesn't define what UI element to load next,
     // the default behavior is to load the parent element, or if the parent is the root,
     // reload the current element
-    void goToDefault();
+    void setNextDefault();
+
+    // Reload the current widget, refreshing the model
+    void reload();
+
+    // Show a message to the user. Depending on the type, the message may be dismissed by the
+    // user, or automatically dismissed after a timeout. The FATAL option is not cancellable,
+    // requiring a reset of the system to make SixButtonUI responsive again.
+    void showPopup(PopupWidget::Type type, const __FlashStringHelper* message);
+    void showPopup(PopupWidget::Type type, const char* message, bool pmem = false);
+    void showPopup(PopupWidget::Type type, uint16_t duration, const __FlashStringHelper* message);
+    void showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool pmem = false);
+    void dismissPopup();
 
     // Required by EventSource
     void setup() override;
@@ -47,6 +59,7 @@ class SixButtonUI: public EventSource {
     Button _right;
     Button _menuBack;
     Button _selectEnter;
+    Timer14Bit _timer;
     NavigationConfig* _nav;
     RenderFunction _renderFunction;
 
@@ -54,6 +67,7 @@ class SixButtonUI: public EventSource {
     // nav config. If the parent is the NavigationConfig object itself, 
     // switch to the next child instead.
     void menuBack();
+    bool _menuBackDisabled = false;
 
     // Find an element by its id
     UIElement* findElementById(uint8_t id);
@@ -65,7 +79,9 @@ class SixButtonUI: public EventSource {
 
     // The config and widget currently being displayed.
     UIElement* _currConfig;
+    UIElement* _oldCurrConfig = nullptr;
     Widget* _currWidget = nullptr;
+    void unsetNext();
 
     // Destroy and reload the widget and its state on the next render cycle
     bool _forceReloadWidget = false;

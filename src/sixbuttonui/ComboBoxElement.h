@@ -58,6 +58,11 @@ class ComboBoxElement: public SelectorElement {
       return this;
     };
 
+    ComboBoxElement* setHidden(bool hidden) {
+      SelectorElement::setHidden(hidden);
+      return this;
+    };
+
     ComboBoxElement* withModelFunction(SelectorModelFunction modelFunction) {
       SelectorElement::withModelFunction(modelFunction);
       return this;

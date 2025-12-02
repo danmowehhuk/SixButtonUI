@@ -62,7 +62,7 @@ class WizardWidget: public Widget {
       if (m->_numSteps > 0) {
 
         // Do this before calling onEnterFunc so it can be overridden
-        m->getController()->goToDefault();
+        m->getController()->setNextDefault();
 
         if (_config->onEnterFunc != 0) {
           m->captureStepSelection();
