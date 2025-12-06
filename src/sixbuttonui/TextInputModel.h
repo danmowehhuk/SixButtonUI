@@ -12,8 +12,9 @@ class TextInputModel : public WidgetModel {
     static const uint8_t MAX_LENGTH = 64;
 
     bool isInitialized() { return _isInitialized; };
-    void setInitialValue(const char* initValue, bool pmem = false);
-    void setInitialValue(const __FlashStringHelper* initValue);
+    void setInitialValue(const char* initValue); // always allocates
+    void setInitialValue(const __FlashStringHelper* initValue); // always allocates
+    void setInitialValueRaw(const char* initValue, bool pmem);
     uint8_t getCursorPos() { return _cursorPos; };
     char* getValue();
 

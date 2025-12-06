@@ -77,7 +77,7 @@ class TextInputWidget: public Widget {
 
     void onLeftLongPressed(uint8_t value, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
-      m->setInitialValue(" ", false); // clear the value
+      m->setInitialValue(" "); // clear the value
     };
 
 

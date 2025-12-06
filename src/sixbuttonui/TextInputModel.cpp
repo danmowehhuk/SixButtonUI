@@ -1,13 +1,13 @@
 #include "TextInputModel.h"
 
 TextInputModel::TextInputModel(const char* initValue, bool pmem = false) {
-  setInitialValue(initValue, pmem);
+  setInitialValueRaw(initValue, pmem);
 }
 
-void TextInputModel::setInitialValue(const char* initValue, bool pmem = false) {
+void TextInputModel::setInitialValueRaw(const char* initValue, bool pmem) {
   if (_value) free(_value);
   if (!initValue || (pmem ? strlen_P(initValue) : strlen(initValue)) == 0) {
-    setInitialValue(" ", false);
+    setInitialValue(" ");
   } else {
     _valueLen = pmem ? strlen_P(initValue) : strlen(initValue);
     _value = new char[_valueLen + 1];
@@ -22,8 +22,12 @@ void TextInputModel::setInitialValue(const char* initValue, bool pmem = false) {
   _isInitialized = true;
 }
 
+void TextInputModel::setInitialValue(const char* initValue) {
+  setInitialValueRaw(initValue, false);
+}
+
 void TextInputModel::setInitialValue(const __FlashStringHelper* initValue) {
-  setInitialValue(reinterpret_cast<const char*>(initValue), true);
+  setInitialValueRaw(reinterpret_cast<const char*>(initValue), true);
 }
 
 void TextInputModel::setCursorPos(uint8_t pos) {
