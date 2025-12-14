@@ -91,6 +91,9 @@ class TextInputWidget: public Widget {
 
     ViewModel getViewModel() override {
       ViewModel vm(UIElement::Type::TEXT_INPUT, _model);
+      if (_config->hasId()) {
+        vm.setUIElementId(_config->id);
+      }
       vm.setInteractiveLine(_model->getValue(), false);
       vm.cursorMode = ViewModel::CursorMode::UNDERLINE;
       vm.cursorPosition = _model->getCursorPos();

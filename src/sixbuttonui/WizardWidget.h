@@ -85,6 +85,9 @@ class WizardWidget: public Widget {
 
     ViewModel getViewModel() override {
       ViewModel vm(UIElement::Type::WIZARD, _model);
+      if (_config->hasId()) {
+        vm.setUIElementId(_config->id);
+      }
       if (_model->_stepTitle) {
         vm.setTitleLine(_model->_stepTitle, _model->_stepTitlePmem);
       }

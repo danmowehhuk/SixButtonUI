@@ -36,6 +36,11 @@ void ViewModel::setFooterLine(const char* footerLine, bool pmem) {
   _isFooterPmem = pmem;
 }
 
+void ViewModel::setUIElementId(uint8_t uiElementId) {
+  _uiElementId = uiElementId;
+  _hasUIElementId = true;
+}
+
 ViewModel::~ViewModel() {
   _titleLine                = nullptr;
   _instructionLine          = nullptr;
@@ -45,6 +50,8 @@ ViewModel::~ViewModel() {
 
 ViewModel::ViewModel(ViewModel&& other) noexcept:
       _type(other._type),
+      _uiElementId(other._uiElementId),
+      _hasUIElementId(other._hasUIElementId),
       _titleLine(other._titleLine),
       _isTitlePmem(other._isTitlePmem),
       _instructionLine(other._instructionLine),
@@ -63,11 +70,15 @@ ViewModel::ViewModel(ViewModel&& other) noexcept:
   other._instructionLine          = nullptr;
   other._interactiveLine          = nullptr;
   other._footerLine               = nullptr;
+  other._uiElementId              = 0;
+  other._hasUIElementId           = false;
 }
 
 ViewModel& ViewModel::operator=(ViewModel&& other) noexcept {
   if (this != &other) {
     _type = other._type;
+    _uiElementId = other._uiElementId;
+    _hasUIElementId = other._hasUIElementId;
     _titleLine = other._titleLine;
     _isTitlePmem = other._isTitlePmem;
     _instructionLine = other._instructionLine;
@@ -82,6 +93,8 @@ ViewModel& ViewModel::operator=(ViewModel&& other) noexcept {
     isSelectable = other.isSelectable;
     cursorMode = other.cursorMode;
     cursorPosition = other.cursorPosition;
+    other._uiElementId              = 0;
+    other._hasUIElementId           = false;
     other._titleLine                = nullptr;
     other._instructionLine          = nullptr;
     other._interactiveLine          = nullptr;

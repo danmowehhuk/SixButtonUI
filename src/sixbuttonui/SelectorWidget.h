@@ -75,6 +75,9 @@ class SelectorWidget: public Widget {
 
     ViewModel getViewModel() override {
       ViewModel vm(UIElement::Type::SELECTOR, _model);
+      if (_config->hasId()) {
+        vm.setUIElementId(_config->id);
+      }
       if (_model->getNumOptions() > 0) {
         vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
         vm.isSelected = _model->isCurrValueSelected();

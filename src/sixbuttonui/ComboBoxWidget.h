@@ -193,6 +193,9 @@ class ComboBoxWidget: public SelectorWidget {
 
     ViewModel getViewModel() override {
       ViewModel vm(UIElement::Type::COMBO_BOX, _model);
+      if (_config->hasId()) {
+        vm.setUIElementId(_config->id);
+      }
       if (_model->getNumOptions() > 0) {
         if (_invalidOption) {
           // Indicates that one or more options don't start with the search prefix

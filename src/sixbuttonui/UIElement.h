@@ -25,7 +25,7 @@ class UIElement {
       WIZARD,        // Like SELECTOR, but LEFT/RIGHT move thru series of SELECTORS
       POPUP          // A temporary message element
     };
-    const uint8_t id; // Optional unique identifier for the element used in goTo()
+    const uint8_t id; // Optional unique identifier for the element used in setNext()
     const UIElement::Type type;
     const UIElement* getParent() const;
     const uint8_t getChildCount() const;

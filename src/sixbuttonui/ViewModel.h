@@ -40,6 +40,10 @@ class ViewModel {
 
     const UIElement::Type getType() { return _type; };
 
+    uint8_t getUIElementId() { return _uiElementId; };
+    bool hasUIElementId() { return _hasUIElementId; };
+    void setUIElementId(uint8_t uiElementId);
+
     bool isTitlePmem() { return _isTitlePmem; };
     const char* getTitleLine() { return _titleLine; };
     const __FlashStringHelper* getTitleLine_P();
@@ -70,6 +74,8 @@ class ViewModel {
 
   private:
     UIElement::Type _type;
+    uint8_t _uiElementId = 0;
+    bool _hasUIElementId = false;
 
     char* _titleLine = nullptr;
     char* _instructionLine = nullptr;
