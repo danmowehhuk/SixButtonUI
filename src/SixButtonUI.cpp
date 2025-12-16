@@ -182,25 +182,31 @@ void SixButtonUI::reload() {
 }
 
 void SixButtonUI::showPopup(PopupWidget::Type type, const __FlashStringHelper* message) {
-  showPopup(type, reinterpret_cast<const char*>(message), true);
-}
-
-void SixButtonUI::showPopup(PopupWidget::Type type, const char* message, bool pmem = false) {
-  showPopup(type, 1000, message, pmem);
+  showPopupRaw(type, PopupWidget::DEFAULT_DURATION_MS, 
+    reinterpret_cast<const char*>(message), true, false);
 }
 
 void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const __FlashStringHelper* message) {
-  showPopup(type, duration, reinterpret_cast<const char*>(message), true);
+  showPopupRaw(type, duration, reinterpret_cast<const char*>(message),
+    true, false);
 }
 
-void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool pmem = false) {
+void SixButtonUI::showPopup(PopupWidget::Type type, const char* message, bool allocate) {
+  showPopupRaw(type, PopupWidget::DEFAULT_DURATION_MS, message, false, allocate);
+}
 
-  // Override any previous setNext() calls. Dismissing the popup will always restore the last UI state.
+void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool allocate) {
+  showPopupRaw(type, duration, message,    false, allocate);
+}
+
+void SixButtonUI::showPopupRaw(PopupWidget::Type type, uint16_t duration, const char* message, bool pmem, bool allocate) {
+
+    // Override any previous setNext() calls. Dismissing the popup will always restore the last UI state.
   unsetNext();
 
   PopupWidget::PopupElement* popupElement = PopupWidget::getPopupElement();
   popupElement->setPopupType(type);
-  popupElement->setMessage(message, pmem);
+  popupElement->setMessage(message, pmem, allocate);
 
   // Store references to the current widget and state so we can restore it after the popup is dismissed
   popupElement->setReturnTo(_currConfig, _currWidget, _state);

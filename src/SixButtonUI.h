@@ -43,9 +43,10 @@ class SixButtonUI: public EventSource {
     // user, or automatically dismissed after a timeout. The FATAL option is not cancellable,
     // requiring a reset of the system to make SixButtonUI responsive again.
     void showPopup(PopupWidget::Type type, const __FlashStringHelper* message);
-    void showPopup(PopupWidget::Type type, const char* message, bool pmem = false);
     void showPopup(PopupWidget::Type type, uint16_t duration, const __FlashStringHelper* message);
-    void showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool pmem = false);
+    void showPopup(PopupWidget::Type type, const char* message, bool allocate = true);
+    void showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool allocate = true);
+    void showPopupRaw(PopupWidget::Type type, uint16_t duration, const char* message, bool isPmem, bool allocate);
     void dismissPopup();
 
     // Required by EventSource

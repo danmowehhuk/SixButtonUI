@@ -6,6 +6,7 @@
 class PopupWidget: public Widget {
 
   public:
+    static const uint16_t DEFAULT_DURATION_MS = 1000;
 
     enum Type : uint8_t {
       USER_CANCELABLE,
@@ -32,13 +33,15 @@ class PopupWidget: public Widget {
           _popupType = popupType;
         };
 
-        void setMessage(const char* message, bool pmem = false) {
-          if (_message && !_isMessagePmem) free(_message);
+        void setMessage(const char* message, bool pmem, bool allocate) {
+          if (_message && !_ownsMessage) free(_message);
           _isMessagePmem = pmem;
-          if (_isMessagePmem) {
+          if (_isMessagePmem || !allocate) {
             _message = message;
+            _ownsMessage = false;
           } else {
             strdup(message);
+            _ownsMessage = true;
           }
         };
 
@@ -63,6 +66,7 @@ class PopupWidget: public Widget {
 
       private:
         char* _message = nullptr;
+        bool _ownsMessage = false;
         bool _isMessagePmem = false;
         PopupWidget::Type _popupType = PopupWidget::Type::USER_CANCELABLE;
         UIElement* _returnToConfig = nullptr;
