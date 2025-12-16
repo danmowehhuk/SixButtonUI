@@ -35,7 +35,7 @@ void SelectorModel::setOption(uint8_t i, const __FlashStringHelper* name,
   setOptionRaw(i, reinterpret_cast<const char*>(name), true, reinterpret_cast<const char*>(value), true, false, false);
 }
 
-void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool namePmem, const char* value, bool valuePmem, 
+void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool isNamePmem, const char* value, bool isValuePmem, 
       bool allocateName, bool allocateValue) {
   if (_optionNames[i] && _isOwnsOptionName[i]) {
     free(_optionNames[i]);
@@ -43,12 +43,22 @@ void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool namePmem, con
   if (_optionValues[i] && _isOwnsOptionValue[i]) {
     free(_optionValues[i]);
   }
-  _optionNames[i] = allocateName ? strdup(name) : name;
-  _isOwnsOptionName[i] = allocateName;
-  _isOptionNamePmem[i] = namePmem;
-  _optionValues[i] = allocateValue ? strdup(value) : value;
-  _isOwnsOptionValue[i] = allocateValue;
-  _isOptionValuePmem[i] = valuePmem;
+  if (!name || isNamePmem || !allocateName) {
+    _optionNames[i] = name;
+    _isOwnsOptionName[i] = false;
+  } else {
+    _optionNames[i] = strdup(name);
+    _isOwnsOptionName[i] = true;
+  }
+  _isOptionNamePmem[i] = isNamePmem;
+  if (!value || isValuePmem || !allocateValue) {
+    _optionValues[i] = value;
+    _isOwnsOptionValue[i] = false;
+  } else {
+    _optionValues[i] = strdup(value);
+    _isOwnsOptionValue[i] = true;
+  }
+  _isOptionValuePmem[i] = isValuePmem;
 }
 
 void SelectorModel::setCurrValue(const char* currValue, bool allocate) {

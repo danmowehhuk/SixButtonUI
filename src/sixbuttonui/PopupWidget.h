@@ -33,16 +33,16 @@ class PopupWidget: public Widget {
           _popupType = popupType;
         };
 
-        void setMessage(const char* message, bool pmem, bool allocate) {
-          if (_message && !_ownsMessage) free(_message);
-          _isMessagePmem = pmem;
-          if (_isMessagePmem || !allocate) {
+        void setMessageRaw(const char* message, bool isPmem, bool allocate) {
+          if (_message && _ownsMessage) free(_message);
+          if (!message || isPmem || !allocate) {
             _message = message;
             _ownsMessage = false;
           } else {
-            strdup(message);
+            _message = strdup(message);
             _ownsMessage = true;
           }
+          _isMessagePmem = isPmem;
         };
 
         void setReturnTo(UIElement* returnToConfig, Widget* returnToWidget, void* returnToState) {

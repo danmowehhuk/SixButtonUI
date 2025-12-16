@@ -37,8 +37,8 @@ class SelectorModel : public WidgetModel {
     void setOption(uint8_t index, const __FlashStringHelper* name, const char* value, bool allocateValue = true);
     void setOption(uint8_t index, const char* name, const __FlashStringHelper* value, bool allocateName = true);
     void setOption(uint8_t index, const __FlashStringHelper* name, const __FlashStringHelper* value);
-    void setOptionRaw(uint8_t i, const char* name, bool namePmem, const char* value, bool valuePmem, 
-          bool allocateName = false, bool allocateValue = false);
+    void setOptionRaw(uint8_t i, const char* name, bool isNamePmem, const char* value, bool isValuePmem, 
+          bool allocateName = true, bool allocateValue = true);
     void setCurrValue(const char* currValue, bool allocate = true);
     bool isCurrValueSelected();
 

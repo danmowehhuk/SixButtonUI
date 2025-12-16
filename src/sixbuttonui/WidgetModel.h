@@ -12,24 +12,21 @@ class WidgetModel {
     // Force pure virtual
     virtual ~WidgetModel() = 0;
 
-    void setTitle(const char* title, bool allocate = false);
+    void setTitle(const char* title, bool allocate = true);
     void setTitle(const __FlashStringHelper* titlePmem);
-    // For string literals only (RAM or PROGMEM)
-    void setTitleRaw(const char* title, bool pmem);
+    void setTitleRaw(const char* title, bool isPmem, bool allocate);
     bool isTitlePmem() { return _isTitlePmem; };
     const char* getTitle();
 
-    void setInstruction(const char* instruction, bool allocate = false);
+    void setInstruction(const char* instruction, bool allocate = true);
     void setInstruction(const __FlashStringHelper* instructionPmem);
-    // For string literals only (RAM or PROGMEM)
-    void setInstructionRaw(const char* instruction, bool pmem);
+    void setInstructionRaw(const char* instruction, bool isPmem, bool allocate);
     bool isInstructionPmem() { return _isInstructionPmem; };
     const char* getInstruction();
 
-    void setFooter(const char* footer, bool allocate = false);
+    void setFooter(const char* footer, bool allocate = true);
     void setFooter(const __FlashStringHelper* footerPmem);
-    // For string literals only (RAM or PROGMEM)
-    void setFooterRaw(const char* footer, bool pmem);
+    void setFooterRaw(const char* footer, bool isPmem, bool allocate);
     bool isFooterPmem() { return _isFooterPmem; };
     const char* getFooter();
 

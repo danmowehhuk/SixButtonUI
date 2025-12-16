@@ -28,7 +28,7 @@ class SubMenuWidget: public SelectorWidget {
     void loadModel(void* state) override {
       // Default title is what was set in NavigationConfig
       if (_config->getTitle()) {
-        _model->setTitleRaw(_config->getTitle(), _config->isTitlePmem());
+        _model->setTitleRaw(_config->getTitle(), _config->isTitlePmem(), false);
       } else {
         _model->setTitle(F(""));
       }
@@ -40,10 +40,10 @@ class SubMenuWidget: public SelectorWidget {
 
       // Load the non-customizable fields from the element configuration
       if (_config->getInstruction()) {
-        _model->setInstructionRaw(_config->getInstruction(), _config->isInstructionPmem());
+        _model->setInstructionRaw(_config->getInstruction(), _config->isInstructionPmem(), false);
       }
       if (_config->getFooter()) {
-        _model->setFooterRaw(_config->getFooter(), _config->isFooterPmem());
+        _model->setFooterRaw(_config->getFooter(), _config->isFooterPmem(), false);
       }
 
       uint8_t count = _config->getChildCount();
@@ -59,8 +59,7 @@ class SubMenuWidget: public SelectorWidget {
         // Force the UIElement* into a char* but set allocate* to false so it's
         // not strdup'ed
         _model->setOptionRaw(visibleIndex, child->getTitle(), child->isTitlePmem(), 
-        reinterpret_cast<char*>(child), false, false,
-         false);
+        reinterpret_cast<char*>(child), false, false, false);
         visibleIndex++;
       }
 

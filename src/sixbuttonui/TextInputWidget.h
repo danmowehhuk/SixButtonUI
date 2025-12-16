@@ -15,7 +15,11 @@ class TextInputWidget: public Widget {
 
   protected:
     void initModel() override {
-      _model = new TextInputModel(_config->getInitialValue(), _config->isInitialValuePmem());
+      if (_config->isInitialValuePmem()) {
+        _model = new TextInputModel(reinterpret_cast<const __FlashStringHelper*>(_config->getInitialValue()));
+      } else {
+        _model = new TextInputModel(_config->getInitialValue());
+      }
       // model is static so only loads once
       _noRefreshModel = true;
     };

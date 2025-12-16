@@ -206,7 +206,7 @@ void SixButtonUI::showPopupRaw(PopupWidget::Type type, uint16_t duration, const 
 
   PopupWidget::PopupElement* popupElement = PopupWidget::getPopupElement();
   popupElement->setPopupType(type);
-  popupElement->setMessage(message, pmem, allocate);
+  popupElement->setMessageRaw(message, pmem, allocate);
 
   // Store references to the current widget and state so we can restore it after the popup is dismissed
   popupElement->setReturnTo(_currConfig, _currWidget, _state);

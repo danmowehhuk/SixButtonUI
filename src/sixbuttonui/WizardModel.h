@@ -4,6 +4,8 @@
 
 #include "Strings.h"
 #include "WidgetModel.h"
+#include "SelectorModel.h"
+#include "SelectorElement.h"
 
 using namespace SixButtonUIStrings;
 
@@ -20,19 +22,12 @@ class WizardModel : public WidgetModel {
       clear();
     };
 
-    void setStepInitialValue(const uint8_t step, const __FlashStringHelper* value) {
-      setStepInitialValue(step, reinterpret_cast<const char*>(value), true);
-    }
-
-    void setStepInitialValue(const uint8_t step, const char* value, bool valuePmem = false) {
-      if (_selectionValues[step]) free(_selectionValues[step]);
-      _selectionValues[step] = valuePmem ? strdup_P(value) : strdup(value);
-    }
-
-    void setStepTitle(const char* title, bool titlePmem) {
-      _stepTitle = title;
-      _stepTitlePmem = titlePmem;
-    }
+    void setStepInitialValue(const uint8_t step, const char* value);
+    void setStepInitialValue(const uint8_t step, const __FlashStringHelper* value);
+    void setStepInitialValueRaw(const uint8_t step, const char* value, bool isPmem);
+    void setStepTitle(const char* title, bool allocate = true);
+    void setStepTitle(const __FlashStringHelper* title);
+    void setStepTitleRaw(const char* title, bool isPmem, bool allocate);
 
     // Disable moving and copying
     WizardModel(WizardModel&& other) = delete;
@@ -46,6 +41,7 @@ class WizardModel : public WidgetModel {
     uint8_t _currStep = 0;
     char* _stepTitle = nullptr;
     bool _stepTitlePmem = false;
+    bool _ownsStepTitle = false;
     char** _selectionNames = nullptr;
     char** _selectionValues = nullptr;
 
@@ -78,8 +74,7 @@ class WizardModel : public WidgetModel {
       _selectorModel = new SelectorModel();
       if (selectorElement) {
         if (selectorElement->getTitle()) {
-          _stepTitle = selectorElement->getTitle();
-          _stepTitlePmem = selectorElement->isTitlePmem();
+          setStepTitleRaw(selectorElement->getTitle(), selectorElement->isTitlePmem(), false);
         }
         if (selectorElement->modelLoader != 0) {
           selectorElement->modelLoader(_selectorModel, state);

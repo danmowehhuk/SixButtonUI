@@ -6,15 +6,16 @@
 
 class TextInputModel : public WidgetModel {
   public:
-    TextInputModel(const char* initValue, bool pmem = false);
+    TextInputModel(const char* initValue);
+    TextInputModel(const __FlashStringHelper* initValue);
     ~TextInputModel() { clear(); };
 
     static const uint8_t MAX_LENGTH = 64;
 
     bool isInitialized() { return _isInitialized; };
-    void setInitialValue(const char* initValue); // always allocates
-    void setInitialValue(const __FlashStringHelper* initValue); // always allocates
-    void setInitialValueRaw(const char* initValue, bool pmem);
+    void setInitialValue(const char* initValue);
+    void setInitialValue(const __FlashStringHelper* initValue);
+    void setInitialValueRaw(const char* initValue, bool isPmem);
     uint8_t getCursorPos() { return _cursorPos; };
     char* getValue();
 

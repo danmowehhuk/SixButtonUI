@@ -1,7 +1,11 @@
 #include "TextInputModel.h"
 
-TextInputModel::TextInputModel(const char* initValue, bool pmem = false) {
-  setInitialValueRaw(initValue, pmem);
+TextInputModel::TextInputModel(const char* initValue) {
+  setInitialValueRaw(initValue, false);
+}
+
+TextInputModel::TextInputModel(const __FlashStringHelper* initValue) {
+  setInitialValueRaw(reinterpret_cast<const char*>(initValue), true);
 }
 
 void TextInputModel::setInitialValueRaw(const char* initValue, bool pmem) {
@@ -10,6 +14,7 @@ void TextInputModel::setInitialValueRaw(const char* initValue, bool pmem) {
     setInitialValue(" ");
   } else {
     _valueLen = pmem ? strlen_P(initValue) : strlen(initValue);
+    // Always allocate because TextInputModel needs a writable copy for editing
     _value = new char[_valueLen + 1];
     if (pmem) {
       strncpy_P(_value, initValue, _valueLen);
