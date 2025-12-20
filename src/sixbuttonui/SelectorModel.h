@@ -40,6 +40,7 @@ class SelectorModel : public WidgetModel {
     void setOptionRaw(uint8_t i, const char* name, bool isNamePmem, const char* value, bool isValuePmem, 
           bool allocateName = true, bool allocateValue = true);
     void setCurrValue(const char* currValue, bool allocate = true);
+    void setInitialSearchPrefix(const char* searchPrefix, bool allocate = true);
     bool isCurrValueSelected();
 
     // Set an initial selection
@@ -82,6 +83,8 @@ class SelectorModel : public WidgetModel {
     bool _isOwnsCurrValue = false;
     const char* _searchPrefix = nullptr;
     bool _isOwnsSearchPrefix = false;
+    const char* _initialSearchPrefix = nullptr;
+    bool _isOwnsInitialSearchPrefix = false;
     const char* _selectionName = nullptr;
     bool _isSelectionNamePmem = false;
     bool _isOwnsSelectionName = false;

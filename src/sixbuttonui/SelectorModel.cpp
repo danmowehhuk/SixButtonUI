@@ -69,6 +69,19 @@ void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
   _isOwnsCurrValue = allocate;
 }
 
+void SelectorModel::setInitialSearchPrefix(const char* searchPrefix, bool allocate) {
+  if (_initialSearchPrefix && _isOwnsInitialSearchPrefix) {
+    free(_initialSearchPrefix);
+  }
+  if (!searchPrefix || !allocate) {
+    _initialSearchPrefix = searchPrefix;
+    _isOwnsInitialSearchPrefix = false;
+  } else {
+    _initialSearchPrefix = strdup(searchPrefix);
+    _isOwnsInitialSearchPrefix = true;
+  }
+}
+
 bool SelectorModel::isCurrValueSelected() {
   if (_currValue && _isOptionValuePmem[_currIndex] 
       && strcmp_P(_currValue, _optionValues[_currIndex]) == 0) {
@@ -142,6 +155,9 @@ void SelectorModel::clear() {
   if (_currValue && _isOwnsCurrValue) {
     free(_currValue);
   }
+  if (_initialSearchPrefix && _isOwnsInitialSearchPrefix) {
+    free(_initialSearchPrefix);
+  }
   if (_searchPrefix && _isOwnsSearchPrefix) {
     free(_searchPrefix);
   }
@@ -150,6 +166,8 @@ void SelectorModel::clear() {
   }
   _currValue = nullptr;
   _isOwnsCurrValue = false;
+  _initialSearchPrefix = nullptr;
+  _isOwnsInitialSearchPrefix = false;
   _searchPrefix = nullptr;
   _isOwnsSearchPrefix = false;
   _selectionName = nullptr;
