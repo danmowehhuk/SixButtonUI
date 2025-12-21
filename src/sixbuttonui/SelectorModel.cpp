@@ -65,8 +65,13 @@ void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
   if (_currValue && _isOwnsCurrValue) {
     free(_currValue);
   }
-  _currValue = allocate ? strdup(currValue) : currValue;
-  _isOwnsCurrValue = allocate;
+  if (!currValue || !allocate) {
+    _currValue = currValue;
+    _isOwnsCurrValue = false;
+  } else {
+    _currValue = strdup(currValue);
+    _isOwnsCurrValue = true;
+  }
 }
 
 void SelectorModel::setInitialSearchPrefix(const char* searchPrefix, bool allocate) {
@@ -98,19 +103,24 @@ void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
   if (_searchPrefix && _isOwnsSearchPrefix) {
     free(_searchPrefix);
   }
-  _searchPrefix = allocate ? strdup(searchPrefix) : searchPrefix;
-  _isOwnsSearchPrefix = allocate;
+  if (!searchPrefix || !allocate) {
+    _searchPrefix = searchPrefix;
+    _isOwnsSearchPrefix = false;
+  } else {
+    _searchPrefix = strdup(searchPrefix);
+    _isOwnsSearchPrefix = true;
+  }
 }
 
-bool SelectorModel::selectOptionWithValue(char* value) {
+bool SelectorModel::selectOptionWithValue(const char* value) {
   return selectOptionBy(value, _optionValues, _isOptionValuePmem);
 }
 
-bool SelectorModel::selectOptionWithName(char* name) {
+bool SelectorModel::selectOptionWithName(const char* name) {
   return selectOptionBy(name, _optionNames, _isOptionNamePmem);
 }
 
-bool SelectorModel::selectOptionBy(char* key, const char** arr, const bool* isPmemArr) {
+bool SelectorModel::selectOptionBy(const char* key, const char** arr, const bool* isPmemArr) {
   _currIndex = 0;
   if (!key || strlen(key) == 0) return true;
   bool match = false;

@@ -19,40 +19,63 @@ class ComboBoxWidget: public SelectorWidget {
     };
 
   protected:
-    void initModel() override {
+
+    // Initializes the SelectorModel just like a SelectorWidget. However, the ComboBoxWidget
+    // needs to reload the model on every render, so set _noRefreshModel to false.
+    virtual void initModel() override {
       SelectorWidget::initModel();
-      // model is dynamic, so attempt reload on every render
       _noRefreshModel = false;
     };
 
     void loadModel(void* state) override {
-      if (!_doModelReload) return; // up/down triggers re-render but not reload
-      _invalidOption = false;
+      // This method is called on every render, but the model does not need to be reloaded
+      // every time; e.g. up/down triggers re-render but not reload.
+      if (!_doModelReload) return;
+
       _model->_currIndex = 0;
+
+      // Call the provided model function to load the options for the current search prefix.
+      // It is the user's responsibility to ensure that the options loaded actually begin with
+      // the search prefix.
       if (_config->modelLoader != 0) {
         _config->modelLoader(_model, state);
       }
 
+      // Do some additional model setup on the first load.
       if (_isFirstModelLoad) {
-        _model->setSearchPrefix("", true);
+
+        // Initialize the search prefix for subsequent loads.
+        if (_model->_initialSearchPrefix) {
+          _model->setSearchPrefix(_model->_initialSearchPrefix);
+        } else {
+          _model->setSearchPrefix("");
+        }
+
+        // If a current value is set, preselect the option with that value.
         if (_model->_currValue && _model->selectOptionWithValue(_model->_currValue)) {
-          // The matching option name will now be used as the search prefix
-          char* searchPrefix = dupOptionName();
-          _model->setSearchPrefix(searchPrefix, true);
-          free(searchPrefix);
+
+          // If no initial search prefix is set, use the matching option name as the new search prefix.
+          if (!_model->_initialSearchPrefix) {
+            char* searchPrefix = dupOptionName();
+            _model->setSearchPrefix(searchPrefix);
+            free(searchPrefix);
+          }
           _isInitialRender = true;
         }
         _isFirstModelLoad = false;
         _doModelReload = true;
+
       } else if (_prevSearchPrefix && strlen(_prevSearchPrefix) > strlen(_model->getSearchPrefix())) {
-        // When moving the cursor left, select the previous search prefix so the selection doesn't
-        // jump to the first option, breaking ux continuity
+        // Not the first load, but may need to handle a left-arrow press (trimming off the last
+        // character of the previous search prefix). When moving the cursor left, select the previous 
+        // completion option so the selection doesn't jump to the first option, breaking UX continuity
         if (_prevSearchPrefix && strlen(_prevSearchPrefix) > 0) {
           char lastChar[2] = { _prevSearchPrefix[strlen(_prevSearchPrefix) - 1], '\0' };
           _model->selectOptionWithName(lastChar);
         }
       }
 
+      // Handle the case where the latest search prefix returned no results.
       if (strlen(_model->getSearchPrefix()) > 0 && _model->getNumOptions() == 0) {
         // Got no results after pressing "right," so trim back to previous search prefix
         onLeftPressed(0, _model);
@@ -63,7 +86,6 @@ class ComboBoxWidget: public SelectorWidget {
       }
 
       _cursorPos = strlen(_model->_searchPrefix);
-      validateOptions();
       _doModelReload = false;
     };
 
@@ -125,11 +147,17 @@ class ComboBoxWidget: public SelectorWidget {
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      if (m->_numOptions > 0 && m->getOptionValue() != nullptr && strlen(m->getOptionValue()) > 0) {
-        m->_selectionName = dupOptionName();
-        m->_isSelectionNamePmem = false;
-        m->_isOwnsSelectionName = true;
-        return SelectorWidget::onEnter(value, widgetModel, state);
+      if (m->_numOptions > 0) {
+        if (m->getOptionValue() != nullptr && strlen(m->getOptionValue()) > 0) {
+          m->_selectionName = dupOptionName();
+          m->_isSelectionNamePmem = false;
+          m->_isOwnsSelectionName = true;
+          return SelectorWidget::onEnter(value, widgetModel, state);
+        } else if (m->_currValue) {
+          // The option value is empty, but the current value was set. 
+          // This happens when the user is explicitly clearing the prior value.
+          return SelectorWidget::onEnter(value, widgetModel, state);
+        }
       }
       return state;
     };
@@ -140,7 +168,6 @@ class ComboBoxWidget: public SelectorWidget {
     bool _isInitialRender = false;
     uint8_t _cursorPos = 0;
     bool _doModelReload = true;
-    bool _invalidOption = false;
     char* _prevSearchPrefix = nullptr;
     char* _tmpInteractiveLine = nullptr;
 
@@ -174,50 +201,29 @@ class ComboBoxWidget: public SelectorWidget {
       return result;
     };
 
-    void validateOptions() {
-      for (uint8_t i = 0; i < _model->_numOptions; i++) {
-        char* optionName = dupOptionName(i);
-        if (!startsWith(optionName, _model->_searchPrefix)) {
-          _invalidOption = true;
-#if defined (DEBUG)
-          Serial.print(F("'"));
-          Serial.print(optionName);
-          Serial.print(F("' does not start with search prefix: '"));
-          Serial.print(_model->_searchPrefix);
-          Serial.println(F("'"));
-#endif
-        }
-        free(optionName);
-      }
-    };
-
     ViewModel getViewModel() override {
       ViewModel vm(UIElement::Type::COMBO_BOX, _model);
       if (_config->hasId()) {
         vm.setUIElementId(_config->id);
       }
       if (_model->getNumOptions() > 0) {
-        if (_invalidOption) {
-          // Indicates that one or more options don't start with the search prefix
-          vm.setInteractiveLine(PSTR("  err"), true);
+        if (_isInitialRender && !_model->_initialSearchPrefix) {
+          // Option name is initial value - display as-is
+          vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
         } else {
-          if (_isInitialRender) {
-            // Option name is initial value - display as-is
-            vm.setInteractiveLine(_model->getOptionName(), _model->isOptionNamePmem());
-          } else {
-            // Prepend option name with search prefix
-            setTmpInteractiveLine();
-            vm.setInteractiveLine(_tmpInteractiveLine, false);
-          }
-          vm.cursorPosition = _cursorPos;
-          if (_model->getOptionValue() == nullptr) {
-            vm.isSelectable = false;
-          } else {
-            vm.isSelectable = true;
-          }  
+          // Prepend option name with search prefix
+          setTmpInteractiveLine();
+          vm.setInteractiveLine(_tmpInteractiveLine, false);
         }
+        
+        vm.cursorPosition = _cursorPos;
+        if (_model->getOptionValue() == nullptr) {
+          vm.isSelectable = false;
+        } else {
+          vm.isSelectable = true;
+        }  
 
-      if (_isInitialRender) {
+        if (_isInitialRender) {
           vm.cursorMode = ViewModel::NO_CURSOR;
         } else {
           vm.cursorMode = ViewModel::UNDERLINE;

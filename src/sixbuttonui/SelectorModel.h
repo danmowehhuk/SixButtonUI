@@ -23,7 +23,7 @@ class SelectorModel : public WidgetModel {
      * Methods for populating the model
      */
 
-    // Initialize the option arrays with this many elements
+    // Initialize the option arrays with this many elements. This must be called before setting options.
     void setNumOptions(uint8_t numOptions);
 
     // Multiple ways of adding a name/value pair to the list of options.
@@ -39,13 +39,25 @@ class SelectorModel : public WidgetModel {
     void setOption(uint8_t index, const __FlashStringHelper* name, const __FlashStringHelper* value);
     void setOptionRaw(uint8_t i, const char* name, bool isNamePmem, const char* value, bool isValuePmem, 
           bool allocateName = true, bool allocateValue = true);
+
+    // (Optional) 
+    // Store the previously selected value. If this value is selected, isCurrValueSelected() will return
+    // true. This can be used by the user's render function to indicate that selecting this value will
+    // be a no-op. Note: Setting the current value does not cause the option to be preselected. Use the
+    // selectOptionWith...() methods to preselect the option.
     void setCurrValue(const char* currValue, bool allocate = true);
-    void setInitialSearchPrefix(const char* searchPrefix, bool allocate = true);
     bool isCurrValueSelected();
 
-    // Set an initial selection
-    bool selectOptionWithName(char* name);
-    bool selectOptionWithValue(char* value);
+    // (Optional)
+    // When used with a ComboBoxWidget, this value will be prefilled in the text field. Note: Setting 
+    // this value may not cause any option to be preselected, nor does it guarantee that the option will
+    // even be selectable if the model function doesn't return a matching result for this search prefix.
+    void setInitialSearchPrefix(const char* searchPrefix, bool allocate = true);
+
+    // (Optional)
+    // Set an initial selection. This will cause the option to be preselected if it exists.
+    bool selectOptionWithName(const char* name);
+    bool selectOptionWithValue(const char* value);
 
     // Methods for getting values from the model
     uint8_t getCurrIndex()        { return _currIndex; };
@@ -88,11 +100,13 @@ class SelectorModel : public WidgetModel {
     const char* _selectionName = nullptr;
     bool _isSelectionNamePmem = false;
     bool _isOwnsSelectionName = false;
-    bool selectOptionBy(char* key, const char** arr, const bool* isPmemArr);
+    bool selectOptionBy(const char* key, const char** arr, const bool* isPmemArr);
     void setSearchPrefix(const char* searchPrefix, bool allocate = true);
     void resetOptions();
     void clear();
 
+    // All of the following are backed by SelectorModels and need access to the private members.
+    // The private members should not be accessible by the user's model functions.
     friend class SelectorWidget;
     friend class SubMenuWidget;
     friend class ComboBoxWidget;
