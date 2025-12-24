@@ -50,55 +50,50 @@ class SelectorWidget: public Widget {
         return state;
       }
 
+      // The option name from the array may not be the actual selection name (e.g. for a 
+      // ComboBoxWidget, it's just the completion that follows the search prefix). The
+      // subclass may populate _selectionName with the actual selection name. If this is
+      // the case, use it instead of the option name from the array.
+      const char* selectionName = m->_selectionName;
+      bool isNamePmem = m->_isSelectionNamePmem;
+
+      if (!selectionName) {
+        // Fall back to the option name from the array.
+        selectionName = m->_optionNames[m->_currIndex];
+        isNamePmem = m->_isOptionNamePmem[m->_currIndex];
+      }
+
       // Get the value for the currently selected option.
       char* selectionValue = m->_optionValues[m->_currIndex];
       bool isValuePmem = m->_isOptionValuePmem[m->_currIndex];
 
-      if (selectionValue != nullptr && strlen(selectionValue) > 0) {
-        // The value is non-empty, so a valid selection has been made.
+      if (_config->onEnterFunc != 0) {
 
-        if (_config->onEnterFunc != 0) {
-          // The option name from the array may not be the actual selection name (e.g. for a 
-          // ComboBoxWidget, it's just the completion that follows the search prefix). The
-          // subclass may populate _selectionName with the actual selection name. If this is
-          // the case, use it instead of the option name from the array.
-          const char* selectionName = m->_selectionName;
-          bool isNamePmem = m->_isSelectionNamePmem;
+        // Apply the default logic for setting the next menu location to display. This must be done
+        // before calling the user's onEnter function so it can be overridden.
+        m->getController()->setNextDefault();
 
-          if (!selectionName) {
-            // Fall back to the option name from the array.
-            selectionName = m->_optionNames[m->_currIndex];
-            isNamePmem = m->_isOptionNamePmem[m->_currIndex];
-          }
-
-          // Apply the default logic for setting the next menu location to display. This must be done
-          // before calling the user's onEnter function so it can be overridden.
-          m->getController()->setNextDefault();
-
+        if (selectionValue != nullptr && strlen(selectionValue) > 0) {
+          // The value is non-empty, so a valid selection has been made.
           // Call the provided onEnter function with the selection name and value
           state = _config->onEnterFunc(selectionName, isNamePmem, selectionValue, isValuePmem, state);
-        }
 
-      } else {
-        // The selection value is null or empty, and the search prefix is empty. For a
-        // SelectorWidget or SubMenuWidget, this is a no-op. For a ComboBoxWidget, however, this
-        // happens when the user is explicitly clearing the prior value.
+        } else if ((!selectionName || strlen(selectionName) == 0 || strcmp(selectionName, " ") == 0)
+              && m->_initialSearchPrefix && strlen(m->_initialSearchPrefix) > 0) {
+          // The selection value is null or empty, and the search prefix is empty. For a
+          // SelectorWidget or SubMenuWidget, this is a no-op. For a ComboBoxWidget, however, this
+          // happens when the user is explicitly clearing the prior value.
 
-        if ((!m->_searchPrefix || strlen(m->_searchPrefix) == 0)
-             && m->_initialSearchPrefix && strlen(m->_initialSearchPrefix) > 0) {
           // Having a non-empty initial search prefix indicates that 1) this is a ComboBoxWidget, and
           // 2) there was a prior value that is now being cleared.
 
-          if (_config->onEnterFunc != 0) {
-            // Apply the default logic for setting the next menu location to display. This must be done
-            // before calling the user's onEnter function so it can be overridden.
-            m->getController()->setNextDefault();
+          // Call the provided onEnter function with nullptr for the selection name and value.
+          // The user-provided onEnter function is expected to handle this case.
+          state = _config->onEnterFunc(nullptr, false, nullptr, false, state);
 
-            // Call the provided onEnter function with nullptr for the selection name and value.
-            // The user-provided onEnter function is expected to handle this case.
-            state = _config->onEnterFunc(nullptr, false, nullptr, false, state);
-          }
-
+        } else {
+          // No valid selection has been made, so return to the same menu location.
+          m->getController()->unsetNext();
         }
       }
       return state;

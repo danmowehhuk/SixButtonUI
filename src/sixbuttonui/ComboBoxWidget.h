@@ -156,6 +156,9 @@ class ComboBoxWidget: public SelectorWidget {
         } else if (m->_currValue) {
           // The option value is empty, but the current value was set. 
           // This happens when the user is explicitly clearing the prior value.
+          m->_selectionName = dupOptionName();
+          m->_isSelectionNamePmem = false;
+          m->_isOwnsSelectionName = true;
           return SelectorWidget::onEnter(value, widgetModel, state);
         }
       }

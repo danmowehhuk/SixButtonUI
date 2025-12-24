@@ -36,6 +36,9 @@ class SixButtonUI: public EventSource {
     // reload the current element
     void setNextDefault();
 
+    // Stay on the same widget and don't clear the model
+    void unsetNext();
+
     // Reload the current widget, refreshing the model
     void reload();
 
@@ -82,7 +85,6 @@ class SixButtonUI: public EventSource {
     UIElement* _currConfig;
     UIElement* _oldCurrConfig = nullptr;
     Widget* _currWidget = nullptr;
-    void unsetNext();
 
     // Destroy and reload the widget and its state on the next render cycle
     bool _forceReloadWidget = false;
