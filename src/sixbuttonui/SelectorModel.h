@@ -46,6 +46,8 @@ class SelectorModel : public WidgetModel {
     // be a no-op. Note: Setting the current value does not cause the option to be preselected. Use the
     // selectOptionWith...() methods to preselect the option.
     void setCurrValue(const char* currValue, bool allocate = true);
+    void setCurrValue(const __FlashStringHelper* currValue);
+    void setCurrValueRaw(const char* currValue, bool isPmem, bool allocate);
     bool isCurrValueSelected();
 
     // (Optional)
@@ -92,6 +94,7 @@ class SelectorModel : public WidgetModel {
     bool* _isOptionValuePmem = nullptr;
     bool* _isOwnsOptionValue = nullptr;
     const char* _currValue = nullptr;
+    bool _isCurrValuePmem = false;
     bool _isOwnsCurrValue = false;
     const char* _searchPrefix = nullptr;
     bool _isOwnsSearchPrefix = false;

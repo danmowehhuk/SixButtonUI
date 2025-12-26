@@ -1,4 +1,5 @@
 #include "SelectorModel.h"
+#include "Strings.h"
 
 void SelectorModel::setNumOptions(uint8_t numOptions) {
   if (_numOptions > 0) {
@@ -62,16 +63,25 @@ void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool isNamePmem, c
 }
 
 void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
+  setCurrValueRaw(currValue, false, allocate);
+}
+
+void SelectorModel::setCurrValue(const __FlashStringHelper* currValue) {
+  setCurrValueRaw(reinterpret_cast<const char*>(currValue), true, false);
+}
+
+void SelectorModel::setCurrValueRaw(const char* currValue, bool isPmem, bool allocate) {
   if (_currValue && _isOwnsCurrValue) {
     free(_currValue);
   }
-  if (!currValue || !allocate) {
+  if (!currValue || isPmem || !allocate) {
     _currValue = currValue;
     _isOwnsCurrValue = false;
   } else {
     _currValue = strdup(currValue);
     _isOwnsCurrValue = true;
   }
+  _isCurrValuePmem = isPmem;
 }
 
 void SelectorModel::setInitialSearchPrefix(const char* searchPrefix, bool allocate) {
@@ -88,15 +98,26 @@ void SelectorModel::setInitialSearchPrefix(const char* searchPrefix, bool alloca
 }
 
 bool SelectorModel::isCurrValueSelected() {
+  // Quick return when comparing two PROGMEM strings (pointer comparison only)
+  if (_currValue && _isCurrValuePmem && _isOptionValuePmem[_currIndex]
+           && _currValue == _optionValues[_currIndex]) {
+    return true;
+  }
+
+  bool isMatch = false;
+  char* currValueRAM = _currValue;
+  if (_currValue && _isCurrValuePmem) currValueRAM = SixButtonUIStrings::strdup_P(_currValue);
   if (_currValue && _isOptionValuePmem[_currIndex] 
       && strcmp_P(_currValue, _optionValues[_currIndex]) == 0) {
-    return true;
+    isMatch = true;
   } else if (_currValue && !_isOptionValuePmem[_currIndex] 
       && strcmp(_currValue, _optionValues[_currIndex]) == 0) {
-    return true;
-  } else {
-    return false;
+    isMatch = true;
   }
+  if (currValueRAM && _isCurrValuePmem) {
+    free(currValueRAM);
+  }
+  return isMatch;
 }
 
 void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
@@ -125,7 +146,8 @@ bool SelectorModel::selectOptionBy(const char* key, const char** arr, const bool
   if (!key || strlen(key) == 0) return true;
   bool match = false;
   for (uint8_t i = 0; i < _numOptions; i++) {
-    if ((!isPmemArr[i] && strcmp(key, arr[i]) == 0)
+    if (key == arr[i] // try pointer equality first
+        || (!isPmemArr[i] && strcmp(key, arr[i]) == 0)
         || (isPmemArr[i] && strcmp_P(key, arr[i]) == 0)) {
       _currIndex = i;
       match = true;
@@ -175,6 +197,7 @@ void SelectorModel::clear() {
     free(_selectionName);
   }
   _currValue = nullptr;
+  _isCurrValuePmem = false;
   _isOwnsCurrValue = false;
   _initialSearchPrefix = nullptr;
   _isOwnsInitialSearchPrefix = false;
