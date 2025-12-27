@@ -73,12 +73,15 @@ class SelectorWidget: public Widget {
         // before calling the user's onEnter function so it can be overridden.
         m->getController()->setNextDefault();
 
-        if (selectionValue != nullptr && strlen(selectionValue) > 0) {
+        if (selectionValue != nullptr 
+                 && ((isValuePmem ? strlen_P(selectionValue) : strlen(selectionValue)) > 0)) {
           // The value is non-empty, so a valid selection has been made.
           // Call the provided onEnter function with the selection name and value
           state = _config->onEnterFunc(selectionName, isNamePmem, selectionValue, isValuePmem, state);
 
-        } else if ((!selectionName || strlen(selectionName) == 0 || strcmp(selectionName, " ") == 0)
+        } else if ((!selectionName 
+              || (isNamePmem ? strlen_P(selectionName) : strlen(selectionName)) == 0 
+              || (isNamePmem ? strcmp_P(" ", selectionName) : strcmp(" ", selectionName)) == 0)
               && m->_initialSearchPrefix && strlen(m->_initialSearchPrefix) > 0) {
           // The selection value is null or empty, and the search prefix is empty. For a
           // SelectorWidget or SubMenuWidget, this is a no-op. For a ComboBoxWidget, however, this

@@ -65,7 +65,8 @@ class ComboBoxWidget: public SelectorWidget {
         _isFirstModelLoad = false;
         _doModelReload = true;
 
-      } else if (_prevSearchPrefix && strlen(_prevSearchPrefix) > strlen(_model->getSearchPrefix())) {
+      } else if (_prevSearchPrefix && _model->getSearchPrefix() 
+                 && strlen(_prevSearchPrefix) > strlen(_model->getSearchPrefix())) {
         // Not the first load, but may need to handle a left-arrow press (trimming off the last
         // character of the previous search prefix). When moving the cursor left, select the previous 
         // completion option so the selection doesn't jump to the first option, breaking UX continuity
@@ -85,7 +86,7 @@ class ComboBoxWidget: public SelectorWidget {
         loadModel(state);
       }
 
-      _cursorPos = strlen(_model->_searchPrefix);
+      _cursorPos = _model->_searchPrefix ? strlen(_model->_searchPrefix) : 0;
       _doModelReload = false;
     };
 
