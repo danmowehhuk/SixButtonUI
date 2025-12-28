@@ -59,7 +59,9 @@ class SelectorModel : public WidgetModel {
     // (Optional)
     // Set an initial selection. This will cause the option to be preselected if it exists.
     bool selectOptionWithName(const char* name);
+    bool selectOptionWithName(const __FlashStringHelper* name);
     bool selectOptionWithValue(const char* value);
+    bool selectOptionWithValue(const __FlashStringHelper* value);
 
     // Methods for getting values from the model
     uint8_t getCurrIndex()        { return _currIndex; };
@@ -103,7 +105,9 @@ class SelectorModel : public WidgetModel {
     const char* _selectionName = nullptr;
     bool _isSelectionNamePmem = false;
     bool _isOwnsSelectionName = false;
-    bool selectOptionBy(const char* key, const char** arr, const bool* isPmemArr);
+    bool selectOptionWithNameRaw(const char* name, bool isNamePmem);
+    bool selectOptionWithValueRaw(const char* value, bool isValuePmem);
+    bool selectOptionBy(const char* key, bool isKeyPmem, const char** arr, const bool* isPmemArr);
     void setSearchPrefix(const char* searchPrefix, bool allocate = true);
     void resetOptions();
     void clear();

@@ -52,7 +52,7 @@ class ComboBoxWidget: public SelectorWidget {
         }
 
         // If a current value is set, preselect the option with that value.
-        if (_model->_currValue && _model->selectOptionWithValue(_model->_currValue)) {
+        if (_model->_currValue && _model->selectOptionWithValueRaw(_model->_currValue, _model->_isCurrValuePmem)) {
 
           // If no initial search prefix is set, use the matching option name as the new search prefix.
           if (!_model->_initialSearchPrefix) {

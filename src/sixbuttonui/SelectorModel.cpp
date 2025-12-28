@@ -134,26 +134,63 @@ void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
 }
 
 bool SelectorModel::selectOptionWithValue(const char* value) {
-  return selectOptionBy(value, _optionValues, _isOptionValuePmem);
+  return selectOptionWithValueRaw(value, false);
+}
+
+bool SelectorModel::selectOptionWithValue(const __FlashStringHelper* value) {
+  return selectOptionWithValueRaw(reinterpret_cast<const char*>(value), true);
+}
+
+bool SelectorModel::selectOptionWithValueRaw(const char* value, bool isValuePmem) {
+  return selectOptionBy(value, isValuePmem, _optionValues, _isOptionValuePmem);
 }
 
 bool SelectorModel::selectOptionWithName(const char* name) {
-  return selectOptionBy(name, _optionNames, _isOptionNamePmem);
+  return selectOptionWithNameRaw(name, false);
 }
 
-bool SelectorModel::selectOptionBy(const char* key, const char** arr, const bool* isPmemArr) {
+bool SelectorModel::selectOptionWithName(const __FlashStringHelper* name) {
+  return selectOptionWithNameRaw(reinterpret_cast<const char*>(name), true);
+}
+
+bool SelectorModel::selectOptionWithNameRaw(const char* name, bool isNamePmem) {
+  return selectOptionBy(name, isNamePmem, _optionNames, _isOptionNamePmem);
+}
+
+bool SelectorModel::selectOptionBy(const char* key, bool isKeyPmem, const char** arr, const bool* isPmemArr) {
   _currIndex = 0;
-  if (!key || strlen(key) == 0) return true;
+  if (!key) return true;
+  
+  // Convert PROGMEM key to RAM if needed, so we can always treat it as RAM
+  char* keyRAM = nullptr;
+  const char* keyToCompare = key;
+  if (isKeyPmem) {
+    // Check if key is empty before allocating
+    if (strlen_P(key) == 0) return true;
+    keyRAM = SixButtonUIStrings::strdup_P(key);
+    keyToCompare = keyRAM;
+  } else {
+    // Check if key is empty
+    if (strlen(key) == 0) return true;
+  }
+  
   bool match = false;
   for (uint8_t i = 0; i < _numOptions; i++) {
-    if (key == arr[i] // try pointer equality first
-        || (!isPmemArr[i] && strcmp(key, arr[i]) == 0)
-        || (isPmemArr[i] && strcmp_P(key, arr[i]) == 0)) {
+    // Try pointer equality first (works for same PROGMEM or same RAM pointer)
+    // Then try string comparison - key is always RAM now, array element may be PROGMEM or RAM
+    if (key == arr[i] 
+        || (isPmemArr[i] ? strcmp_P(keyToCompare, arr[i]) : strcmp(keyToCompare, arr[i])) == 0) {
       _currIndex = i;
       match = true;
       break;
     }
   }
+  
+  // Free the RAM copy if we allocated it
+  if (keyRAM) {
+    free(keyRAM);
+  }
+  
 #if defined(DEBUG)
   if (!match) {
     Serial.print(F("Option not found for key: "));

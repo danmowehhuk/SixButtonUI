@@ -34,7 +34,9 @@ class SelectorWidget: public Widget {
       if (_config->modelLoader != 0) {
         _config->modelLoader(_model, state);
       }
-      _model->selectOptionWithValue(_model->_currValue);
+      if (_model->_currValue) {
+        _model->selectOptionWithValueRaw(_model->_currValue, _model->_isCurrValuePmem);
+      }
     };
 
     // Wraps the user's onEnter function to provide some default behaviors, since the enter button may be
