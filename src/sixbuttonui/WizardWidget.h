@@ -49,12 +49,20 @@ class WizardWidget: public Widget {
 
     void onLeftPressed(uint8_t value, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
-      _doModelReload = m->prevStep();
+      if (_config->onPreviousFunc != 0) {
+        _doModelReload = _config->onPreviousFunc(m, m->getController()->getState());
+      } else {
+        _doModelReload = m->prevStep();
+      }
     };
 
     void onRightPressed(uint8_t value, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
-      _doModelReload = m->nextStep();
+      if (_config->onNextFunc != 0) {
+        _doModelReload = _config->onNextFunc(m, m->getController()->getState());
+      } else {
+        _doModelReload = m->nextStep();
+      }
     };
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override {
@@ -95,13 +103,8 @@ class WizardWidget: public Widget {
         vm.setInteractiveLine(_model->_selectorModel->getOptionName(), _model->_selectorModel->isOptionNamePmem());
         vm.isSelected = _model->_selectorModel->isCurrValueSelected();
       }
-      if (_model->_currStep > 0) {
-        vm.hasPrev = true;
-      }
-      if (_model->_currStep < _model->_numSteps - 1) {
-        vm.hasNext = true;
-      }
-
+      vm.hasPrev = _model->_hasPrev;
+      vm.hasNext = _model->_hasNext;
       return vm;
     };
 

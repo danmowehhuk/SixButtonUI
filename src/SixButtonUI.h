@@ -42,6 +42,10 @@ class SixButtonUI: public EventSource {
     // Reload the current widget, refreshing the model
     void reload();
 
+    // In standard use cases, SixButtonUI provides the state object when it is needed. Getting
+    // it directly is useful for advanced customization. Make sure you know what you're doing!
+    void* getState() { return _state; };
+
     // Show a message to the user. Depending on the type, the message may be dismissed by the
     // user, or automatically dismissed after a timeout. The FATAL option is not cancellable,
     // requiring a reset of the system to make SixButtonUI responsive again.

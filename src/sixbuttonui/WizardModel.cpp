@@ -38,3 +38,9 @@ void WizardModel::setStepTitleRaw(const char* title, bool isPmem, bool allocate)
   _stepTitlePmem = isPmem;
 }
 
+void WizardModel::setInitialStep(const uint8_t step) {
+  if (step >= _numSteps) return;
+  _hasPrev = step > 0;
+  _hasNext = step < _numSteps - 1;
+  _currStep = step;
+}
