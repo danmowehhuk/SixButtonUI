@@ -52,7 +52,7 @@ class WizardWidget: public Widget {
       if (_config->onPreviousFunc != 0) {
         _doModelReload = _config->onPreviousFunc(m, m->getController()->getState());
       } else {
-        _doModelReload = m->prevStep();
+        _doModelReload = m->prevStep(_config);
       }
     };
 
@@ -61,7 +61,7 @@ class WizardWidget: public Widget {
       if (_config->onNextFunc != 0) {
         _doModelReload = _config->onNextFunc(m, m->getController()->getState());
       } else {
-        _doModelReload = m->nextStep();
+        _doModelReload = m->nextStep(_config);
       }
     };
 

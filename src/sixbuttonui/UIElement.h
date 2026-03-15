@@ -41,7 +41,7 @@ class UIElement {
     const char* getFooter() const { return _footer; };
     bool isFooterPmem() { return _isFooterPmem; };
 
-    bool isHidden() { return _isHidden; };
+    bool isHidden() const { return _isHidden; };
     bool hasId() const { return _hasId; };
 
     // Make the class pure virtual
@@ -105,6 +105,10 @@ class UIElementBase: public UIElement {
     DerivedElement* withFooter(const __FlashStringHelper* footer);
     DerivedElement* setHidden(bool hidden);
 
+    template <typename... Args>
+    DerivedElement* withSubNodes(UIElement* subNode, Args... moreSubNodes);
+    DerivedElement* withSubNodes() { return static_cast<DerivedElement*>(this); };
+
   protected:
     UIElementBase(const UIElement::Type type): UIElement(type) {};
     UIElementBase(const UIElement::Type type, uint8_t id): UIElement(type, id) {};
@@ -115,6 +119,7 @@ class UIElementBase: public UIElement {
 
   private:
     UIElementBase() = delete;
+    void addChild(UIElement* childElement);
 
 };
 template <typename DerivedElement>
@@ -171,7 +176,21 @@ DerivedElement* UIElementBase<DerivedElement>::setHidden(bool hidden) {
 
 template <typename DerivedElement>
 template <typename... Args>
+DerivedElement* UIElementBase<DerivedElement>::withSubNodes(UIElement* subNode, Args... moreSubNodes) {
+  subNode->_isHidden = true; // subNodes do not show up in selectors/subMenus
+  addChild(subNode);
+  return withSubNodes(moreSubNodes...);
+};
+
+template <typename DerivedElement>
+template <typename... Args>
 DerivedElement* UIElementBase<DerivedElement>::withChildren(UIElement* childElement, Args... moreChildElements) {
+  addChild(childElement);
+  return withChildren(moreChildElements...);
+};
+
+template <typename DerivedElement>
+void UIElementBase<DerivedElement>::addChild(UIElement* childElement) {
   UIElement** newChildren = new UIElement*[_numChildren+1];
   for (uint8_t i = 0; i < _numChildren; i++) {
     newChildren[i] = _children[i];
@@ -181,8 +200,6 @@ DerivedElement* UIElementBase<DerivedElement>::withChildren(UIElement* childElem
   if (_children) delete[] _children;
   _children = newChildren;
   _numChildren++;
-  return withChildren(moreChildElements...);
 };
-
 
 #endif

@@ -55,21 +55,33 @@ class WizardModel : public WidgetModel {
     char** _selectionNames = nullptr;
     char** _selectionValues = nullptr;
 
-    bool nextStep() {
+    bool nextStep(const UIElement* parent) {
       if (!_hasNext) return false;
       captureStepSelection();
-      _currStep++;
-      _hasNext = _currStep < _numSteps - 1;
-      _hasPrev = _currStep > 0;
+      int nextIdx = _currStep + 1;
+      while (nextIdx < _numSteps && parent->getChild(nextIdx)->isHidden()) nextIdx++;
+      if (nextIdx >= _numSteps) return false;
+      _currStep = (uint8_t)nextIdx;
+      _hasPrev = true;
+      _hasNext = false;
+      for (int i = _currStep + 1; i < _numSteps; i++) {
+        if (!parent->getChild(i)->isHidden()) { _hasNext = true; break; }
+      }
       return true;
     }
 
-    bool prevStep() {
+    bool prevStep(const UIElement* parent) {
       if (!_hasPrev) return false;
       captureStepSelection();
-      _currStep--;
-      _hasPrev = _currStep > 0;
-      _hasNext = _currStep < _numSteps - 1;
+      int prevIdx = _currStep - 1;
+      while (prevIdx >= 0 && parent->getChild(prevIdx)->isHidden()) prevIdx--;
+      if (prevIdx < 0) return false;
+      _currStep = (uint8_t)prevIdx;
+      _hasNext = true;
+      _hasPrev = false;
+      for (int i = _currStep - 1; i >= 0; i--) {
+        if (!parent->getChild(i)->isHidden()) { _hasPrev = true; break; }
+      }
       return true;
     }
 
