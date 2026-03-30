@@ -1,5 +1,5 @@
-#ifndef __test_UIConfig_h
-#define __test_UIConfig_h
+#ifndef _test_UIConfig_h
+#define _test_UIConfig_h
 
 
 #define UP_BUTTON_PIN    6
@@ -9,12 +9,25 @@
 #define MENU_BUTTON_PIN  2
 #define ENTER_BUTTON_PIN 5
 
-#include "SixButtonUITestHelper.h"
 #include <SixButtonUI.h>
+#include <SixButtonUITestHelper.h>
 #include <sixbuttonui/Strings.h>
 
 using namespace SixButtonUIStrings;
 using namespace sixbuttonui;
+
+enum TestElement : uint8_t {
+  MAIN_MENU = 1,
+  RAM_SELECTOR,
+  PMEM_SELECTOR,
+  TEXTBOX,
+  DEFAULT_COMBO_BOX,
+  PRELOADED_COMBO_BOX,
+  SECOND,
+  THIRD,
+  EMPTY_WIZARD,
+  FULL_WIZARD
+};
 
 ViewModel MODEL(UIElement::Type::UNDEFINED);
 
@@ -113,7 +126,7 @@ NavigationConfig* navConfig = nullptr;
 
 SixButtonUI* initSixButtonUI() {
   navConfig = new NavigationConfig(
-    subMenu()
+    subMenu(TestElement::MAIN_MENU)
       ->withTitle(F("Main Menu"))
       ->withInstruction(F("Press"))
       ->withFooter(F("Back"))
@@ -121,45 +134,45 @@ SixButtonUI* initSixButtonUI() {
         subMenu()
           ->withTitle(F("First"))
           ->withMenuItems(
-            selector()
+            selector(TestElement::RAM_SELECTOR)
               ->withTitle("RAM-selector") // non-PROGMEM for test
               ->withInstruction("Press")
               ->withFooter("Enter")
               ->withModelFunction(loadSelectorModel)
               ->onEnter(captureSelectorValue),
-            selector()
+            selector(TestElement::PMEM_SELECTOR)
               ->withTitle(F("PMEM-selector")) // PROGMEM for test
               ->withInstruction(F("Drink"))
               ->withFooter(F("Back"))
               ->withModelFunction(loadSelectorModel)
               ->onEnter(captureSelectorValue),
-            textInput()
+            textInput(TestElement::TEXTBOX)
               ->withTitle(F("TextBox"))
               ->withInitialValue(F("foo")) // model function overrides this
               ->withModelFunction(initializeTextBox)
               ->onEnter(captureTextValue),
-            comboBox()
+            comboBox(TestElement::DEFAULT_COMBO_BOX)
               ->withTitle(F("DefaultComboBox"))
               ->withModelFunction(loadBasicComboBoxModel)
               ->onEnter(captureSelectorValue),
-            comboBox()
+            comboBox(TestElement::PRELOADED_COMBO_BOX)
               ->withTitle(F("PreloadedComboBox"))
               ->withModelFunction(loadPreloadedComboBoxModel)
               ->onEnter(captureSelectorValue)
           ),
-        selector()
+        selector(TestElement::SECOND)
           ->withTitle(F("Second"))
           ->withInstruction(F("Check"))
           ->withFooter(F("Enter"))
           ->withModelFunction(loadSelectorModel)
           ->onEnter(captureSelectorValue),
-        selector()
+        selector(TestElement::THIRD)
           ->withTitle(F("Third"))
           ->withInstruction(F("Check"))
           ->withFooter(F("Enter"))
           ->withModelFunction(loadSelectorModelRAM)
           ->onEnter(captureSelectorValue),
-        wizard()
+        wizard(TestElement::EMPTY_WIZARD)
           ->withTitle(F("EmptyWizard"))
           ->withInstruction(F("Setup"))
           ->withFooter(F("Enter"))
@@ -176,7 +189,7 @@ SixButtonUI* initSixButtonUI() {
               ->withModelFunction(loadSelectorModel)
           )
           ->onEnter(captureWizardValues),
-        wizard()
+        wizard(TestElement::FULL_WIZARD)
           ->withTitle(F("FullWizard"))
           ->withInstruction(F("Setup"))
           ->withFooter(F("Enter"))

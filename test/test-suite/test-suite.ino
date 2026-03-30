@@ -13,7 +13,7 @@ void testInit(TestInvocation* t) {
 
 void testUIElementConfigRAM(TestInvocation* t) {
   t->setName(F("UIElement configuration in RAM"));
-  t->assert(helper.goToNamedElement(F("RAM-selector")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::RAM_SELECTOR), F("Element not found"));
   t->assert(!MODEL.isTitlePmem(), F("Expected a non-PROGMEM title"));
   t->assertEqual(MODEL.getTitleLine(), F("RAM-selector"));
   t->assert(!MODEL.isInstructionPmem(), F("Expected a non-PROGMEM instruction"));
@@ -24,7 +24,7 @@ void testUIElementConfigRAM(TestInvocation* t) {
 
 void testUIElementConfigPmem(TestInvocation* t) {
   t->setName(F("UIElement configuration in PROGMEM"));
-  t->assert(helper.goToNamedElement(F("PMEM-selector")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::PMEM_SELECTOR), F("Element not found"));
   t->assert(MODEL.isTitlePmem(), F("Expected a PROGMEM title"));
   t->assertEqual(MODEL.getTitleLine_P(), F("PMEM-selector"));
   t->assert(MODEL.isInstructionPmem(), F("Expected a PROGMEM instruction"));
@@ -35,7 +35,7 @@ void testUIElementConfigPmem(TestInvocation* t) {
 
 void testMenuButtonAtRootLevel(TestInvocation* t) {
   t->setName(F("Menu button toggles thru root menus"));
-  t->assert(helper.goToNamedElement(F("Main Menu")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   helper.pressAndReleaseMenuBack();
   t->assertEqual(MODEL.getTitleLine_P(), F("Settings"));
   helper.pressAndReleaseMenuBack();
@@ -46,7 +46,7 @@ void testMenuButtonAtRootLevel(TestInvocation* t) {
 
 void testRootLevelSelectionPreserved(TestInvocation* t) {
   t->setName(F("Returns to previous root menu selection"));
-  t->assert(helper.goToNamedElement(F("Main Menu")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   helper.pressAndReleaseMenuBack(); // Switch to 'Settings'
   helper.pressAndReleaseDown(); // Select 'Date'
   t->assertEqual(MODEL.getInteractiveLine_P(), F("Date"), F("Switch to Date failed"));
@@ -58,7 +58,7 @@ void testRootLevelSelectionPreserved(TestInvocation* t) {
 
 void testBackToSubMenu(TestInvocation* t) {
   t->setName(F("Returns to previous submenu selection"));
-  t->assert(helper.goToNamedElement(F("Main Menu")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   helper.pressAndReleaseDown();
   char* selection = strdup(MODEL.getInteractiveLine_P());
   helper.pressAndReleaseSelectEnter();
@@ -70,7 +70,7 @@ void testBackToSubMenu(TestInvocation* t) {
 
 void testSubMenuWidget(TestInvocation* t) {
   t->setName(F("SubMenu navigation functionality"));
-  t->assert(helper.goToNamedElement(F("Main Menu")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   t->assertEqual(MODEL.getInteractiveLine_P(), F("First"), F("need to start with 'First' selected"));
   helper.pressAndReleaseDown();
   t->assertEqual(MODEL.getInteractiveLine_P(), F("Second"), F("'Second' should now be selected"));
@@ -82,7 +82,7 @@ void testSubMenuWidget(TestInvocation* t) {
 
 void testSelectorWidget_ramOptions(TestInvocation* t) {
   t->setName(F("Selector core functionality RAM options"));
-  t->assert(helper.goToNamedElement(F("Third")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::THIRD), F("Element not found"));
   t->assertEqual(MODEL.getTitleLine_P(), F("Third"), F("Should have entered 'Third' selector"));
   t->assertEqual(MODEL.getInteractiveLine(), F("two"));
   helper.pressAndReleaseUp();
@@ -94,7 +94,7 @@ void testSelectorWidget_ramOptions(TestInvocation* t) {
 
 void testSelectorWidget_pmemOptions(TestInvocation* t) {
   t->setName(F("Selector core functionality PMEM options"));
-  t->assert(helper.goToNamedElement(F("Second")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::SECOND), F("Element not found"));
   t->assertEqual(MODEL.getTitleLine_P(), F("Second"), F("Should have entered 'Second' selector"));
   t->assertEqual(MODEL.getInteractiveLine_P(), F("two"));
   helper.pressAndReleaseUp();
@@ -106,7 +106,7 @@ void testSelectorWidget_pmemOptions(TestInvocation* t) {
 
 void testTextInputWidget(TestInvocation* t) {
   t->setName(F("TextInput core functionality"));
-  t->assert(helper.goToNamedElement(F("TextBox")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::TEXTBOX), F("Element not found"));
   t->assertEqual(MODEL.getTitleLine_P(), F("TextBox"), F("Should have entered 'TextBox'"));
   t->assertEqual(MODEL.getInteractiveLine(), F("bar"));
   helper.pressAndReleaseDown();
@@ -118,7 +118,7 @@ void testTextInputWidget(TestInvocation* t) {
 
 void testTextInputWidget_cursor(TestInvocation* t) {
   t->setName(F("TextInput cursor functionality"));
-  t->assert(helper.goToNamedElement(F("TextBox")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::TEXTBOX), F("Element not found"));
   t->assertEqual(MODEL.getInteractiveLine(), F("bar"));
   t->assert(MODEL.cursorPosition == 2, F("Expected cursor at 2"));
   helper.pressAndReleaseRight();
@@ -133,7 +133,7 @@ void testTextInputWidget_cursor(TestInvocation* t) {
 
 void testDefaultComboBoxWidget(TestInvocation* t) {
   t->setName(F("ComboBox core functionality"));
-  t->assert(helper.goToNamedElement(F("DefaultComboBox")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::DEFAULT_COMBO_BOX), F("Element not found"));
   t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' on initial load"));
   t->assert(MODEL.isSelectable, F("Expected 'a' to be selectable"));
   t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
@@ -164,7 +164,7 @@ void testDefaultComboBoxWidget(TestInvocation* t) {
 
 void testPreloadedComboBoxWidget(TestInvocation* t) {
   t->setName(F("ComboBox with preloaded initial value"));
-  t->assert(helper.goToNamedElement(F("PreloadedComboBox")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::PRELOADED_COMBO_BOX), F("Element not found"));
   t->assertEqual(MODEL.getInteractiveLine_P(), F("be"), F("Expected 'be' on initial load"));
   t->assert(MODEL.isSelectable, F("Expected 'be' to be selectable"));
   t->assert(MODEL.cursorMode == ViewModel::CursorMode::NO_CURSOR, F("Expected no cursor"));
@@ -179,7 +179,7 @@ void testPreloadedComboBoxWidget(TestInvocation* t) {
 
 void testWizardWidget_coreFunctionality(TestInvocation* t) {
   t->setName(F("Wizard core functionality"));
-  t->assert(helper.goToNamedElement(F("FullWizard")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::FULL_WIZARD), F("Element not found"));
   t->assertEqual(MODEL.getTitleLine_P(), F("1st Step"));
   t->assert(!MODEL.hasPrev, F("Expected hasPrev to be false"));
   t->assert(MODEL.hasNext, F("Expected hasNext to be true"));
@@ -207,7 +207,7 @@ void testWizardWidget_coreFunctionality(TestInvocation* t) {
 
 void testWizardWidget_emptyModel(TestInvocation* t) {
   t->setName(F("Wizard with empty model"));
-  t->assert(helper.goToNamedElement(F("EmptyWizard")), F("Element not found"));
+  t->assert(helper.goToElementById(TestElement::EMPTY_WIZARD), F("Element not found"));
   t->assertEqual(MODEL.getTitleLine_P(), F("1st Step"));
   t->assertEqual(MODEL.getInteractiveLine_P(), F("one"));
   helper.pressAndReleaseSelectEnter();
