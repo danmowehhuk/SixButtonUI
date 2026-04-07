@@ -49,6 +49,18 @@ class SixButtonUITestHelper {
       return goToElement(_ui->findElementById(id));
     };
 
+    void setState(void* state) {
+      _ui->_state = state;
+    };
+
+    void* getState() {
+      return _ui->_state;
+    };
+
+    WidgetModel* getWidgetModel() {
+      return _ui->widgetModel();
+    };
+
     bool goToElement(UIElement* element) {
       if (element) {
         _ui->setNext(element);
