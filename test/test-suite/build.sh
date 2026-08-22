@@ -16,8 +16,18 @@ while getopts "s" opt; do
   esac
 done
 
+# Resolve this checkout's own repo root explicitly (two levels up from
+# test/test-suite/) and pass it as --library. Without this, arduino-cli
+# resolves the "SixButtonUI" library that examples/test-suite.ino
+# includes via its generic --libraries scan of ~/Arduino/libraries -
+# which silently finds and uses the main checkout there instead of
+# whichever checkout/worktree this script is actually being run from,
+# invalidating any before/after comparison. (Same class of gotcha
+# documented for arduino-cli library resolution from a git worktree.)
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
 COMPILE_CMD="arduino-cli compile -e -b arduino:avr:mega \
-  --libraries ~/Arduino/libraries --clean \
+  --libraries ~/Arduino/libraries --library \"$REPO_ROOT\" --clean \
   --build-property build.extra_flags=\"-DDEBUG\""
 
 if $SIM_MODE; then
