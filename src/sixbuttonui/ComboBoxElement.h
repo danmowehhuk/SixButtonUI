@@ -3,7 +3,7 @@
 
 
 #include "SelectorElement.h"
-#include <Arduino.h>
+#include "../hal/FlashStr.h"
 
 /*
  * ComboBoxElement allows the user to enter a character string like a TextInputElement,
@@ -33,7 +33,7 @@ class ComboBoxElement: public SelectorElement {
       return this;
     };
 
-    ComboBoxElement* withTitle(const __FlashStringHelper* title) {
+    ComboBoxElement* withTitle(const FlashStr* title) {
       SelectorElement::withTitle(title);
       return this;
     };
@@ -43,7 +43,7 @@ class ComboBoxElement: public SelectorElement {
       return this;
     };
 
-    ComboBoxElement* withInstruction(const __FlashStringHelper* instruction) {
+    ComboBoxElement* withInstruction(const FlashStr* instruction) {
       SelectorElement::withInstruction(instruction);
       return this;
     };
@@ -53,7 +53,7 @@ class ComboBoxElement: public SelectorElement {
       return this;
     };
 
-    ComboBoxElement* withFooter(const __FlashStringHelper* footer) {
+    ComboBoxElement* withFooter(const FlashStr* footer) {
       SelectorElement::withFooter(footer);
       return this;
     };

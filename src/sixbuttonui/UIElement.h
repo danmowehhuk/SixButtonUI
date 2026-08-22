@@ -2,8 +2,8 @@
 #define _sixbuttonui_UIElement_h
 
 
-#include <Arduino.h>
 #include <stdint.h>
+#include "../hal/FlashStr.h"
 
 /*
  * Base type for any node in the SixButtonUI navigation tree. Cannot be instantiated
@@ -98,11 +98,11 @@ class UIElementBase: public UIElement {
     UIElementBase& operator=(const UIElementBase&) = delete;
 
     DerivedElement* withTitle(const char* title, bool pmem = false);
-    DerivedElement* withTitle(const __FlashStringHelper* title);
+    DerivedElement* withTitle(const FlashStr* title);
     DerivedElement* withInstruction(const char* instruction, bool pmem = false);
-    DerivedElement* withInstruction(const __FlashStringHelper* instruction);
+    DerivedElement* withInstruction(const FlashStr* instruction);
     DerivedElement* withFooter(const char* footer, bool pmem = false);
-    DerivedElement* withFooter(const __FlashStringHelper* footer);
+    DerivedElement* withFooter(const FlashStr* footer);
     DerivedElement* setHidden(bool hidden);
 
     template <typename... Args>
@@ -134,7 +134,7 @@ DerivedElement* UIElementBase<DerivedElement>::withTitle(const char* title, bool
 };
 
 template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withTitle(const __FlashStringHelper* title) {
+DerivedElement* UIElementBase<DerivedElement>::withTitle(const FlashStr* title) {
   _title = reinterpret_cast<const char*>(title);
   _isTitlePmem = true;
   return static_cast<DerivedElement*>(this);
@@ -148,7 +148,7 @@ DerivedElement* UIElementBase<DerivedElement>::withInstruction(const char* instr
 };
 
 template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withInstruction(const __FlashStringHelper* instruction) {
+DerivedElement* UIElementBase<DerivedElement>::withInstruction(const FlashStr* instruction) {
   _instruction = reinterpret_cast<const char*>(instruction);
   _isInstructionPmem = true;
   return static_cast<DerivedElement*>(this);
@@ -162,7 +162,7 @@ DerivedElement* UIElementBase<DerivedElement>::withFooter(const char* footer, bo
 };
 
 template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withFooter(const __FlashStringHelper* footer) {
+DerivedElement* UIElementBase<DerivedElement>::withFooter(const FlashStr* footer) {
   _footer = reinterpret_cast<const char*>(footer);
   _isFooterPmem = true;
   return static_cast<DerivedElement*>(this);

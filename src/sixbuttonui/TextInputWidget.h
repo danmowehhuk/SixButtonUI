@@ -4,6 +4,7 @@
 
 #include "TextInputModel.h"
 #include "Widget.h"
+#include "../hal/FlashStr.h"
 
 class TextInputWidget: public Widget {
 
@@ -16,7 +17,7 @@ class TextInputWidget: public Widget {
   protected:
     void initModel() override {
       if (_config->isInitialValuePmem()) {
-        _model = new TextInputModel(reinterpret_cast<const __FlashStringHelper*>(_config->getInitialValue()));
+        _model = new TextInputModel(reinterpret_cast<const FlashStr*>(_config->getInitialValue()));
       } else {
         _model = new TextInputModel(_config->getInitialValue());
       }

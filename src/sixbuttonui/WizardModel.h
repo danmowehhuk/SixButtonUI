@@ -6,6 +6,7 @@
 #include "WidgetModel.h"
 #include "SelectorModel.h"
 #include "SelectorElement.h"
+#include "../hal/FlashStr.h"
 
 using namespace SixButtonUIStrings;
 
@@ -23,10 +24,10 @@ class WizardModel : public WidgetModel {
     };
 
     void setStepInitialValue(const uint8_t step, const char* value);
-    void setStepInitialValue(const uint8_t step, const __FlashStringHelper* value);
+    void setStepInitialValue(const uint8_t step, const FlashStr* value);
     void setStepInitialValueRaw(const uint8_t step, const char* value, bool isPmem);
     void setStepTitle(const char* title, bool allocate = true);
-    void setStepTitle(const __FlashStringHelper* title);
+    void setStepTitle(const FlashStr* title);
     void setStepTitleRaw(const char* title, bool isPmem, bool allocate);
 
     // Set the initial step to start the wizard (default is 0)

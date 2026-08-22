@@ -4,6 +4,7 @@
 
 #include "UIElement.h"
 #include "WidgetModel.h"
+#include "../hal/FlashStr.h"
 
 /*
  * The ViewModel is the final output from SixButtonUI that is passed to
@@ -46,22 +47,22 @@ class ViewModel {
 
     bool isTitlePmem() { return _isTitlePmem; };
     const char* getTitleLine() { return _titleLine; };
-    const __FlashStringHelper* getTitleLine_P();
+    const FlashStr* getTitleLine_P();
     void setTitleLine(const char* titleLine, bool pmem);
     
     bool isInstructionPmem() { return _isInstructionPmem; };
     const char* getInstructionLine() { return _instructionLine; };
-    const __FlashStringHelper* getInstructionLine_P();
+    const FlashStr* getInstructionLine_P();
     void setInstructionLine(const char* instructionLine, bool pmem);
     
     bool isInteractivePmem() { return _isInteractivePmem; };
     const char* getInteractiveLine() { return _interactiveLine; };
-    const __FlashStringHelper* getInteractiveLine_P();
+    const FlashStr* getInteractiveLine_P();
     void setInteractiveLine(const char* interactiveLine, bool pmem);
     
     bool isFooterPmem() { return _isFooterPmem; };
     const char* getFooterLine() { return _footerLine; };
-    const __FlashStringHelper* getFooterLine_P();
+    const FlashStr* getFooterLine_P();
     void setFooterLine(const char* footerLine, bool pmem);
 
     CursorMode cursorMode = CursorMode::NO_CURSOR;

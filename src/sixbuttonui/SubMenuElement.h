@@ -3,7 +3,7 @@
 
 
 #include "SelectorElement.h"
-#include <Arduino.h>
+#include "../hal/FlashStr.h"
 
 /*
  * SubMenuElement is a pure navigation element. It has type SELECTOR for rendering, 
@@ -35,7 +35,7 @@ class SubMenuElement: public SelectorElement {
       return this;
     };
 
-    SubMenuElement* withTitle(const __FlashStringHelper* title) {
+    SubMenuElement* withTitle(const FlashStr* title) {
       SelectorElement::withTitle(title);
       return this;
     };
@@ -45,7 +45,7 @@ class SubMenuElement: public SelectorElement {
       return this;
     };
 
-    SubMenuElement* withInstruction(const __FlashStringHelper* instruction) {
+    SubMenuElement* withInstruction(const FlashStr* instruction) {
       SelectorElement::withInstruction(instruction);
       return this;
     };
@@ -55,7 +55,7 @@ class SubMenuElement: public SelectorElement {
       return this;
     };
 
-    SubMenuElement* withFooter(const __FlashStringHelper* footer) {
+    SubMenuElement* withFooter(const FlashStr* footer) {
       SelectorElement::withFooter(footer);
       return this;
     };

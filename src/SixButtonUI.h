@@ -5,6 +5,7 @@
 #include <Eventuino.h>
 #include <eventuino/Button.h>
 #include <eventuino/Timer.h>
+#include "hal/FlashStr.h"
 #include "sixbuttonui/ComboBoxElement.h"
 #include "sixbuttonui/NavigationConfig.h"
 #include "sixbuttonui/SelectorElement.h"
@@ -49,8 +50,8 @@ class SixButtonUI: public EventSource {
     // Show a message to the user. Depending on the type, the message may be dismissed by the
     // user, or automatically dismissed after a timeout. The FATAL option is not cancellable,
     // requiring a reset of the system to make SixButtonUI responsive again.
-    void showPopup(PopupWidget::Type type, const __FlashStringHelper* message);
-    void showPopup(PopupWidget::Type type, uint16_t duration, const __FlashStringHelper* message);
+    void showPopup(PopupWidget::Type type, const FlashStr* message);
+    void showPopup(PopupWidget::Type type, uint16_t duration, const FlashStr* message);
     void showPopup(PopupWidget::Type type, const char* message, bool allocate = true);
     void showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool allocate = true);
     void showPopupRaw(PopupWidget::Type type, uint16_t duration, const char* message, bool isPmem, bool allocate);

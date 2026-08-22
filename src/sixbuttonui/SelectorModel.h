@@ -3,6 +3,7 @@
 
 
 #include "WidgetModel.h"
+#include "../hal/FlashStr.h"
 
 /*
  * SelectorModel:
@@ -34,9 +35,9 @@ class SelectorModel : public WidgetModel {
     // When used with a ComboBoxWidget, the options should be set to 
     // completions that will be appended to the search prefix
     void setOption(uint8_t index, const char* name, const char* value, bool allocateName = true, bool allocateValue = true);
-    void setOption(uint8_t index, const __FlashStringHelper* name, const char* value, bool allocateValue = true);
-    void setOption(uint8_t index, const char* name, const __FlashStringHelper* value, bool allocateName = true);
-    void setOption(uint8_t index, const __FlashStringHelper* name, const __FlashStringHelper* value);
+    void setOption(uint8_t index, const FlashStr* name, const char* value, bool allocateValue = true);
+    void setOption(uint8_t index, const char* name, const FlashStr* value, bool allocateName = true);
+    void setOption(uint8_t index, const FlashStr* name, const FlashStr* value);
     void setOptionRaw(uint8_t i, const char* name, bool isNamePmem, const char* value, bool isValuePmem, 
           bool allocateName = true, bool allocateValue = true);
 
@@ -46,7 +47,7 @@ class SelectorModel : public WidgetModel {
     // be a no-op. Note: Setting the current value does not cause the option to be preselected. Use the
     // selectOptionWith...() methods to preselect the option.
     void setCurrValue(const char* currValue, bool allocate = true);
-    void setCurrValue(const __FlashStringHelper* currValue);
+    void setCurrValue(const FlashStr* currValue);
     void setCurrValueRaw(const char* currValue, bool isPmem, bool allocate);
     bool isCurrValueSelected();
 
@@ -59,9 +60,9 @@ class SelectorModel : public WidgetModel {
     // (Optional)
     // Set an initial selection. This will cause the option to be preselected if it exists.
     bool selectOptionWithName(const char* name);
-    bool selectOptionWithName(const __FlashStringHelper* name);
+    bool selectOptionWithName(const FlashStr* name);
     bool selectOptionWithValue(const char* value);
-    bool selectOptionWithValue(const __FlashStringHelper* value);
+    bool selectOptionWithValue(const FlashStr* value);
 
     // Methods for getting values from the model
     uint8_t getCurrIndex()        { return _currIndex; };

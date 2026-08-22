@@ -4,6 +4,7 @@
 
 #include "TextInputModel.h"
 #include "UIElement.h"
+#include "../hal/FlashStr.h"
 
 class TextInputElement: public UIElementBase<TextInputElement> {
 
@@ -17,7 +18,7 @@ class TextInputElement: public UIElementBase<TextInputElement> {
       return this;
     };
 
-    TextInputElement* withInitialValue(const __FlashStringHelper* initValue) {
+    TextInputElement* withInitialValue(const FlashStr* initValue) {
       return withInitialValue(reinterpret_cast<const char*>(initValue), true);
     }
 
