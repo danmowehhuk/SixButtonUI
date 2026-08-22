@@ -1,14 +1,13 @@
 #ifndef _sixbuttonui_WizardModel_h
 #define _sixbuttonui_WizardModel_h
 
-
+#include <stdlib.h>
+#include <string.h>
 #include "Strings.h"
 #include "WidgetModel.h"
 #include "SelectorModel.h"
 #include "SelectorElement.h"
 #include "../hal/FlashStr.h"
-#include <stdlib.h>
-#include <string.h>
 
 using namespace SixButtonUIStrings;
 

@@ -1,10 +1,9 @@
 #ifndef _sixbuttonui_WidgetModel_h
 #define _sixbuttonui_WidgetModel_h
 
-
+#include <stdlib.h>
 #include "UIElement.h"
 #include "../hal/FlashStr.h"
-#include <stdlib.h>
 
 // forward declaration
 class SixButtonUI;
