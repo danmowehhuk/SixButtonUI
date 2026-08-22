@@ -1,5 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
 #include "SelectorModel.h"
 #include "Strings.h"
+#include "../hal/SixButtonUIHal.h"
 
 void SelectorModel::setNumOptions(uint8_t numOptions) {
   if (_numOptions > 0) {
@@ -21,18 +24,18 @@ void SelectorModel::setOption(uint8_t i, const char* name, const char* value,
   setOptionRaw(i, name, false, value, false, allocateName, allocateValue);
 }
 
-void SelectorModel::setOption(uint8_t i, const __FlashStringHelper* name, 
+void SelectorModel::setOption(uint8_t i, const FlashStr* name,
       const char* value, bool allocateValue) {
   setOptionRaw(i, reinterpret_cast<const char*>(name), true, value, false, false, allocateValue);
 }
 
-void SelectorModel::setOption(uint8_t i, const char* name, 
-      const __FlashStringHelper* value, bool allocateName) {
+void SelectorModel::setOption(uint8_t i, const char* name,
+      const FlashStr* value, bool allocateName) {
   setOptionRaw(i, name, false, reinterpret_cast<const char*>(value), true, allocateName, false);
 }
 
-void SelectorModel::setOption(uint8_t i, const __FlashStringHelper* name, 
-      const __FlashStringHelper* value) {
+void SelectorModel::setOption(uint8_t i, const FlashStr* name,
+      const FlashStr* value) {
   setOptionRaw(i, reinterpret_cast<const char*>(name), true, reinterpret_cast<const char*>(value), true, false, false);
 }
 
@@ -66,7 +69,7 @@ void SelectorModel::setCurrValue(const char* currValue, bool allocate) {
   setCurrValueRaw(currValue, false, allocate);
 }
 
-void SelectorModel::setCurrValue(const __FlashStringHelper* currValue) {
+void SelectorModel::setCurrValue(const FlashStr* currValue) {
   setCurrValueRaw(reinterpret_cast<const char*>(currValue), true, false);
 }
 
@@ -137,7 +140,7 @@ bool SelectorModel::selectOptionWithValue(const char* value) {
   return selectOptionWithValueRaw(value, false);
 }
 
-bool SelectorModel::selectOptionWithValue(const __FlashStringHelper* value) {
+bool SelectorModel::selectOptionWithValue(const FlashStr* value) {
   return selectOptionWithValueRaw(reinterpret_cast<const char*>(value), true);
 }
 
@@ -149,7 +152,7 @@ bool SelectorModel::selectOptionWithName(const char* name) {
   return selectOptionWithNameRaw(name, false);
 }
 
-bool SelectorModel::selectOptionWithName(const __FlashStringHelper* name) {
+bool SelectorModel::selectOptionWithName(const FlashStr* name) {
   return selectOptionWithNameRaw(reinterpret_cast<const char*>(name), true);
 }
 
@@ -193,8 +196,8 @@ bool SelectorModel::selectOptionBy(const char* key, bool isKeyPmem, const char**
   
 #if defined(DEBUG)
   if (!match) {
-    Serial.print(F("Option not found for key: "));
-    Serial.println(key);
+    SixButtonUIHal::print(F("Option not found for key: "));
+    SixButtonUIHal::println(key);
   }
 #endif
   return match;

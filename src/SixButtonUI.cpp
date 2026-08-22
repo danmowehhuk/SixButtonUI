@@ -1,4 +1,5 @@
 #include "SixButtonUI.h"
+#include "hal/SixButtonUIHal.h"
 #include "sixbuttonui/ComboBoxWidget.h"
 #include "sixbuttonui/SelectorWidget.h"
 #include "sixbuttonui/SubMenuWidget.h"
@@ -139,8 +140,8 @@ void SixButtonUI::render() {
   };
 
 #if (defined(DEBUG_6BUI_MEM))
-  Serial.print(F("SixButtonUI.h: Free memory after render: "));
-  Serial.println(sixbuttonui::freeMemory());
+  SixButtonUIHal::print(F("SixButtonUI.h: Free memory after render: "));
+  SixButtonUIHal::println(sixbuttonui::freeMemory());
 #endif
 }
 
@@ -181,12 +182,12 @@ void SixButtonUI::reload() {
   _forceReloadWidget = true;
 }
 
-void SixButtonUI::showPopup(PopupWidget::Type type, const __FlashStringHelper* message) {
-  showPopupRaw(type, PopupWidget::DEFAULT_DURATION_MS, 
+void SixButtonUI::showPopup(PopupWidget::Type type, const FlashStr* message) {
+  showPopupRaw(type, PopupWidget::DEFAULT_DURATION_MS,
     reinterpret_cast<const char*>(message), true, false);
 }
 
-void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const __FlashStringHelper* message) {
+void SixButtonUI::showPopup(PopupWidget::Type type, uint16_t duration, const FlashStr* message) {
   showPopupRaw(type, duration, reinterpret_cast<const char*>(message),
     true, false);
 }
@@ -346,9 +347,9 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
       break;
     default:
 #if (defined(DEBUG))
-      Serial.print(F("ERROR: Invalid widget type: "));
-      Serial.println(_currConfig->type);
-      delay(100);
+      SixButtonUIHal::print(F("ERROR: Invalid widget type: "));
+      SixButtonUIHal::println(_currConfig->type);
+      SixButtonUIHal::delay(100);
 #endif
       break;
   }
