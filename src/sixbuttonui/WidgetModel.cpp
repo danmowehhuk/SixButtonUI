@@ -1,10 +1,12 @@
+#include <stdlib.h>
+#include <string.h>
 #include "WidgetModel.h"
 
-void WidgetModel::setTitle(const char* title, bool allocate) { 
+void WidgetModel::setTitle(const char* title, bool allocate) {
   setTitleRaw(title, false, allocate);
 }
 
-void WidgetModel::setTitle(const __FlashStringHelper* titlePmem) { 
+void WidgetModel::setTitle(const FlashStr* titlePmem) { 
   setTitleRaw(reinterpret_cast<const char*>(titlePmem), true, false);
 }
 
@@ -30,7 +32,7 @@ void WidgetModel::setInstruction(const char* instruction, bool allocate) {
   setInstructionRaw(instruction, false, allocate);
 }
 
-void WidgetModel::setInstruction(const __FlashStringHelper* instructionPmem) { 
+void WidgetModel::setInstruction(const FlashStr* instructionPmem) { 
   setInstructionRaw(reinterpret_cast<const char*>(instructionPmem), true, false);
 }
 
@@ -56,7 +58,7 @@ void WidgetModel::setFooter(const char* footer, bool allocate) {
   setFooterRaw(footer, false, allocate);
 }
 
-void WidgetModel::setFooter(const __FlashStringHelper* footerPmem) { 
+void WidgetModel::setFooter(const FlashStr* footerPmem) { 
   setFooterRaw(reinterpret_cast<const char*>(footerPmem), true, false);
 }
 

@@ -1,7 +1,7 @@
 #include "ViewModel.h"
 
-const __FlashStringHelper* ViewModel::getTitleLine_P() {
-  return reinterpret_cast<const __FlashStringHelper*>(_titleLine);
+const FlashStr* ViewModel::getTitleLine_P() {
+  return reinterpret_cast<const FlashStr*>(_titleLine);
 }
 
 void ViewModel::setTitleLine(const char* titleLine, bool pmem) {
@@ -9,8 +9,8 @@ void ViewModel::setTitleLine(const char* titleLine, bool pmem) {
   _isTitlePmem = pmem;
 }
 
-const __FlashStringHelper* ViewModel::getInstructionLine_P() {
-  return reinterpret_cast<const __FlashStringHelper*>(_instructionLine);
+const FlashStr* ViewModel::getInstructionLine_P() {
+  return reinterpret_cast<const FlashStr*>(_instructionLine);
 }
 
 void ViewModel::setInstructionLine(const char* instructionLine, bool pmem) {
@@ -18,8 +18,8 @@ void ViewModel::setInstructionLine(const char* instructionLine, bool pmem) {
   _isInstructionPmem = pmem;
 }
 
-const __FlashStringHelper* ViewModel::getInteractiveLine_P() {
-  return reinterpret_cast<const __FlashStringHelper*>(_interactiveLine);
+const FlashStr* ViewModel::getInteractiveLine_P() {
+  return reinterpret_cast<const FlashStr*>(_interactiveLine);
 }
 
 void ViewModel::setInteractiveLine(const char* interactiveLine, bool pmem) {
@@ -27,8 +27,8 @@ void ViewModel::setInteractiveLine(const char* interactiveLine, bool pmem) {
   _isInteractivePmem = pmem;
 }
 
-const __FlashStringHelper* ViewModel::getFooterLine_P() {
-  return reinterpret_cast<const __FlashStringHelper*>(_footerLine);
+const FlashStr* ViewModel::getFooterLine_P() {
+  return reinterpret_cast<const FlashStr*>(_footerLine);
 }
 
 void ViewModel::setFooterLine(const char* footerLine, bool pmem) {

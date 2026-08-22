@@ -1,10 +1,12 @@
+#include <stdlib.h>
+#include <string.h>
 #include "TextInputModel.h"
 
 TextInputModel::TextInputModel(const char* initValue) {
   setInitialValueRaw(initValue, false);
 }
 
-TextInputModel::TextInputModel(const __FlashStringHelper* initValue) {
+TextInputModel::TextInputModel(const FlashStr* initValue) {
   setInitialValueRaw(reinterpret_cast<const char*>(initValue), true);
 }
 
@@ -31,7 +33,7 @@ void TextInputModel::setInitialValue(const char* initValue) {
   setInitialValueRaw(initValue, false);
 }
 
-void TextInputModel::setInitialValue(const __FlashStringHelper* initValue) {
+void TextInputModel::setInitialValue(const FlashStr* initValue) {
   setInitialValueRaw(reinterpret_cast<const char*>(initValue), true);
 }
 
