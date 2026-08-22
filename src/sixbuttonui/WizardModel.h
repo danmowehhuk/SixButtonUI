@@ -7,6 +7,8 @@
 #include "SelectorModel.h"
 #include "SelectorElement.h"
 #include "../hal/FlashStr.h"
+#include <stdlib.h>
+#include <string.h>
 
 using namespace SixButtonUIStrings;
 

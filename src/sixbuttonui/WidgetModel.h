@@ -4,6 +4,7 @@
 
 #include "UIElement.h"
 #include "../hal/FlashStr.h"
+#include <stdlib.h>
 
 // forward declaration
 class SixButtonUI;
