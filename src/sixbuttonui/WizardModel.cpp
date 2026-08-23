@@ -1,10 +1,12 @@
+#include <stdlib.h>
+#include <string.h>
 #include "WizardModel.h"
 
 void WizardModel::setStepInitialValue(const uint8_t step, const char* value) {
   setStepInitialValueRaw(step, value, false);
 }
 
-void WizardModel::setStepInitialValue(const uint8_t step, const __FlashStringHelper* value) {
+void WizardModel::setStepInitialValue(const uint8_t step, const FlashStr* value) {
   setStepInitialValueRaw(step, reinterpret_cast<const char*>(value), true);
 }
 
@@ -22,7 +24,7 @@ void WizardModel::setStepTitle(const char* title, bool allocate) {
   setStepTitleRaw(title, false, allocate);
 }
 
-void WizardModel::setStepTitle(const __FlashStringHelper* title) {
+void WizardModel::setStepTitle(const FlashStr* title) {
   setStepTitleRaw(reinterpret_cast<const char*>(title), true, false);
 }
 

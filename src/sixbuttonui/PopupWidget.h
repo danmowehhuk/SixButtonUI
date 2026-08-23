@@ -1,6 +1,8 @@
 #ifndef _sixbuttonui_PopupWidget_h
 #define _sixbuttonui_PopupWidget_h
 
+#include <stdlib.h>
+#include <string.h>
 #include "Widget.h"
 
 class PopupWidget: public Widget {

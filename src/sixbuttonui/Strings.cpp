@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include <stdlib.h>
 #include "Strings.h"
 
 
@@ -25,7 +25,7 @@ namespace SixButtonUIStrings {
     return ramStr;
   }
 
-  char* strdup(const __FlashStringHelper* progmemStr) {
+  char* strdup(const FlashStr* progmemStr) {
     return strdup_P(reinterpret_cast<const char*>(progmemStr));
   }
 

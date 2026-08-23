@@ -2,7 +2,7 @@
 #define _sixbuttonui_SixButtonUITestHelper_h
 
 
-#include <Arduino.h>
+#include <stdint.h>
 #include <SixButtonUI.h>
 
 class SixButtonUITestHelper {

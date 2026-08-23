@@ -8,213 +8,213 @@ using namespace sixbuttonui;
 
 void testInit(TestInvocation* t) {
   t->setName(F("test initialization"));
-  t->assert(true, F("test"));
+  t->verify(true, F("test"));
 }
 
 void testUIElementConfigRAM(TestInvocation* t) {
   t->setName(F("UIElement configuration in RAM"));
-  t->assert(helper.goToElementById(TestElement::RAM_SELECTOR), F("Element not found"));
-  t->assert(!MODEL.isTitlePmem(), F("Expected a non-PROGMEM title"));
-  t->assertEqual(MODEL.getTitleLine(), F("RAM-selector"));
-  t->assert(!MODEL.isInstructionPmem(), F("Expected a non-PROGMEM instruction"));
-  t->assertEqual(MODEL.getInstructionLine(), F("Press"));
-  t->assert(!MODEL.isFooterPmem(), F("Expected a non-PROGMEM footer"));
-  t->assertEqual(MODEL.getFooterLine(), F("Enter"));
+  t->verify(helper.goToElementById(TestElement::RAM_SELECTOR), F("Element not found"));
+  t->verify(!MODEL.isTitlePmem(), F("Expected a non-PROGMEM title"));
+  t->verifyEqual(MODEL.getTitleLine(), F("RAM-selector"));
+  t->verify(!MODEL.isInstructionPmem(), F("Expected a non-PROGMEM instruction"));
+  t->verifyEqual(MODEL.getInstructionLine(), F("Press"));
+  t->verify(!MODEL.isFooterPmem(), F("Expected a non-PROGMEM footer"));
+  t->verifyEqual(MODEL.getFooterLine(), F("Enter"));
 }
 
 void testUIElementConfigPmem(TestInvocation* t) {
   t->setName(F("UIElement configuration in PROGMEM"));
-  t->assert(helper.goToElementById(TestElement::PMEM_SELECTOR), F("Element not found"));
-  t->assert(MODEL.isTitlePmem(), F("Expected a PROGMEM title"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("PMEM-selector"));
-  t->assert(MODEL.isInstructionPmem(), F("Expected a PROGMEM instruction"));
-  t->assertEqual(MODEL.getInstructionLine_P(), F("Drink"));
-  t->assert(MODEL.isFooterPmem(), F("Expected a PROGMEM footer"));
-  t->assertEqual(MODEL.getFooterLine_P(), F("Back"));
+  t->verify(helper.goToElementById(TestElement::PMEM_SELECTOR), F("Element not found"));
+  t->verify(MODEL.isTitlePmem(), F("Expected a PROGMEM title"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("PMEM-selector"));
+  t->verify(MODEL.isInstructionPmem(), F("Expected a PROGMEM instruction"));
+  t->verifyEqual(MODEL.getInstructionLine_P(), F("Drink"));
+  t->verify(MODEL.isFooterPmem(), F("Expected a PROGMEM footer"));
+  t->verifyEqual(MODEL.getFooterLine_P(), F("Back"));
 }
 
 void testMenuButtonAtRootLevel(TestInvocation* t) {
   t->setName(F("Menu button toggles thru root menus"));
-  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
+  t->verify(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   helper.pressAndReleaseMenuBack();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Settings"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Settings"));
   helper.pressAndReleaseMenuBack();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"));
   helper.pressAndReleaseMenuBack();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Settings"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Settings"));
 }
 
 void testRootLevelSelectionPreserved(TestInvocation* t) {
   t->setName(F("Returns to previous root menu selection"));
-  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
+  t->verify(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   helper.pressAndReleaseMenuBack(); // Switch to 'Settings'
   helper.pressAndReleaseDown(); // Select 'Date'
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("Date"), F("Switch to Date failed"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("Date"), F("Switch to Date failed"));
   helper.pressAndReleaseMenuBack(); // Switch to 'Main Menu'
   helper.pressAndReleaseMenuBack(); // Switch to 'Settings'
-  t->assertEqual(MODEL.getTitleLine_P(), F("Settings"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("Date"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Settings"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("Date"));
 }
 
 void testBackToSubMenu(TestInvocation* t) {
   t->setName(F("Returns to previous submenu selection"));
-  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
+  t->verify(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
   helper.pressAndReleaseDown();
   char* selection = strdup(MODEL.getInteractiveLine_P());
   helper.pressAndReleaseSelectEnter();
   helper.pressAndReleaseMenuBack();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"), F("Should have returned to 'Main Menu'"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), selection, F("Previous selection should still be selected"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"), F("Should have returned to 'Main Menu'"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), selection, F("Previous selection should still be selected"));
   free(selection);
 }
 
 void testSubMenuWidget(TestInvocation* t) {
   t->setName(F("SubMenu navigation functionality"));
-  t->assert(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("First"), F("need to start with 'First' selected"));
+  t->verify(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("First"), F("need to start with 'First' selected"));
   helper.pressAndReleaseDown();
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("Second"), F("'Second' should now be selected"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("Second"), F("'Second' should now be selected"));
   helper.pressAndReleaseSelectEnter();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Second"), F("Should have entered 'Second' selector"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Second"), F("Should have entered 'Second' selector"));
   helper.pressAndReleaseMenuBack();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"), "Should have returned to parent");
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"), "Should have returned to parent");
 }
 
 void testSelectorWidget_ramOptions(TestInvocation* t) {
   t->setName(F("Selector core functionality RAM options"));
-  t->assert(helper.goToElementById(TestElement::THIRD), F("Element not found"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("Third"), F("Should have entered 'Third' selector"));
-  t->assertEqual(MODEL.getInteractiveLine(), F("two"));
+  t->verify(helper.goToElementById(TestElement::THIRD), F("Element not found"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Third"), F("Should have entered 'Third' selector"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("two"));
   helper.pressAndReleaseUp();
   helper.pressAndReleaseSelectEnter();
-  t->assertEqual(capturedSelectionName, F("one"), F("Captured selectionName should have been 'one'"));
-  t->assertEqual(capturedSelectionValue, F("buckle"), F("Captured selectionValue should have been 'buckle'"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"), "Should have returned to parent");
+  t->verifyEqual(capturedSelectionName, F("one"), F("Captured selectionName should have been 'one'"));
+  t->verifyEqual(capturedSelectionValue, F("buckle"), F("Captured selectionValue should have been 'buckle'"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"), "Should have returned to parent");
 }
 
 void testSelectorWidget_pmemOptions(TestInvocation* t) {
   t->setName(F("Selector core functionality PMEM options"));
-  t->assert(helper.goToElementById(TestElement::SECOND), F("Element not found"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("Second"), F("Should have entered 'Second' selector"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("two"));
+  t->verify(helper.goToElementById(TestElement::SECOND), F("Element not found"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Second"), F("Should have entered 'Second' selector"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("two"));
   helper.pressAndReleaseUp();
   helper.pressAndReleaseSelectEnter();
-  t->assertEqual(capturedSelectionName, F("one"), F("Captured selectionName should have been 'one'"));
-  t->assertEqual(capturedSelectionValue, F("buckle"), F("Captured selectionValue should have been 'buckle'"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"), "Should have returned to parent");
+  t->verifyEqual(capturedSelectionName, F("one"), F("Captured selectionName should have been 'one'"));
+  t->verifyEqual(capturedSelectionValue, F("buckle"), F("Captured selectionValue should have been 'buckle'"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"), "Should have returned to parent");
 }
 
 void testTextInputWidget(TestInvocation* t) {
   t->setName(F("TextInput core functionality"));
-  t->assert(helper.goToElementById(TestElement::TEXTBOX), F("Element not found"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("TextBox"), F("Should have entered 'TextBox'"));
-  t->assertEqual(MODEL.getInteractiveLine(), F("bar"));
+  t->verify(helper.goToElementById(TestElement::TEXTBOX), F("Element not found"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("TextBox"), F("Should have entered 'TextBox'"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("bar"));
   helper.pressAndReleaseDown();
-  t->assertEqual(MODEL.getInteractiveLine(), F("bas"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("bas"));
   helper.pressAndReleaseSelectEnter();
-  t->assertEqual(capturedText, F("bas"), F("Captured text should have been 'bas'"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("First"), F("Should have returned to parent"));
+  t->verifyEqual(capturedText, F("bas"), F("Captured text should have been 'bas'"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("First"), F("Should have returned to parent"));
 }
 
 void testTextInputWidget_cursor(TestInvocation* t) {
   t->setName(F("TextInput cursor functionality"));
-  t->assert(helper.goToElementById(TestElement::TEXTBOX), F("Element not found"));
-  t->assertEqual(MODEL.getInteractiveLine(), F("bar"));
-  t->assert(MODEL.cursorPosition == 2, F("Expected cursor at 2"));
+  t->verify(helper.goToElementById(TestElement::TEXTBOX), F("Element not found"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("bar"));
+  t->verify(MODEL.cursorPosition == 2, F("Expected cursor at 2"));
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getInteractiveLine(), F("bar "));
-  t->assert(MODEL.cursorPosition == 3, F("Expected cursor at 3"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("bar "));
+  t->verify(MODEL.cursorPosition == 3, F("Expected cursor at 3"));
   helper.longPressLeft();
-  t->assertEqual(MODEL.getInteractiveLine(), F(" "));
-  t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F(" "));
+  t->verify(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
   helper.pressAndReleaseLeft();
-  t->assert(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
+  t->verify(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
 }
 
 void testDefaultComboBoxWidget(TestInvocation* t) {
   t->setName(F("ComboBox core functionality"));
-  t->assert(helper.goToElementById(TestElement::DEFAULT_COMBO_BOX), F("Element not found"));
-  t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' on initial load"));
-  t->assert(MODEL.isSelectable, F("Expected 'a' to be selectable"));
-  t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+  t->verify(helper.goToElementById(TestElement::DEFAULT_COMBO_BOX), F("Element not found"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' on initial load"));
+  t->verify(MODEL.isSelectable, F("Expected 'a' to be selectable"));
+  t->verify(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
   helper.pressAndReleaseLeft(); // no change, already max left
-  t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected no change onLeft"));
-  t->assert(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("a"), F("Expected no change onLeft"));
+  t->verify(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
   helper.pressAndReleaseDown();
-  t->assertEqual(MODEL.getInteractiveLine(), F("b"));
-  t->assert(!MODEL.isSelectable, F("Expected 'b' NOT to be selectable"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("b"));
+  t->verify(!MODEL.isSelectable, F("Expected 'b' NOT to be selectable"));
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
-  t->assert(MODEL.isSelectable, F("Expected 'be' to be selectable"));
-  t->assert(MODEL.cursorPosition == 1, F("Expected cursor at 1"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("be"));
+  t->verify(MODEL.isSelectable, F("Expected 'be' to be selectable"));
+  t->verify(MODEL.cursorPosition == 1, F("Expected cursor at 1"));
   helper.pressAndReleaseLeft(); 
-  t->assertEqual(MODEL.getInteractiveLine(), F("b"), F("Should have retained 'b'"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("b"), F("Should have retained 'b'"));
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("be"));
   helper.longPressLeft();
-  t->assertEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' after long-hold left"));
-  t->assert(MODEL.isSelectable, F("Expected 'a' to be selectable after long-hold left"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("a"), F("Expected 'a' after long-hold left"));
+  t->verify(MODEL.isSelectable, F("Expected 'a' to be selectable after long-hold left"));
   helper.pressAndReleaseDown();
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("be"));
   helper.pressAndReleaseRight(); // no change, already max right
-  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
-  t->assert(MODEL.cursorPosition == 1, F("Expected cursor still at 1"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("be"));
+  t->verify(MODEL.cursorPosition == 1, F("Expected cursor still at 1"));
 }
 
 void testPreloadedComboBoxWidget(TestInvocation* t) {
   t->setName(F("ComboBox with preloaded initial value"));
-  t->assert(helper.goToElementById(TestElement::PRELOADED_COMBO_BOX), F("Element not found"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("be"), F("Expected 'be' on initial load"));
-  t->assert(MODEL.isSelectable, F("Expected 'be' to be selectable"));
-  t->assert(MODEL.cursorMode == ViewModel::CursorMode::NO_CURSOR, F("Expected no cursor"));
+  t->verify(helper.goToElementById(TestElement::PRELOADED_COMBO_BOX), F("Element not found"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("be"), F("Expected 'be' on initial load"));
+  t->verify(MODEL.isSelectable, F("Expected 'be' to be selectable"));
+  t->verify(MODEL.cursorMode == ViewModel::CursorMode::NO_CURSOR, F("Expected no cursor"));
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getInteractiveLine(), F("be"));
-  t->assert(MODEL.cursorMode != ViewModel::CursorMode::NO_CURSOR, F("Expected cursor active"));
-  t->assert(MODEL.cursorPosition == 1, F("Expected cursor at 1 after right")); // no other 'be' completions
+  t->verifyEqual(MODEL.getInteractiveLine(), F("be"));
+  t->verify(MODEL.cursorMode != ViewModel::CursorMode::NO_CURSOR, F("Expected cursor active"));
+  t->verify(MODEL.cursorPosition == 1, F("Expected cursor at 1 after right")); // no other 'be' completions
   helper.pressAndReleaseLeft();
-  t->assertEqual(MODEL.getInteractiveLine(), F("b"));
-  t->assert(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("b"));
+  t->verify(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
 }
 
 void testWizardWidget_coreFunctionality(TestInvocation* t) {
   t->setName(F("Wizard core functionality"));
-  t->assert(helper.goToElementById(TestElement::FULL_WIZARD), F("Element not found"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("1st Step"));
-  t->assert(!MODEL.hasPrev, F("Expected hasPrev to be false"));
-  t->assert(MODEL.hasNext, F("Expected hasNext to be true"));
+  t->verify(helper.goToElementById(TestElement::FULL_WIZARD), F("Element not found"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("1st Step"));
+  t->verify(!MODEL.hasPrev, F("Expected hasPrev to be false"));
+  t->verify(MODEL.hasNext, F("Expected hasNext to be true"));
   helper.pressAndReleaseLeft();
-  t->assertEqual(MODEL.getTitleLine_P(), F("1st Step")); // no change
+  t->verifyEqual(MODEL.getTitleLine_P(), F("1st Step")); // no change
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Middle Step"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("two")); // preloaded value
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Middle Step"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("two")); // preloaded value
   helper.pressAndReleaseUp();
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("one"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("one"));
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Last Step"));
-  t->assert(!MODEL.hasNext, F("Expected hasNext to be false"));
-  t->assert(MODEL.hasPrev, F("Expected hasPrev to be true"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Last Step"));
+  t->verify(!MODEL.hasNext, F("Expected hasNext to be false"));
+  t->verify(MODEL.hasPrev, F("Expected hasPrev to be true"));
   helper.pressAndReleaseRight();
-  t->assertEqual(MODEL.getTitleLine_P(), F("Last Step")); // no change
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Last Step")); // no change
   helper.pressAndReleaseLeft();
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("one")); // remembers new selection
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("one")); // remembers new selection
   helper.pressAndReleaseSelectEnter();
-  t->assertEqual(capturedWizardValues[0], F("shoe"));
-  t->assertEqual(capturedWizardValues[1], F("buckle")); // changed this one
-  t->assertEqual(capturedWizardValues[2], F("buckle"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"));
+  t->verifyEqual(capturedWizardValues[0], F("shoe"));
+  t->verifyEqual(capturedWizardValues[1], F("buckle")); // changed this one
+  t->verifyEqual(capturedWizardValues[2], F("buckle"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"));
 }
 
 void testWizardWidget_emptyModel(TestInvocation* t) {
   t->setName(F("Wizard with empty model"));
-  t->assert(helper.goToElementById(TestElement::EMPTY_WIZARD), F("Element not found"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("1st Step"));
-  t->assertEqual(MODEL.getInteractiveLine_P(), F("one"));
+  t->verify(helper.goToElementById(TestElement::EMPTY_WIZARD), F("Element not found"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("1st Step"));
+  t->verifyEqual(MODEL.getInteractiveLine_P(), F("one"));
   helper.pressAndReleaseSelectEnter();
-  t->assertEqual(capturedWizardValues[0], F("buckle"));
-  t->assert(capturedWizardValues[1] == nullptr, F("Expected nullptr for step 2"));
-  t->assert(capturedWizardValues[2] == nullptr, F("Expected nullptr for step 3"));
-  t->assertEqual(MODEL.getTitleLine_P(), F("Main Menu"));
+  t->verifyEqual(capturedWizardValues[0], F("buckle"));
+  t->verify(capturedWizardValues[1] == nullptr, F("Expected nullptr for step 2"));
+  t->verify(capturedWizardValues[2] == nullptr, F("Expected nullptr for step 3"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Main Menu"));
 }
 
 

@@ -3,18 +3,19 @@
 
 
 #include "WidgetModel.h"
+#include "../hal/FlashStr.h"
 
 class TextInputModel : public WidgetModel {
   public:
     TextInputModel(const char* initValue);
-    TextInputModel(const __FlashStringHelper* initValue);
+    TextInputModel(const FlashStr* initValue);
     ~TextInputModel() { clear(); };
 
     static const uint8_t MAX_LENGTH = 64;
 
     bool isInitialized() { return _isInitialized; };
     void setInitialValue(const char* initValue);
-    void setInitialValue(const __FlashStringHelper* initValue);
+    void setInitialValue(const FlashStr* initValue);
     void setInitialValueRaw(const char* initValue, bool isPmem);
     uint8_t getCursorPos() { return _cursorPos; };
     char* getValue();

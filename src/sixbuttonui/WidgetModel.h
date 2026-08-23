@@ -1,8 +1,9 @@
 #ifndef _sixbuttonui_WidgetModel_h
 #define _sixbuttonui_WidgetModel_h
 
-
+#include <stdlib.h>
 #include "UIElement.h"
+#include "../hal/FlashStr.h"
 
 // forward declaration
 class SixButtonUI;
@@ -13,19 +14,19 @@ class WidgetModel {
     virtual ~WidgetModel() = 0;
 
     void setTitle(const char* title, bool allocate = true);
-    void setTitle(const __FlashStringHelper* titlePmem);
+    void setTitle(const FlashStr* titlePmem);
     void setTitleRaw(const char* title, bool isPmem, bool allocate);
     bool isTitlePmem() { return _isTitlePmem; };
     const char* getTitle();
 
     void setInstruction(const char* instruction, bool allocate = true);
-    void setInstruction(const __FlashStringHelper* instructionPmem);
+    void setInstruction(const FlashStr* instructionPmem);
     void setInstructionRaw(const char* instruction, bool isPmem, bool allocate);
     bool isInstructionPmem() { return _isInstructionPmem; };
     const char* getInstruction();
 
     void setFooter(const char* footer, bool allocate = true);
-    void setFooter(const __FlashStringHelper* footerPmem);
+    void setFooter(const FlashStr* footerPmem);
     void setFooterRaw(const char* footer, bool isPmem, bool allocate);
     bool isFooterPmem() { return _isFooterPmem; };
     const char* getFooter();

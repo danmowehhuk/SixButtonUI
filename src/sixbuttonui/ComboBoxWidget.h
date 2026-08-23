@@ -1,7 +1,8 @@
 #ifndef _sixbuttonui_ComboBoxWidget_h
 #define _sixbuttonui_ComboBoxWidget_h
 
-
+#include <stdlib.h>
+#include <string.h>
 #include "SelectorModel.h"
 #include "SelectorWidget.h"
 #include "Strings.h"

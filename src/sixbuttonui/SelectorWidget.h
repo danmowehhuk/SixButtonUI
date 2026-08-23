@@ -1,8 +1,8 @@
 #ifndef _sixbuttonui_SelectorWidget_h
 #define _sixbuttonui_SelectorWidget_h
 
-
-#include <Arduino.h>
+#include <stdint.h>
+#include <string.h>
 #include "SelectorModel.h"
 #include "Widget.h"
 
