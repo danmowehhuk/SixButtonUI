@@ -19,10 +19,12 @@ inline void delay(uint16_t ms) { ::delay(ms); }
 
 #else
 
-void print(const FlashStr* s);
-void println(const char* s);
-void println(int i);
-void delay(uint16_t ms);
+#include <BareMetalHAL.h>
+
+inline void print(const FlashStr* s) { BareMetalHAL::Uart0::print(s); }
+inline void println(const char* s) { BareMetalHAL::Uart0::println(s); }
+inline void println(int i) { BareMetalHAL::Uart0::println(i); }
+inline void delay(uint16_t ms) { BareMetalHAL::delay(ms); }
 
 #endif
 
