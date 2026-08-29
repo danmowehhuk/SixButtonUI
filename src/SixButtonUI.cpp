@@ -87,11 +87,13 @@ void SixButtonUI::render() {
   _currWidget->getModel()->_ui = this;
 
   // Update the ViewModel based on the current widget model
-  ViewModel vm = _currWidget->getViewModel();
 #if defined(SIXBUTTONUI_ENABLE_MCP)
+  ViewModel vm = _currWidget->getViewModel();
   Mcp::serialize(vm);
-#endif
   _renderFunction(static_cast<ViewModel&&>(vm));
+#else
+  _renderFunction(_currWidget->getViewModel());
+#endif
 
   // Re-apply all the button action handlers
   _up.onPressed = [](uint8_t value, void* widgetModel) {

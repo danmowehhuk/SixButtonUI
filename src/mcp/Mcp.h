@@ -47,8 +47,9 @@ namespace Mcp {
   // treated as an empty string.
   void escapeInto(char* dest, uint8_t destSize, const char* src, bool pmem);
 
-  // Writes one "6BUI->'...'" line (see spec for the exact field list
-  // and order) via SixButtonUIHal.
+  // Writes one "6BUI->'...'" line via SixButtonUIHal. Field order:
+  // type;id;title;instr;interactive;footer;cursor;cursorPos;hasNext;
+  // hasPrev;isSelected;isSelectable;isCancelable
   void serialize(ViewModel& vm);
 
 } // namespace Mcp

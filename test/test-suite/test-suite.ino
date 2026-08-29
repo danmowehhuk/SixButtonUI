@@ -218,6 +218,23 @@ void testWizardWidget_emptyModel(TestInvocation* t) {
 }
 
 
+void testViewModel_moveConstructorPreservesIsCancelable(TestInvocation* t) {
+  t->setName(F("ViewModel move constructor preserves isCancelable"));
+  ViewModel a(UIElement::Type::POPUP);
+  a.isCancelable = true;
+  ViewModel b = static_cast<ViewModel&&>(a);
+  t->verify(b.isCancelable, F("isCancelable should survive a move-construct"));
+}
+
+void testViewModel_moveAssignmentPreservesIsCancelable(TestInvocation* t) {
+  t->setName(F("ViewModel move assignment preserves isCancelable"));
+  ViewModel a(UIElement::Type::POPUP);
+  a.isCancelable = true;
+  ViewModel b(UIElement::Type::UNDEFINED);
+  b = static_cast<ViewModel&&>(a);
+  t->verify(b.isCancelable, F("isCancelable should survive a move-assignment"));
+}
+
 void after() {
   // Return to initial state so memory matches
   helper.reset();
@@ -260,7 +277,9 @@ void setup() {
     testWizardWidget_emptyModel,
     testRootLevelSelectionPreserved,
     testBackToSubMenu,
-    testSubMenuWidget
+    testSubMenuWidget,
+    testViewModel_moveConstructorPreservesIsCancelable,
+    testViewModel_moveAssignmentPreservesIsCancelable
 
   };
 
