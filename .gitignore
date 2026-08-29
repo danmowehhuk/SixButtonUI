@@ -2,5 +2,5 @@
 build/
 *.sublime-*
 
-.claudework/*
-!.claudework/.gitkeep
+**/.claudework/*
+!**/.claudework/.gitkeep
