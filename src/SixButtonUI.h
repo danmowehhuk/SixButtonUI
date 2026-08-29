@@ -17,6 +17,10 @@
 #include "sixbuttonui/WizardElement.h"
 #include "sixbuttonui/PopupWidget.h"
 
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+#include "mcp/Mcp.h"
+#endif
+
 using namespace eventuino;
 
 class SixButtonUI: public EventSource {
@@ -104,7 +108,13 @@ class SixButtonUI: public EventSource {
     void clearHandlers();
     void maybeInitWidget();
     Widget* newForType(UIElement::Type type);
-  
+
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+    Mcp::LineParser _mcpParser;
+    Button* buttonForCode(Mcp::Code code);
+    void _mcpDispatch(Mcp::Code code);
+#endif
+
     // Allow the test helper to access the widget model and mimic
     // pressing buttons.
     WidgetModel* widgetModel();
