@@ -2,19 +2,8 @@
 #include <Eventuino.h>
 #include <SixButtonUI.h>
 #include <Arduino.h>
+#include "PinSetup.h"
 
-#define UP_BUTTON_PIN    6
-#define DOWN_BUTTON_PIN  4
-#define LEFT_BUTTON_PIN  3
-#define RIGHT_BUTTON_PIN 7
-#define MENU_BUTTON_PIN  2
-#define ENTER_BUTTON_PIN 5
-#define LCD_RS_PIN       16
-#define LCD_E_PIN        17
-#define LCD_D7_PIN       21
-#define LCD_D6_PIN       20
-#define LCD_D5_PIN       19
-#define LCD_D4_PIN       18
 #define DISPLAY_ROWS     2
 #define DISPLAY_COLS     16
 
