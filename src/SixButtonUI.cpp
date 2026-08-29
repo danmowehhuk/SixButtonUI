@@ -52,6 +52,14 @@ void SixButtonUI::poll(void* state) {
     _menuBack.poll(_currWidget->getModel());
     _selectEnter.poll(_currWidget->getModel());
     _timer.poll(_currWidget->getModel());
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+    while (SixButtonUIHal::available() > 0) {
+      Mcp::Code code = _mcpParser.feed((char)SixButtonUIHal::read());
+      if (code != Mcp::Code::NONE) {
+        _mcpDispatch(code);
+      }
+    }
+#endif
   }
 }
 
@@ -79,7 +87,13 @@ void SixButtonUI::render() {
   _currWidget->getModel()->_ui = this;
 
   // Update the ViewModel based on the current widget model
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+  ViewModel vm = _currWidget->getViewModel();
+  Mcp::serialize(vm);
+  _renderFunction(static_cast<ViewModel&&>(vm));
+#else
   _renderFunction(_currWidget->getViewModel());
+#endif
 
   // Re-apply all the button action handlers
   _up.onPressed = [](uint8_t value, void* widgetModel) {
@@ -394,3 +408,43 @@ WidgetModel* SixButtonUI::widgetModel() {
 SixButtonUI* SixButtonUI::UI(void* widgetModel) {
   return static_cast<WidgetModel*>(widgetModel)->_ui;
 }
+
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+
+Button* SixButtonUI::buttonForCode(Mcp::Code code) {
+  switch (code) {
+    case Mcp::Code::UP: case Mcp::Code::UP_L: return &_up;
+    case Mcp::Code::DN: case Mcp::Code::DN_L: return &_down;
+    case Mcp::Code::LF: case Mcp::Code::LF_L: return &_left;
+    case Mcp::Code::RT: case Mcp::Code::RT_L: return &_right;
+    case Mcp::Code::EN: case Mcp::Code::EN_L: return &_selectEnter;
+    case Mcp::Code::ME: case Mcp::Code::ME_L: return &_menuBack;
+    default: return nullptr;
+  }
+}
+
+void SixButtonUI::_mcpDispatch(Mcp::Code code) {
+  Button* b = buttonForCode(code);
+  if (!b) return;
+  bool isLong = Mcp::isLongVariant(code);
+
+  // Each stage below re-fetches _currWidget/its model immediately
+  // before its own call, rather than caching either once for the
+  // whole dispatch. onPressed's real handler (wired in render())
+  // itself calls render(), which can delete and replace _currWidget
+  // and its model - caching across stages (as SixButtonUITestHelper's
+  // pressAndRelease()/longPress() do) risks a later stage firing
+  // against a freed model if a future widget ever wires more than one
+  // of onPressed/onLongPress/onReleased for the same button.
+  if (_currWidget && _currWidget->getModel() && b->onPressed) {
+    b->onPressed(b->getValue(), _currWidget->getModel());
+  }
+  if (isLong && _currWidget && _currWidget->getModel() && b->onLongPress) {
+    b->onLongPress(b->getValue(), _currWidget->getModel());
+  }
+  if (_currWidget && _currWidget->getModel() && b->onReleased) {
+    b->onReleased(b->getValue(), _currWidget->getModel());
+  }
+}
+
+#endif // SIXBUTTONUI_ENABLE_MCP

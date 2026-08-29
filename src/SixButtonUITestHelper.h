@@ -61,6 +61,12 @@ class SixButtonUITestHelper {
       return _ui->widgetModel();
     };
 
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+    void mcpDispatch(Mcp::Code code) {
+      _ui->_mcpDispatch(code);
+    }
+#endif
+
     bool goToElement(UIElement* element) {
       if (element) {
         _ui->setNext(element);

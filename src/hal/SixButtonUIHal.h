@@ -13,9 +13,14 @@ namespace SixButtonUIHal {
 #ifndef NO_ARDUINO
 
 inline void print(const FlashStr* s) { Serial.print(s); }
+inline void print(const char* s) { Serial.print(s); }
+inline void print(char c) { Serial.print(c); }
+inline void print(int i) { Serial.print(i); }
 inline void println(const char* s) { Serial.println(s); }
 inline void println(int i) { Serial.println(i); }
 inline void delay(uint16_t ms) { ::delay(ms); }
+inline int available() { return Serial.available(); }
+inline int read() { return Serial.read(); }
 
 #else
 

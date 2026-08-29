@@ -64,6 +64,7 @@ ViewModel::ViewModel(ViewModel&& other) noexcept:
       hasNext(other.hasNext),
       isSelected(other.isSelected),
       isSelectable(other.isSelectable),
+      isCancelable(other.isCancelable),
       cursorMode(other.cursorMode),
       cursorPosition(other.cursorPosition) {
   other._titleLine                = nullptr;
@@ -91,6 +92,7 @@ ViewModel& ViewModel::operator=(ViewModel&& other) noexcept {
     hasNext = other.hasNext;
     isSelected = other.isSelected;
     isSelectable = other.isSelectable;
+    isCancelable = other.isCancelable;
     cursorMode = other.cursorMode;
     cursorPosition = other.cursorPosition;
     other._uiElementId              = 0;
