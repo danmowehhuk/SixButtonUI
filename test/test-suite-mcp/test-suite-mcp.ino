@@ -1,6 +1,7 @@
 #include <TestTool.h>
 #include <SixButtonUI.h>
 #include <mcp/Mcp.h>
+#include "UIConfig.h"
 
 void testParser_validCodes(TestInvocation* t) {
   t->setName(F("LineParser recognizes all 12 valid codes"));
@@ -124,6 +125,70 @@ void testEscape_truncatesCleanlyWhenTooLong(TestInvocation* t) {
   }
 }
 
+void testDispatch_upDownMoveSelection(TestInvocation* t) {
+  t->setName(F("UP/DN dispatch move the selector index"));
+  t->verify(helper.goToElementById(TestElement::ITEM_SELECTOR), F("Element not found"));
+  t->verifyEqual(MODEL.getInteractiveLine(), "alpha");
+  helper.mcpDispatch(Mcp::Code::DN);
+  t->verifyEqual(MODEL.getInteractiveLine(), "beta");
+  helper.mcpDispatch(Mcp::Code::UP);
+  t->verifyEqual(MODEL.getInteractiveLine(), "alpha");
+}
+
+void testDispatch_leftRightAreNoOpsOnSelector(TestInvocation* t) {
+  t->setName(F("LF/RT dispatch are no-ops on a plain selector"));
+  t->verify(helper.goToElementById(TestElement::ITEM_SELECTOR), F("Element not found"));
+  helper.mcpDispatch(Mcp::Code::LF);
+  t->verifyEqual(MODEL.getInteractiveLine(), "alpha");
+  helper.mcpDispatch(Mcp::Code::RT);
+  t->verifyEqual(MODEL.getInteractiveLine(), "alpha");
+}
+
+void testDispatch_enterCapturesSelectionAndNavigatesBack(TestInvocation* t) {
+  t->setName(F("EN dispatch fires onEnter (via onReleased) and returns to parent"));
+  t->verify(helper.goToElementById(TestElement::ITEM_SELECTOR), F("Element not found"));
+  helper.mcpDispatch(Mcp::Code::DN);
+  helper.mcpDispatch(Mcp::Code::EN);
+  t->verifyEqual(capturedSelectionValue, "b", F("Captured selection should have been 'b'"));
+  t->verifyEqual(MODEL.getTitleLine(), "Main Menu", F("Should have returned to parent"));
+}
+
+void testDispatch_longPressCodesAlsoFireOnPressed(TestInvocation* t) {
+  t->setName(F("DN-L dispatch still fires onPressed (SelectorWidget's onDownLongPressed is a no-op)"));
+  t->verify(helper.goToElementById(TestElement::ITEM_SELECTOR), F("Element not found"));
+  // SelectorWidget only overrides onDownPressed - onDownLongPressed falls
+  // through to Widget's default no-op. So a DN_L dispatch's move to
+  // "beta" can only have come from its onPressed stage firing; if a
+  // future change to _mcpDispatch ever skipped the onPressed stage for
+  // "-L" codes, this would regress to "alpha" (no movement at all).
+  helper.mcpDispatch(Mcp::Code::DN_L);
+  t->verifyEqual(MODEL.getInteractiveLine(), "beta");
+}
+
+void testDispatch_enLongVariantBehavesLikeEnToday(TestInvocation* t) {
+  t->setName(F("EN-L dispatch behaves identically to EN today (no onPressed/onLongPress wired for select/enter)"));
+  t->verify(helper.goToElementById(TestElement::ITEM_SELECTOR), F("Element not found"));
+  helper.mcpDispatch(Mcp::Code::DN);
+  helper.mcpDispatch(Mcp::Code::EN_L);
+  t->verifyEqual(capturedSelectionValue, "b", F("EN-L should still fire onReleased and capture the selection"));
+  t->verifyEqual(MODEL.getTitleLine(), "Main Menu", F("Should have returned to parent"));
+}
+
+void testDispatch_menuBackTogglesRootMenu(TestInvocation* t) {
+  t->setName(F("ME dispatch toggles the root menu, same as pressing menu/back"));
+  t->verify(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
+  t->verifyEqual(MODEL.getTitleLine(), "Main Menu");
+  helper.mcpDispatch(Mcp::Code::ME);
+  // Only one root menu exists in this fixture, so ME wraps back to itself.
+  t->verifyEqual(MODEL.getTitleLine(), "Main Menu");
+}
+
+void after() {
+  helper.reset();
+  if (capturedSelectionValue) free(capturedSelectionValue);
+  capturedSelectionValue = nullptr;
+}
+
 void setup() {
   Serial.begin(9600);
   while (!Serial);
@@ -138,10 +203,16 @@ void setup() {
     testEscape_escapesSpecialChars,
     testEscape_pmemSource,
     testEscape_nullSourceProducesEmptyString,
-    testEscape_truncatesCleanlyWhenTooLong
+    testEscape_truncatesCleanlyWhenTooLong,
+    testDispatch_upDownMoveSelection,
+    testDispatch_leftRightAreNoOpsOnSelector,
+    testDispatch_enterCapturesSelectionAndNavigatesBack,
+    testDispatch_longPressCodesAlsoFireOnPressed,
+    testDispatch_enLongVariantBehavesLikeEnToday,
+    testDispatch_menuBackTogglesRootMenu
   };
 
-  runTestSuiteShowMem(tests);
+  runTestSuiteShowMem(tests, nullptr, after);
 }
 
 void loop() {}
