@@ -52,15 +52,15 @@ void SixButtonUI::poll(void* state) {
     _menuBack.poll(_currWidget->getModel());
     _selectEnter.poll(_currWidget->getModel());
     _timer.poll(_currWidget->getModel());
-  }
 #if defined(SIXBUTTONUI_ENABLE_MCP)
-  while (SixButtonUIHal::available() > 0) {
-    Mcp::Code code = _mcpParser.feed((char)SixButtonUIHal::read());
-    if (code != Mcp::Code::NONE) {
-      _mcpDispatch(code);
+    while (SixButtonUIHal::available() > 0) {
+      Mcp::Code code = _mcpParser.feed((char)SixButtonUIHal::read());
+      if (code != Mcp::Code::NONE) {
+        _mcpDispatch(code);
+      }
     }
-  }
 #endif
+  }
 }
 
 void SixButtonUI::render() {
@@ -437,13 +437,13 @@ void SixButtonUI::_mcpDispatch(Mcp::Code code) {
   // against a freed model if a future widget ever wires more than one
   // of onPressed/onLongPress/onReleased for the same button.
   if (_currWidget && _currWidget->getModel() && b->onPressed) {
-    b->onPressed(0, _currWidget->getModel());
+    b->onPressed(b->getValue(), _currWidget->getModel());
   }
   if (isLong && _currWidget && _currWidget->getModel() && b->onLongPress) {
-    b->onLongPress(0, _currWidget->getModel());
+    b->onLongPress(b->getValue(), _currWidget->getModel());
   }
   if (_currWidget && _currWidget->getModel() && b->onReleased) {
-    b->onReleased(0, _currWidget->getModel());
+    b->onReleased(b->getValue(), _currWidget->getModel());
   }
 }
 
