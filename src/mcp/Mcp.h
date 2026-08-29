@@ -8,6 +8,7 @@
 #endif
 
 #include <stdint.h>
+#include "../sixbuttonui/ViewModel.h"
 
 namespace Mcp {
 
@@ -38,6 +39,17 @@ namespace Mcp {
       void reset();
       Code parseLine();
   };
+
+  // Copies src into dest, backslash-escaping ';', '=', '\'', and '\\'.
+  // Truncates (never overflows dest) if the escaped result would not
+  // fit; dest is always null-terminated. src may be a PROGMEM pointer
+  // (pmem = true) or a plain RAM pointer (pmem = false); nullptr is
+  // treated as an empty string.
+  void escapeInto(char* dest, uint8_t destSize, const char* src, bool pmem);
+
+  // Writes one "6BUI->'...'" line (see spec for the exact field list
+  // and order) via SixButtonUIHal.
+  void serialize(ViewModel& vm);
 
 } // namespace Mcp
 

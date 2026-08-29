@@ -83,6 +83,47 @@ void testParser_splitAcrossFeedCalls(TestInvocation* t) {
   t->verify(parser.feed('\n') == Mcp::Code::EN, F("Full code should resolve on the newline"));
 }
 
+void testEscape_plainTextUnchanged(TestInvocation* t) {
+  t->setName(F("escapeInto leaves plain text unchanged"));
+  char out[40];
+  Mcp::escapeInto(out, sizeof(out), "Clean Patch 3", false);
+  t->verifyEqual(out, "Clean Patch 3");
+}
+
+void testEscape_escapesSpecialChars(TestInvocation* t) {
+  t->setName(F("escapeInto backslash-escapes ; = ' and \\"));
+  char out[40];
+  Mcp::escapeInto(out, sizeof(out), "a;b=c'd\\e", false);
+  t->verifyEqual(out, "a\\;b\\=c\\'d\\\\e");
+}
+
+void testEscape_pmemSource(TestInvocation* t) {
+  t->setName(F("escapeInto reads a PROGMEM source correctly"));
+  char out[40];
+  Mcp::escapeInto(out, sizeof(out), (const char*)F("weird;name"), true);
+  t->verifyEqual(out, "weird\\;name");
+}
+
+void testEscape_nullSourceProducesEmptyString(TestInvocation* t) {
+  t->setName(F("escapeInto treats a null source as empty"));
+  char out[40];
+  out[0] = 'X'; // sentinel, should get overwritten with '\0'
+  Mcp::escapeInto(out, sizeof(out), nullptr, false);
+  t->verifyEqual(out, "");
+}
+
+void testEscape_truncatesCleanlyWhenTooLong(TestInvocation* t) {
+  t->setName(F("escapeInto truncates rather than overflowing a small buffer"));
+  char out[6]; // room for 5 chars + terminator
+  Mcp::escapeInto(out, sizeof(out), "abcdefghij", false);
+  t->verify(strlen(out) <= 5, F("Escaped output must not exceed destSize - 1"));
+  // Must never write a lone backslash with its paired char cut off.
+  size_t len = strlen(out);
+  if (len > 0) {
+    t->verify(out[len - 1] != '\\', F("Truncation must not leave a dangling escape backslash"));
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   while (!Serial);
@@ -92,7 +133,12 @@ void setup() {
     testParser_ignoresGarbagePrefix,
     testParser_ignoresUnknownCode,
     testParser_discardsOverlongLine,
-    testParser_splitAcrossFeedCalls
+    testParser_splitAcrossFeedCalls,
+    testEscape_plainTextUnchanged,
+    testEscape_escapesSpecialChars,
+    testEscape_pmemSource,
+    testEscape_nullSourceProducesEmptyString,
+    testEscape_truncatesCleanlyWhenTooLong
   };
 
   runTestSuiteShowMem(tests);
