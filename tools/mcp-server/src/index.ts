@@ -6,7 +6,7 @@
 //
 // Config is via environment variables (see README.md):
 //   SIXBUTTON_SERIAL_PATH  - e.g. /dev/cu.usbserial-XXXX (required)
-//   SIXBUTTON_BAUD_RATE    - defaults to 115200
+//   SIXBUTTON_BAUD_RATE    - defaults to 9600
 //   SIXBUTTON_DEBUG_LOG    - defaults to ./sixbutton-mcp-debug.log
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -15,7 +15,7 @@ import { z } from "zod";
 import { SixButtonConnection } from "./serial.js";
 
 const SERIAL_PATH = process.env.SIXBUTTON_SERIAL_PATH;
-const BAUD_RATE = Number(process.env.SIXBUTTON_BAUD_RATE ?? "115200");
+const BAUD_RATE = Number(process.env.SIXBUTTON_BAUD_RATE ?? "9600");
 const DEBUG_LOG_PATH = process.env.SIXBUTTON_DEBUG_LOG ?? "./sixbutton-mcp-debug.log";
 
 if (!SERIAL_PATH) {

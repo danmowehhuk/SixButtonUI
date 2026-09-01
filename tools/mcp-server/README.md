@@ -1,9 +1,10 @@
 # sixbutton-mcp-server
 
 Local stdio MCP server that lets Claude drive a live SixButtonUI-based
-device over a serial/UART bridge, using the `SIXBUTTONUI_ENABLE_MCP` wire
-protocol built into SixButtonUI. Works with any SixButtonUI app built
-with that flag - nothing here is specific to one particular sketch.
+device over a serial/UART bridge, using the 6BUI wire protocol built
+into SixButtonUI. Works with any SixButtonUI app built with
+`SIXBUTTONUI_ENABLE_MCP` - nothing here is specific to one particular
+sketch.
 
 It holds one persistent serial connection for its whole lifetime -
 reopening the port resets the board (DTR auto-reset), so this server
@@ -34,7 +35,7 @@ Set via environment variables:
 | Variable | Required | Default | Meaning |
 |---|---|---|---|
 | `SIXBUTTON_SERIAL_PATH` | yes | - | Serial device path, e.g. `/dev/cu.usbserial-XXXX` |
-| `SIXBUTTON_BAUD_RATE` | no | `115200` | Must match the firmware's `Serial.begin(...)` rate |
+| `SIXBUTTON_BAUD_RATE` | no | `9600` | Must match the firmware's `Serial.begin(...)` rate |
 | `SIXBUTTON_DEBUG_LOG` | no | `./sixbutton-mcp-debug.log` | Where non-protocol serial lines are appended |
 
 ## Registering with Claude Code
