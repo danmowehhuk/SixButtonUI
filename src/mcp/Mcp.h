@@ -7,6 +7,11 @@
 #error "SIXBUTTONUI_ENABLE_MCP requires BareMetalHAL UART RX, not yet implemented"
 #endif
 
+// In Arduino mode, this protocol reads/writes whichever HardwareSerial
+// instance SixButtonUIHal.h resolves SIXBUTTONUI_SERIAL_PORT to
+// (Serial/UART0 by default; override with e.g.
+// -DSIXBUTTONUI_SERIAL_PORT=Serial2 to use a different UART).
+
 #include <stdint.h>
 #include "../sixbuttonui/ViewModel.h"
 

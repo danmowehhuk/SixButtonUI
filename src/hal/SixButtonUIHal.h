@@ -12,15 +12,22 @@ namespace SixButtonUIHal {
 
 #ifndef NO_ARDUINO
 
-inline void print(const FlashStr* s) { Serial.print(s); }
-inline void print(const char* s) { Serial.print(s); }
-inline void print(char c) { Serial.print(c); }
-inline void print(int i) { Serial.print(i); }
-inline void println(const char* s) { Serial.println(s); }
-inline void println(int i) { Serial.println(i); }
+// The HardwareSerial instance used for all Arduino-mode I/O below,
+// including the SIXBUTTONUI_ENABLE_MCP wire protocol. Override with
+// e.g. -DSIXBUTTONUI_SERIAL_PORT=Serial2 to move it off UART0.
+#ifndef SIXBUTTONUI_SERIAL_PORT
+#define SIXBUTTONUI_SERIAL_PORT Serial
+#endif
+
+inline void print(const FlashStr* s) { SIXBUTTONUI_SERIAL_PORT.print(s); }
+inline void print(const char* s) { SIXBUTTONUI_SERIAL_PORT.print(s); }
+inline void print(char c) { SIXBUTTONUI_SERIAL_PORT.print(c); }
+inline void print(int i) { SIXBUTTONUI_SERIAL_PORT.print(i); }
+inline void println(const char* s) { SIXBUTTONUI_SERIAL_PORT.println(s); }
+inline void println(int i) { SIXBUTTONUI_SERIAL_PORT.println(i); }
 inline void delay(uint16_t ms) { ::delay(ms); }
-inline int available() { return Serial.available(); }
-inline int read() { return Serial.read(); }
+inline int available() { return SIXBUTTONUI_SERIAL_PORT.available(); }
+inline int read() { return SIXBUTTONUI_SERIAL_PORT.read(); }
 
 #else
 
