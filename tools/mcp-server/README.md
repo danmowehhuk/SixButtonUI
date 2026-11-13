@@ -17,7 +17,9 @@ a tool, so they stay `tail -f`-able without polluting tool responses.
 ## Prerequisites
 
 - The device's firmware must be built with `SIXBUTTONUI_ENABLE_MCP`
-  defined (see SixButtonUI's README).
+  defined. The protocol uses UART0 (`Serial` on Arduino). Under
+  `NO_ARDUINO` the firmware must call `BareMetalHAL::Uart0::enableRx()`
+  after `Uart0::begin()`.
 - Node.js 18+.
 
 ## Setup
