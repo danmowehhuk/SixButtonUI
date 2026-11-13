@@ -1,16 +1,24 @@
 // Bare-metal AVR port of ../test-suite-mcp/test-suite-mcp.ino - same
 // shared tests (../test-suite-mcp/McpTests.h), plus a test of poll()
 // reading codes from UART0, linked for NO_ARDUINO+HAL_AVR.
+#include <util/atomic.h>
 #include <BareMetalHAL.h>
 
 #include "../test-suite-mcp/McpTests.h"
 
 // Stands in for the UART0 RX ISR: SimulIDE's CLI can't send serial input.
+// Same logic as the ISR, with interrupts masked so a real incoming byte
+// can't race the tail update.
 void injectRx(const char* s) {
   using namespace BareMetalHAL::Uart0::rxDetail;
-  for (; *s; s++) {
-    buffer[tail] = *s;
-    tail = (tail + 1) & 63;
+  const uint8_t mask = sizeof(buffer) - 1;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    for (; *s; s++) {
+      uint8_t next = (tail + 1) & mask;
+      if (next == head) break;  // full - drop, same as the ISR
+      buffer[tail] = *s;
+      tail = next;
+    }
   }
 }
 

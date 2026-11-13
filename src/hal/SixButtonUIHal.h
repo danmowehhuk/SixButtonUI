@@ -33,6 +33,10 @@ inline int read() { return SIXBUTTONUI_SERIAL_PORT.read(); }
 
 #include <BareMetalHAL.h>
 
+#ifdef SIXBUTTONUI_SERIAL_PORT
+#error "SIXBUTTONUI_SERIAL_PORT is Arduino-only; under NO_ARDUINO SixButtonUI always uses BareMetalHAL::Uart0"
+#endif
+
 // All I/O, including the SIXBUTTONUI_ENABLE_MCP wire protocol, is on
 // UART0. The caller owns its init: Uart0::begin(), plus Uart0::enableRx()
 // when MCP is enabled.
