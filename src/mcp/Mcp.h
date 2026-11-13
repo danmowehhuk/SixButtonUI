@@ -3,11 +3,8 @@
 
 #if defined(SIXBUTTONUI_ENABLE_MCP)
 
-// In Arduino mode, this protocol reads/writes whichever HardwareSerial
-// instance SixButtonUIHal.h resolves SIXBUTTONUI_SERIAL_PORT to
-// (Serial/UART0 by default; override with e.g.
-// -DSIXBUTTONUI_SERIAL_PORT=Serial2 to use a different UART). Under
-// NO_ARDUINO it uses UART0, and the caller must call
+// This protocol uses UART0: Serial in Arduino mode, BareMetalHAL::Uart0
+// under NO_ARDUINO, where the caller must call
 // BareMetalHAL::Uart0::enableRx() after Uart0::begin().
 
 #include <stdint.h>
