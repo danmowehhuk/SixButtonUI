@@ -33,10 +33,18 @@ inline int read() { return SIXBUTTONUI_SERIAL_PORT.read(); }
 
 #include <BareMetalHAL.h>
 
+// All I/O, including the SIXBUTTONUI_ENABLE_MCP wire protocol, is on
+// UART0. The caller owns its init: Uart0::begin(), plus Uart0::enableRx()
+// when MCP is enabled.
 inline void print(const FlashStr* s) { BareMetalHAL::Uart0::print(s); }
+inline void print(const char* s) { BareMetalHAL::Uart0::print(s); }
+inline void print(char c) { BareMetalHAL::Uart0::print(c); }
+inline void print(int i) { BareMetalHAL::Uart0::print(i); }
 inline void println(const char* s) { BareMetalHAL::Uart0::println(s); }
 inline void println(int i) { BareMetalHAL::Uart0::println(i); }
 inline void delay(uint16_t ms) { BareMetalHAL::delay(ms); }
+inline int available() { return BareMetalHAL::Uart0::available(); }
+inline int read() { return BareMetalHAL::Uart0::read(); }
 
 #endif
 
