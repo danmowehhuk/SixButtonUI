@@ -28,6 +28,7 @@ export class SixButtonConnection {
   private lastViewModelAt: string | null = null;
   private lastError: string | null = null;
   private connected = false;
+  private wakeTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly path: string,
@@ -48,6 +49,13 @@ export class SixButtonConnection {
         }
         this.connected = true;
         this.lastError = null;
+        // On macOS (serialport 12 and 13), incoming serial data doesn't
+        // wake an otherwise idle event loop - it sits unread until some
+        // other event (e.g. the next MCP request) runs the loop. A
+        // periodic no-op timer keeps the loop turning so lines are read
+        // as they arrive. unref() so it never keeps the process alive.
+        this.wakeTimer = setInterval(() => {}, 10);
+        this.wakeTimer.unref();
         resolve();
       });
 
@@ -58,6 +66,8 @@ export class SixButtonConnection {
 
       port.on("close", () => {
         this.connected = false;
+        if (this.wakeTimer) clearInterval(this.wakeTimer);
+        this.wakeTimer = null;
       });
 
       const lines = port.pipe(new ReadlineParser({ delimiter: "\n" }));

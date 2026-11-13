@@ -30,6 +30,9 @@ npm install
 npm run build
 ```
 
+`npm test` builds and runs the tests (they use `python3` to create a
+pseudo-terminal standing in for the device).
+
 ## Configuration
 
 Set via environment variables:
