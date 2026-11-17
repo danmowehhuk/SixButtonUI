@@ -27,19 +27,19 @@ class UIElement {
     };
     const uint8_t id; // Optional unique identifier for the element used in setNext()
     const UIElement::Type type;
-    const UIElement* getParent() const;
+    UIElement* getParent() const;
     const uint8_t getChildCount() const;
-    const UIElement* getChild(uint8_t index) const;
+    UIElement* getChild(uint8_t index) const;
     const uint8_t getChildIndex(UIElement* child) const;
 
     const char* getTitle() const { return _title; };
-    bool isTitlePmem() { return _isTitlePmem; };
+    bool isTitlePmem() const { return _isTitlePmem; };
 
     const char* getInstruction() const { return _instruction; };
-    bool isInstructionPmem() { return _isInstructionPmem; };
+    bool isInstructionPmem() const { return _isInstructionPmem; };
 
     const char* getFooter() const { return _footer; };
-    bool isFooterPmem() { return _isFooterPmem; };
+    bool isFooterPmem() const { return _isFooterPmem; };
 
     bool isHidden() const { return _isHidden; };
     bool hasId() const { return _hasId; };
@@ -54,14 +54,14 @@ class UIElement {
     UIElement& operator=(const UIElement&) = delete;
 
   protected:
-    UIElement(UIElement::Type type): type(type), id(0), _hasId(false) {};
-    UIElement(UIElement::Type type, uint8_t id): type(type), id(id), _hasId(true) {};
+    UIElement(UIElement::Type type): id(0), type(type), _hasId(false) {};
+    UIElement(UIElement::Type type, uint8_t id): id(id), type(type), _hasId(true) {};
     void setParent(UIElement* parent);
     UIElement** _children = nullptr;
     uint8_t _numChildren = 0;
-    char* _title = nullptr;
-    char* _instruction = nullptr;
-    char* _footer = nullptr;
+    const char* _title = nullptr;
+    const char* _instruction = nullptr;
+    const char* _footer = nullptr;
     bool _isTitlePmem = false;
     bool _isInstructionPmem = false;
     bool _isFooterPmem = false;

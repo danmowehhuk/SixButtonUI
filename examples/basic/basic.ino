@@ -97,7 +97,7 @@ void* saveTextInput(const char* value, void* state) {
 }
 
 void loadComboBox(SelectorModel* model, void* state) {
-  char* searchPrefix = model->getSearchPrefix();
+  const char* searchPrefix = model->getSearchPrefix();
   if (!searchPrefix || strlen(searchPrefix) == 0) {
     model->setNumOptions(3);
     model->setOptionRaw(0, "a", false, "a", false);
@@ -151,7 +151,7 @@ void loadWizardModel(WizardModel* model, void* state) {
   model->setStepInitialValue(2, F("buckle"));
 }
 
-void captureWizardValues(char** selectionValues, uint8_t numSteps, void* state) {
+void* captureWizardValues(const char** selectionValues, uint8_t numSteps, void* state) {
   Serial.println(F("Got from wizard:"));
   for (uint8_t i = 0; i < numSteps; i++) {
     Serial.print(F("  "));
@@ -159,6 +159,7 @@ void captureWizardValues(char** selectionValues, uint8_t numSteps, void* state) 
     Serial.print(F(": "));
     Serial.println(selectionValues[i]);
   }
+  return state;
 }
 
 extern char __heap_start, *__brkval;

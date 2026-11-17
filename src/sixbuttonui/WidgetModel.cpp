@@ -12,7 +12,7 @@ void WidgetModel::setTitle(const FlashStr* titlePmem) {
 
 void WidgetModel::setTitleRaw(const char* title, bool isPmem, bool allocate) {
   if (_title && _ownsTitle) {
-    free(_title);
+    free(const_cast<char*>(_title));
   }
   if (!title || isPmem || !allocate) {
     _title = title;
@@ -38,7 +38,7 @@ void WidgetModel::setInstruction(const FlashStr* instructionPmem) {
 
 void WidgetModel::setInstructionRaw(const char* instruction, bool isPmem, bool allocate) {
   if (_instruction && _ownsInstruction) {
-    free(_instruction);
+    free(const_cast<char*>(_instruction));
   }
   if (!instruction || isPmem || !allocate) {
     _instruction = instruction;
@@ -64,7 +64,7 @@ void WidgetModel::setFooter(const FlashStr* footerPmem) {
 
 void WidgetModel::setFooterRaw(const char* footer, bool isPmem, bool allocate) {
   if (_footer && _ownsFooter) {
-    free(_footer);
+    free(const_cast<char*>(_footer));
   }
   if (!footer || isPmem || !allocate) {
     _footer = footer;

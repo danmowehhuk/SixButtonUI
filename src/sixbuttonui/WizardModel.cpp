@@ -29,7 +29,7 @@ void WizardModel::setStepTitle(const FlashStr* title) {
 }
 
 void WizardModel::setStepTitleRaw(const char* title, bool isPmem, bool allocate) {
-  if (_stepTitle && _ownsStepTitle) free(_stepTitle);
+  if (_stepTitle && _ownsStepTitle) free(const_cast<char*>(_stepTitle));
   if (!title || isPmem || !allocate) {
     _stepTitle = title;
     _ownsStepTitle = false;

@@ -22,7 +22,7 @@ class TextInputElement: public UIElementBase<TextInputElement> {
       return withInitialValue(reinterpret_cast<const char*>(initValue), true);
     }
 
-    char* getInitialValue() { return _initValue; };
+    const char* getInitialValue() { return _initValue; };
     bool isInitialValuePmem() { return _isInitValuePmem; };
 
     typedef void (*ModelFunction)(TextInputModel* model, void* state);
@@ -32,7 +32,7 @@ class TextInputElement: public UIElementBase<TextInputElement> {
       return this;
     };
 
-    typedef void* (*OnEnterFunction)(char* value, void* state);
+    typedef void* (*OnEnterFunction)(const char* value, void* state);
     OnEnterFunction onEnterFunc = 0;
     TextInputElement* onEnter(OnEnterFunction func) {
       onEnterFunc = func;
@@ -41,7 +41,7 @@ class TextInputElement: public UIElementBase<TextInputElement> {
 
   private:
     TextInputElement(TextInputElement &t) = delete;
-    char* _initValue = nullptr;
+    const char* _initValue = nullptr;
     bool _isInitValuePmem = false;
 
 };

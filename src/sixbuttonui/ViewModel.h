@@ -78,10 +78,10 @@ class ViewModel {
     uint8_t _uiElementId = 0;
     bool _hasUIElementId = false;
 
-    char* _titleLine = nullptr;
-    char* _instructionLine = nullptr;
-    char* _interactiveLine = nullptr;
-    char* _footerLine = nullptr;
+    const char* _titleLine = nullptr;
+    const char* _instructionLine = nullptr;
+    const char* _interactiveLine = nullptr;
+    const char* _footerLine = nullptr;
     bool _isTitlePmem = false;
     bool _isInstructionPmem = false;
     bool _isInteractivePmem = false;
