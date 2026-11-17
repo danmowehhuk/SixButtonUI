@@ -31,7 +31,7 @@ class TextInputWidget: public Widget {
       }
     };
 
-    void* onEnter(uint8_t value, void* widgetModel, void* state) override {
+    void* onEnter(uint8_t /*value*/, void* widgetModel, void* state) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
 
       // Do this before calling onEnterFunc so it can be overridden
@@ -43,12 +43,12 @@ class TextInputWidget: public Widget {
       return state;
     };
 
-    void onDownPressed(uint8_t value, void* widgetModel) override {
+    void onDownPressed(uint8_t /*value*/, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       m->setChar(TextInputModel::getNext(m->getChar()));
     };
 
-    void onUpPressed(uint8_t value, void* widgetModel) override {
+    void onUpPressed(uint8_t /*value*/, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       m->setChar(TextInputModel::getPrev(m->getChar()));
     };
@@ -64,7 +64,7 @@ class TextInputWidget: public Widget {
     bool onDownLongPressRepeat() override { return true; };
     bool onUpLongPressRepeat() override { return true; };
 
-    void onLeftPressed(uint8_t value, void* widgetModel) override {
+    void onLeftPressed(uint8_t /*value*/, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       uint8_t pos = m->getCursorPos();
       if (pos > 0) {
@@ -72,7 +72,7 @@ class TextInputWidget: public Widget {
       }
     };
 
-    void onRightPressed(uint8_t value, void* widgetModel) override {
+    void onRightPressed(uint8_t /*value*/, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       uint8_t pos = m->getCursorPos();
       if (pos < TextInputModel::MAX_LENGTH - 1) {
@@ -80,7 +80,7 @@ class TextInputWidget: public Widget {
       }
     };
 
-    void onLeftLongPressed(uint8_t value, void* widgetModel) override {
+    void onLeftLongPressed(uint8_t /*value*/, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       m->setInitialValue(" "); // clear the value
     };

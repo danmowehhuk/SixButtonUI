@@ -1,7 +1,9 @@
 #include "PopupWidget.h"
 #include "../SixButtonUI.h"
 
-void* PopupWidget::onEnter(uint8_t value, void* widgetModel, void* state) {
+PopupWidget::PopupElement* const PopupWidget::_popupElement = new PopupWidget::PopupElement();
+
+void* PopupWidget::onEnter(uint8_t /*value*/, void* widgetModel, void* state) {
   PopupModel* m = static_cast<PopupModel*>(widgetModel);
   if (_popupElement->getPopupType() == PopupWidget::Type::USER_CANCELABLE
       || _popupElement->getPopupType() == PopupWidget::Type::TIMER_CANCELABLE) {

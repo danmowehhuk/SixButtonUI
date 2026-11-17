@@ -39,7 +39,7 @@ class ViewModel {
       SOLID
     };
 
-    const UIElement::Type getType() { return _type; };
+    UIElement::Type getType() { return _type; };
 
     uint8_t getUIElementId() { return _uiElementId; };
     bool hasUIElementId() { return _hasUIElementId; };
@@ -86,8 +86,6 @@ class ViewModel {
     bool _isInstructionPmem = false;
     bool _isInteractivePmem = false;
     bool _isFooterPmem = false;
-
-    friend class ViewModel;
 };
 
 

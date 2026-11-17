@@ -35,25 +35,25 @@ void render(ViewModel viewModel) {
   MODEL = static_cast<ViewModel&&>(viewModel);  // Move data into global struct
 }
 
-void loadSelectorModel(SelectorModel* model, void* state) {
+void loadSelectorModel(SelectorModel* model, void* /*state*/) {
   model->setNumOptions(2);
   model->setCurrValue("shoe");
   model->setOption(0, F("one"), F("buckle"));
   model->setOption(1, F("two"), F("shoe"));
 }
 
-void loadSelectorModelRAM(SelectorModel* model, void* state) {
+void loadSelectorModelRAM(SelectorModel* model, void* /*state*/) {
   model->setNumOptions(2);
   model->setCurrValue("shoe");
   model->setOption(0, "one", "buckle");
   model->setOption(1, "two", "shoe");
 }
 
-void initializeTextBox(TextInputModel* model, void* state) {
+void initializeTextBox(TextInputModel* model, void* /*state*/) {
   model->setInitialValue(F("bar"));
 }
 
-void loadBasicComboBoxModel(SelectorModel* model, void* state) {
+void loadBasicComboBoxModel(SelectorModel* model, void* /*state*/) {
   const char* searchPrefix = model->getSearchPrefix();
   if (!searchPrefix || searchPrefix[0] == '\0') {
     model->setNumOptions(2);
@@ -110,12 +110,12 @@ void* captureWizardValues(const char** selectionValues, uint8_t numSelections, v
   return state;
 }
 
-void loadWizardModel(WizardModel* model, void* state) {
+void loadWizardModel(WizardModel* /*model*/, void* /*state*/) {
   // No initial values for the step selectors,
   // any step that is never viewed will have value nullptr
 }
 
-void loadWizardModelFull(WizardModel* model, void* state) {
+void loadWizardModelFull(WizardModel* model, void* /*state*/) {
   model->setStepInitialValue(0, F("shoe"));
   model->setStepInitialValue(1, "shoe");
   model->setStepInitialValue(2, F("buckle"));

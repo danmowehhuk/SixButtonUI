@@ -14,7 +14,7 @@ using namespace SixButtonUIStrings;
 class WizardModel : public WidgetModel {
 
   public:
-    WizardModel(const uint8_t numSteps): _numSteps(numSteps), _hasNext(numSteps > 1), _hasPrev(false) {
+    WizardModel(const uint8_t numSteps): _numSteps(numSteps), _hasPrev(false), _hasNext(numSteps > 1) {
       _selectionNames = new char*[numSteps]();
       _selectionValues = new char*[numSteps]();
     };

@@ -94,7 +94,7 @@ class ComboBoxWidget: public SelectorWidget {
     /*
      * Update model's searchPrefix trimming off the last character
      */
-     void onLeftPressed(uint8_t value, void* widgetModel) override {
+     void onLeftPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       _isInitialRender = false;
       size_t len = strlen(m->_searchPrefix);
@@ -115,7 +115,7 @@ class ComboBoxWidget: public SelectorWidget {
     /*
      * Update model's searchPrefix appending the character at the cursor position
      */
-    void onRightPressed(uint8_t value, void* widgetModel) override {
+    void onRightPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       if (_isInitialRender) {
         // Starting with a previously selected completion
@@ -139,7 +139,7 @@ class ComboBoxWidget: public SelectorWidget {
       _doModelReload = true;
     };
 
-    void onLeftLongPressed(uint8_t value, void* widgetModel) override {
+    void onLeftLongPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       m->setSearchPrefix("", true); // clear the search prefix
       if (_prevSearchPrefix) free(_prevSearchPrefix);

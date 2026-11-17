@@ -37,17 +37,17 @@ class WizardWidget: public Widget {
       _doModelReload = false;
     };
 
-    void onUpPressed(uint8_t value, void* widgetModel) override {
+    void onUpPressed(uint8_t /*value*/, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
       m->prevSelection();
     };
 
-    void onDownPressed(uint8_t value, void* widgetModel) override {
+    void onDownPressed(uint8_t /*value*/, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
       m->nextSelection();
     };
 
-    void onLeftPressed(uint8_t value, void* widgetModel) override {
+    void onLeftPressed(uint8_t /*value*/, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
       if (_config->onPreviousFunc != 0) {
         _doModelReload = _config->onPreviousFunc(m, m->getController()->getState());
@@ -56,7 +56,7 @@ class WizardWidget: public Widget {
       }
     };
 
-    void onRightPressed(uint8_t value, void* widgetModel) override {
+    void onRightPressed(uint8_t /*value*/, void* widgetModel) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
       if (_config->onNextFunc != 0) {
         _doModelReload = _config->onNextFunc(m, m->getController()->getState());
@@ -65,7 +65,7 @@ class WizardWidget: public Widget {
       }
     };
 
-    void* onEnter(uint8_t value, void* widgetModel, void* state) override {
+    void* onEnter(uint8_t /*value*/, void* widgetModel, void* state) override {
       WizardModel* m = static_cast<WizardModel*>(widgetModel);
       if (m->_numSteps > 0) {
 

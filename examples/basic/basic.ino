@@ -63,14 +63,14 @@ void renderLCDDisplay(ViewModel viewModel) {
 
 using namespace sixbuttonui;
 
-void loadSelectorModel(SelectorModel* model, void* state) {
+void loadSelectorModel(SelectorModel* model, void* /*state*/) {
   model->setNumOptions(2);
   model->setCurrValue("shoe");
   model->setOption(0, F("one"), F("buckle"));
   model->setOption(1, F("two"), F("shoe"));
 }
 
-void loadSelectorModelRAM(SelectorModel* model, void* state) {
+void loadSelectorModelRAM(SelectorModel* model, void* /*state*/) {
   model->setNumOptions(2);
   model->setCurrValue("shoe");
   model->setOption(0, "one", "buckle");
@@ -87,7 +87,7 @@ void* selectorOnEnter(const char* selectionName, bool namePmem, const char* sele
   return state;
 }
 
-void initializeTextBox(TextInputModel* model, void* state) {
+void initializeTextBox(TextInputModel* model, void* /*state*/) {
   model->setInitialValue(F("bar"));
 }
 
@@ -96,7 +96,7 @@ void* saveTextInput(const char* value, void* state) {
   return state;
 }
 
-void loadComboBox(SelectorModel* model, void* state) {
+void loadComboBox(SelectorModel* model, void* /*state*/) {
   const char* searchPrefix = model->getSearchPrefix();
   if (!searchPrefix || strlen(searchPrefix) == 0) {
     model->setNumOptions(3);
@@ -141,11 +141,11 @@ void loadComboBoxWithInitialValue(SelectorModel* model, void* state) {
   }
 }
 
-void loadComboBoxEmpty(SelectorModel* model, void* state) {
+void loadComboBoxEmpty(SelectorModel* model, void* /*state*/) {
   model->setNumOptions(0);
 }
 
-void loadWizardModel(WizardModel* model, void* state) {
+void loadWizardModel(WizardModel* model, void* /*state*/) {
   model->setStepInitialValue(0, F("shoe"));
   model->setStepInitialValue(1, "shoe");
   model->setStepInitialValue(2, F("buckle"));

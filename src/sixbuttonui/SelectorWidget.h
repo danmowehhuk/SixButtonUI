@@ -42,7 +42,7 @@ class SelectorWidget: public Widget {
     // Wraps the user's onEnter function to provide some default behaviors, since the enter button may be
     // pressed at any time, whether or not a valid selection has been made, or whether the onEnter
     // function sets the next menu location to display.
-    void* onEnter(uint8_t value, void* widgetModel, void* state) override {
+    void* onEnter(uint8_t /*value*/, void* widgetModel, void* state) override {
 
       // If the model has no options, nothing can be selected, so return the state unchanged.
       // This is the default behavior when no model function is provided, or no options have been
@@ -104,12 +104,12 @@ class SelectorWidget: public Widget {
       return state;
     };
 
-    void onUpPressed(uint8_t value, void* widgetModel) override {
+    void onUpPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       m->prev();
     };
 
-    void onDownPressed(uint8_t value, void* widgetModel) override {
+    void onDownPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       m->next();
     };

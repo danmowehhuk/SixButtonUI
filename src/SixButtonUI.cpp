@@ -15,17 +15,17 @@ SixButtonUI::SixButtonUI(
       uint8_t upButtonPin, uint8_t downButtonPin, uint8_t leftButtonPin,
       uint8_t rightButtonPin, uint8_t menuBackButtonPin, uint8_t enterSelectButtonPin,
       RenderFunction renderFunction, NavigationConfig* navConfig):
-          _up(upButtonPin, 0), 
-          _down(downButtonPin, 0), 
+          _down(downButtonPin, 0),
+          _up(upButtonPin, 0),
           _left(leftButtonPin, 0),
           _right(rightButtonPin, 0),
           _menuBack(menuBackButtonPin, 0),
           _selectEnter(enterSelectButtonPin, 0),
           _timer(0),
           _nav(navConfig),
+          _renderFunction(renderFunction),
           _rootElementIdx(0),
-          _currConfig(_nav->getChild(_rootElementIdx)),
-          _renderFunction(renderFunction) {};
+          _currConfig(_nav->getChild(_rootElementIdx)) {};
 
 void SixButtonUI::setup() {
   _down.setup();
@@ -38,7 +38,7 @@ void SixButtonUI::setup() {
   render();
 }
 
-void SixButtonUI::poll(void* state) {
+void SixButtonUI::poll(void* /*state*/) {
   /*
    * The state object (if any) sent from Eventuino is not used. Instead,
    * the current widget's own model is passed so it can be made available
@@ -141,7 +141,7 @@ void SixButtonUI::render() {
     UI(widgetModel)->_state = stateOut;
     UI(widgetModel)->render();
   };
-  _menuBack.onReleased = [](uint8_t value, void* widgetModel) {
+  _menuBack.onReleased = [](uint8_t /*value*/, void* widgetModel) {
     UI(widgetModel)->menuBack();
     UI(widgetModel)->render();
   };

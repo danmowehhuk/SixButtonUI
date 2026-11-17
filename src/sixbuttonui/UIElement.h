@@ -28,9 +28,9 @@ class UIElement {
     const uint8_t id; // Optional unique identifier for the element used in setNext()
     const UIElement::Type type;
     UIElement* getParent() const;
-    const uint8_t getChildCount() const;
+    uint8_t getChildCount() const;
     UIElement* getChild(uint8_t index) const;
-    const uint8_t getChildIndex(UIElement* child) const;
+    uint8_t getChildIndex(UIElement* child) const;
 
     const char* getTitle() const { return _title; };
     bool isTitlePmem() const { return _isTitlePmem; };
