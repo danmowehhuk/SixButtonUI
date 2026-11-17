@@ -7,7 +7,7 @@
 class SubMenuWidget: public SelectorWidget {
 
   public:
-    SubMenuWidget(const SubMenuElement* config): SelectorWidget(config), _config(config) {};
+    SubMenuWidget(SubMenuElement* config): SelectorWidget(config), _config(config) {};
     ~SubMenuWidget() override {};
 
   protected:
@@ -72,8 +72,8 @@ class SubMenuWidget: public SelectorWidget {
       if (m->getNumOptions() == 0) return state; // nothing to select
       uint8_t currIdx = m->getCurrIndex();
       _config->lastSelected = currIdx;
-      char* uiePtr = m->_optionValues[m->_currIndex];
-      UIElement* element = reinterpret_cast<UIElement*>(uiePtr);
+      // loadModel() stored the element pointer as the option value.
+      UIElement* element = reinterpret_cast<UIElement*>(const_cast<char*>(m->_optionValues[m->_currIndex]));
       m->getController()->setNext(element);
       return state;
     };

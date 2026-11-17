@@ -9,7 +9,7 @@
 class TextInputWidget: public Widget {
 
   public:
-    TextInputWidget(const TextInputElement* config): Widget(config), _config(config) {};
+    TextInputWidget(TextInputElement* config): Widget(config), _config(config) {};
     ~TextInputWidget() {
       if (_model) delete _model;
     };

@@ -32,7 +32,7 @@ class WidgetModel {
     const char* getFooter();
 
     // Access SixButtonUI for switching elements
-    const SixButtonUI* getController() {
+    SixButtonUI* getController() {
       return _ui;
     };
 
@@ -66,13 +66,13 @@ class WidgetModel {
 };
 inline WidgetModel::~WidgetModel() {
   if (_title && _ownsTitle) {
-    free(_title);
+    free(const_cast<char*>(_title));
   }
   if (_instruction && _ownsInstruction) {
-    free(_instruction);
+    free(const_cast<char*>(_instruction));
   }
   if (_footer && _ownsFooter) {
-    free(_footer);
+    free(const_cast<char*>(_footer));
   }
   _title = nullptr;
   _ownsTitle = false;

@@ -179,7 +179,7 @@ void SixButtonUI::setNextDefault() {
   if (_currConfig->getParent()->type == UIElement::Type::ROOT) {
     reload();
   } else {
-    setNext(const_cast<UIElement*>(_currConfig->getParent()));
+    setNext(_currConfig->getParent());
   }
 }
 
@@ -279,7 +279,7 @@ void SixButtonUI::menuBack() {
       } else {
         startIdx = 0;
       }
-      UIElement* candidate = const_cast<UIElement*>(parent->getChild(startIdx));
+      UIElement* candidate = parent->getChild(startIdx);
       if (!candidate->isHidden()) {
         nextConfig = candidate;
         _rootElementIdx = startIdx;
@@ -342,10 +342,10 @@ Widget* SixButtonUI::newForType(UIElement::Type type) {
   Widget* out = nullptr;
   switch (type) {
     case UIElement::Type::SELECTOR:
-      out = new SelectorWidget(static_cast<const SelectorElement*>(_currConfig));
+      out = new SelectorWidget(static_cast<SelectorElement*>(_currConfig));
       break;
     case UIElement::Type::SUB_MENU:
-      out = new SubMenuWidget(static_cast<const SubMenuElement*>(_currConfig));
+      out = new SubMenuWidget(static_cast<SubMenuElement*>(_currConfig));
       break;
     case UIElement::Type::TEXT_INPUT:
       out = new TextInputWidget(static_cast<TextInputElement*>(_currConfig));
@@ -390,7 +390,7 @@ UIElement* SixButtonUI::findElementByIdRecursive(UIElement* element, uint8_t id)
   // Recursively search children
   uint8_t childCount = element->getChildCount();
   for (uint8_t i = 0; i < childCount; i++) {
-    UIElement* child = const_cast<UIElement*>(element->getChild(i));
+    UIElement* child = element->getChild(i);
     UIElement* found = findElementByIdRecursive(child, id);
     if (found) {
       return found;

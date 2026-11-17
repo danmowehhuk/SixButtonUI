@@ -22,8 +22,9 @@ class PopupWidget: public Widget {
         PopupElement(): UIElementBase(UIElement::Type::POPUP) {};
 
         void clear() {
-          if (_message && !_isMessagePmem) free(_message);
+          if (_message && _ownsMessage) free(const_cast<char*>(_message));
           _message = nullptr;
+          _ownsMessage = false;
           _isMessagePmem = false;
           _popupType = PopupWidget::Type::USER_CANCELABLE;
           _returnToConfig = nullptr;
@@ -36,7 +37,7 @@ class PopupWidget: public Widget {
         };
 
         void setMessageRaw(const char* message, bool isPmem, bool allocate) {
-          if (_message && _ownsMessage) free(_message);
+          if (_message && _ownsMessage) free(const_cast<char*>(_message));
           if (!message || isPmem || !allocate) {
             _message = message;
             _ownsMessage = false;
@@ -67,7 +68,7 @@ class PopupWidget: public Widget {
         PopupElement& operator=(const PopupElement&) = delete;
 
       private:
-        char* _message = nullptr;
+        const char* _message = nullptr;
         bool _ownsMessage = false;
         bool _isMessagePmem = false;
         PopupWidget::Type _popupType = PopupWidget::Type::USER_CANCELABLE;
@@ -82,7 +83,7 @@ class PopupWidget: public Widget {
         ~PopupModel() override {};
     };
 
-    PopupWidget(const PopupElement* config): Widget(config) {};
+    PopupWidget(PopupElement* config): Widget(config) {};
     ~PopupWidget() {
       _popupElement->clear();
       if (_model) delete _model;

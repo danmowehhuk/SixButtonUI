@@ -9,7 +9,7 @@
 class WizardWidget: public Widget {
 
   public:
-    WizardWidget(const WizardElement* config): Widget(config), _config(config) {};
+    WizardWidget(WizardElement* config): Widget(config), _config(config) {};
     ~WizardWidget() {
       if (_model) delete _model;
     };
@@ -74,7 +74,7 @@ class WizardWidget: public Widget {
 
         if (_config->onEnterFunc != 0) {
           m->captureStepSelection();
-          state = _config->onEnterFunc(m->_selectionValues, m->_numSteps, state);
+          state = _config->onEnterFunc(const_cast<const char**>(m->_selectionValues), m->_numSteps, state);
         }
       }
       return state;

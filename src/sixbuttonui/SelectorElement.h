@@ -45,7 +45,7 @@ class SelectorElement: public UIElementBase<SelectorElement> {
       return this;
     };
 
-    typedef void* (*SelectorOnEnterFunction)(char* selectionName, bool namePmem, char* selectionValue, bool valuePmem, void* state);
+    typedef void* (*SelectorOnEnterFunction)(const char* selectionName, bool namePmem, const char* selectionValue, bool valuePmem, void* state);
     SelectorOnEnterFunction onEnterFunc = 0;
     SelectorElement* onEnter(SelectorOnEnterFunction func) {
       onEnterFunc = func;

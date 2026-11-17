@@ -9,7 +9,7 @@
 class SelectorWidget: public Widget {
 
   public:
-    SelectorWidget(const SelectorElement* config): Widget(config), _config(config) {};
+    SelectorWidget(SelectorElement* config): Widget(config), _config(config) {};
     ~SelectorWidget() override {
       if (_model) delete _model;
     };
@@ -66,7 +66,7 @@ class SelectorWidget: public Widget {
       }
 
       // Get the value for the currently selected option.
-      char* selectionValue = m->_optionValues[m->_currIndex];
+      const char* selectionValue = m->_optionValues[m->_currIndex];
       bool isValuePmem = m->_isOptionValuePmem[m->_currIndex];
 
       if (_config->onEnterFunc != 0) {

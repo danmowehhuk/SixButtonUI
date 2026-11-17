@@ -51,7 +51,7 @@ class WizardModel : public WidgetModel {
     uint8_t _currStep = 0;
     bool _hasPrev;
     bool _hasNext;
-    char* _stepTitle = nullptr;
+    const char* _stepTitle = nullptr;
     bool _stepTitlePmem = false;
     bool _ownsStepTitle = false;
     char** _selectionNames = nullptr;

@@ -38,12 +38,12 @@ class Widget {
      * onEnter returns either the same state object passed in or
      * a new one to be passed to future onEnter calls
      */
-    virtual void* onEnter(uint8_t value, void* widgetModel, void* state) {};
+    virtual void* onEnter(uint8_t value, void* widgetModel, void* state) { return state; };
 
     /*
      * onTimerExpired is used for automatically dismissing a popup widget.
      */
-    virtual void* onTimerExpired(uint8_t value, void* widgetModel, void* state) {};
+    virtual void* onTimerExpired(uint8_t value, void* widgetModel, void* state) { return state; };
 
     /*
      * Default implementations of the button handlers.

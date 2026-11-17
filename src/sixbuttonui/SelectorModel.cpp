@@ -42,10 +42,10 @@ void SelectorModel::setOption(uint8_t i, const FlashStr* name,
 void SelectorModel::setOptionRaw(uint8_t i, const char* name, bool isNamePmem, const char* value, bool isValuePmem, 
       bool allocateName, bool allocateValue) {
   if (_optionNames[i] && _isOwnsOptionName[i]) {
-    free(_optionNames[i]);
+    free(const_cast<char*>(_optionNames[i]));
   }
   if (_optionValues[i] && _isOwnsOptionValue[i]) {
-    free(_optionValues[i]);
+    free(const_cast<char*>(_optionValues[i]));
   }
   if (!name || isNamePmem || !allocateName) {
     _optionNames[i] = name;
@@ -75,7 +75,7 @@ void SelectorModel::setCurrValue(const FlashStr* currValue) {
 
 void SelectorModel::setCurrValueRaw(const char* currValue, bool isPmem, bool allocate) {
   if (_currValue && _isOwnsCurrValue) {
-    free(_currValue);
+    free(const_cast<char*>(_currValue));
   }
   if (!currValue || isPmem || !allocate) {
     _currValue = currValue;
@@ -89,7 +89,7 @@ void SelectorModel::setCurrValueRaw(const char* currValue, bool isPmem, bool all
 
 void SelectorModel::setInitialSearchPrefix(const char* searchPrefix, bool allocate) {
   if (_initialSearchPrefix && _isOwnsInitialSearchPrefix) {
-    free(_initialSearchPrefix);
+    free(const_cast<char*>(_initialSearchPrefix));
   }
   if (!searchPrefix || !allocate) {
     _initialSearchPrefix = searchPrefix;
@@ -108,7 +108,7 @@ bool SelectorModel::isCurrValueSelected() {
   }
 
   bool isMatch = false;
-  char* currValueRAM = _currValue;
+  const char* currValueRAM = _currValue;
   if (_currValue && _isCurrValuePmem) currValueRAM = SixButtonUIStrings::strdup_P(_currValue);
   if (_currValue && _isOptionValuePmem[_currIndex] 
       && strcmp_P(_currValue, _optionValues[_currIndex]) == 0) {
@@ -118,14 +118,14 @@ bool SelectorModel::isCurrValueSelected() {
     isMatch = true;
   }
   if (currValueRAM && _isCurrValuePmem) {
-    free(currValueRAM);
+    free(const_cast<char*>(currValueRAM));
   }
   return isMatch;
 }
 
 void SelectorModel::setSearchPrefix(const char* searchPrefix, bool allocate) {
   if (_searchPrefix && _isOwnsSearchPrefix) {
-    free(_searchPrefix);
+    free(const_cast<char*>(_searchPrefix));
   }
   if (!searchPrefix || !allocate) {
     _searchPrefix = searchPrefix;
@@ -225,16 +225,16 @@ void SelectorModel::resetOptions() {
 void SelectorModel::clear() {
   resetOptions();
   if (_currValue && _isOwnsCurrValue) {
-    free(_currValue);
+    free(const_cast<char*>(_currValue));
   }
   if (_initialSearchPrefix && _isOwnsInitialSearchPrefix) {
-    free(_initialSearchPrefix);
+    free(const_cast<char*>(_initialSearchPrefix));
   }
   if (_searchPrefix && _isOwnsSearchPrefix) {
-    free(_searchPrefix);
+    free(const_cast<char*>(_searchPrefix));
   }
   if (_selectionName && _isOwnsSelectionName) {
-    free(_selectionName);
+    free(const_cast<char*>(_selectionName));
   }
   _currValue = nullptr;
   _isCurrValuePmem = false;

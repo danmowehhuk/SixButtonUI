@@ -13,7 +13,7 @@ using namespace SixButtonUIStrings;
 class ComboBoxWidget: public SelectorWidget {
 
   public:
-    ComboBoxWidget(const ComboBoxElement* config): SelectorWidget(config), _config(config) {};
+    ComboBoxWidget(ComboBoxElement* config): SelectorWidget(config), _config(config) {};
     ~ComboBoxWidget() override {
       if (_prevSearchPrefix) free(_prevSearchPrefix);
       if (_tmpInteractiveLine) free(_tmpInteractiveLine);
