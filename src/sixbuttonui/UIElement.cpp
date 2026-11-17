@@ -8,7 +8,7 @@ void UIElement::setParent(UIElement* parent) {
   _parent = parent;
 }
 
-const uint8_t UIElement::getChildCount() const {
+uint8_t UIElement::getChildCount() const {
   return _numChildren;
 }
 
@@ -16,7 +16,7 @@ UIElement* UIElement::getChild(uint8_t index) const {
   return _children[index];
 }
 
-const uint8_t UIElement::getChildIndex(UIElement* child) const {
+uint8_t UIElement::getChildIndex(UIElement* child) const {
   for (uint8_t i = 0; i < _numChildren; i++) {
     if (_children[i] == child) {
       return i;

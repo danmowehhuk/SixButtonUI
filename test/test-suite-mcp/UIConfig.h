@@ -19,7 +19,7 @@ enum TestElement : uint8_t {
   ITEM_SELECTOR
 };
 
-void loadItemOptions(SelectorModel* model, void* state) {
+void loadItemOptions(SelectorModel* model, void* /*state*/) {
   model->setNumOptions(2);
   model->setCurrValue("alpha");
   model->setOption(0, "alpha", "a");
@@ -27,7 +27,7 @@ void loadItemOptions(SelectorModel* model, void* state) {
 }
 
 char* capturedSelectionValue = nullptr;
-void* captureSelection(const char* name, bool namePmem, const char* value, bool valuePmem, void* state) {
+void* captureSelection(const char* /*name*/, bool /*namePmem*/, const char* value, bool valuePmem, void* state) {
   if (capturedSelectionValue) free(capturedSelectionValue);
   capturedSelectionValue = valuePmem ? strdup_P(value) : strdup(value);
   return state;

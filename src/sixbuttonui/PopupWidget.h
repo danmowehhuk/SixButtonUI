@@ -93,7 +93,7 @@ class PopupWidget: public Widget {
       _model = new PopupModel(); 
     };
 
-    void loadModel(void* state) override {};
+    void loadModel(void* /*state*/) override {};
     WidgetModel* getModel() override { return _model; };
 
     void* onEnter(uint8_t value, void* widgetModel, void* state) override;
@@ -115,7 +115,6 @@ class PopupWidget: public Widget {
     PopupModel* _model = nullptr;
 
 };
-inline PopupWidget::PopupElement* const PopupWidget::_popupElement = new PopupWidget::PopupElement();
 
 
 #endif

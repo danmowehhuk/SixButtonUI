@@ -49,24 +49,24 @@ ViewModel::~ViewModel() {
 }
 
 ViewModel::ViewModel(ViewModel&& other) noexcept:
+      cursorMode(other.cursorMode),
+      cursorPosition(other.cursorPosition),
+      hasNext(other.hasNext),
+      hasPrev(other.hasPrev),
+      isSelected(other.isSelected),
+      isSelectable(other.isSelectable),
+      isCancelable(other.isCancelable),
       _type(other._type),
       _uiElementId(other._uiElementId),
       _hasUIElementId(other._hasUIElementId),
       _titleLine(other._titleLine),
-      _isTitlePmem(other._isTitlePmem),
       _instructionLine(other._instructionLine),
-      _isInstructionPmem(other._isInstructionPmem),
       _interactiveLine(other._interactiveLine),
-      _isInteractivePmem(other._isInteractivePmem),
       _footerLine(other._footerLine),
-      _isFooterPmem(other._isFooterPmem),
-      hasPrev(other.hasPrev),
-      hasNext(other.hasNext),
-      isSelected(other.isSelected),
-      isSelectable(other.isSelectable),
-      isCancelable(other.isCancelable),
-      cursorMode(other.cursorMode),
-      cursorPosition(other.cursorPosition) {
+      _isTitlePmem(other._isTitlePmem),
+      _isInstructionPmem(other._isInstructionPmem),
+      _isInteractivePmem(other._isInteractivePmem),
+      _isFooterPmem(other._isFooterPmem) {
   other._titleLine                = nullptr;
   other._instructionLine          = nullptr;
   other._interactiveLine          = nullptr;

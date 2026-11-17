@@ -67,7 +67,7 @@ class SubMenuWidget: public SelectorWidget {
       _model->_currIndex = _config->lastSelected;
     };
 
-    void* onEnter(uint8_t value, void* widgetModel, void* state) override {
+    void* onEnter(uint8_t /*value*/, void* widgetModel, void* state) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       if (m->getNumOptions() == 0) return state; // nothing to select
       uint8_t currIdx = m->getCurrIndex();
