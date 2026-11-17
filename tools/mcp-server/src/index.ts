@@ -1,29 +1,24 @@
 #!/usr/bin/env node
-// MCP server entry point. Owns one persistent serial connection to a
-// SixButtonUI device running with SIXBUTTONUI_ENABLE_MCP, and exposes
-// three tools: press a button, read the last-known UI state, and check
-// connection status.
+// MCP server entry point. Drives a SixButtonUI device running with
+// SIXBUTTONUI_ENABLE_MCP in test sessions: connect starts one (opening the
+// port and resetting the board), press and read_view_model work within it,
+// and disconnect releases the port. status reports the session.
 //
-// Config is via environment variables (see README.md):
-//   SIXBUTTON_SERIAL_PATH  - e.g. /dev/cu.usbserial-XXXX (required)
-//   SIXBUTTON_BAUD_RATE    - defaults to 9600
-//   SIXBUTTON_DEBUG_LOG    - defaults to ./sixbutton-mcp-debug.log
+// Config is via environment variables (see README.md), all optional:
+//   SIXBUTTON_SERIAL_NUMBER - picks a board when several are plugged in
+//   SIXBUTTON_SERIAL_PATH   - or pins a device path
+//   SIXBUTTON_BAUD_RATE     - defaults to 9600
+//   SIXBUTTON_CONNECT_TIMEOUT_MS - wait for the first screen, default 5000
+//   SIXBUTTON_DEBUG_LOG     - defaults to ./sixbutton-mcp-debug.log
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { SixButtonConnection } from "./serial.js";
 
-const SERIAL_PATH = process.env.SIXBUTTON_SERIAL_PATH;
 const BAUD_RATE = Number(process.env.SIXBUTTON_BAUD_RATE ?? "9600");
+const CONNECT_TIMEOUT_MS = Number(process.env.SIXBUTTON_CONNECT_TIMEOUT_MS ?? "5000");
 const DEBUG_LOG_PATH = process.env.SIXBUTTON_DEBUG_LOG ?? "./sixbutton-mcp-debug.log";
-
-if (!SERIAL_PATH) {
-  console.error(
-    "SIXBUTTON_SERIAL_PATH is not set. Point it at the device's serial port (e.g. /dev/cu.usbserial-XXXX) and restart.",
-  );
-  process.exit(1);
-}
 
 const BUTTONS = ["UP", "DN", "LF", "RT", "EN", "ME"] as const;
 type Button = (typeof BUTTONS)[number];
@@ -33,12 +28,92 @@ function toWireCode(button: Button, long: boolean): string {
   return long ? `${button}-L` : button;
 }
 
-const connection = new SixButtonConnection(SERIAL_PATH, BAUD_RATE, DEBUG_LOG_PATH);
+const connection = new SixButtonConnection({
+  baudRate: BAUD_RATE,
+  debugLogPath: DEBUG_LOG_PATH,
+  pin: {
+    path: process.env.SIXBUTTON_SERIAL_PATH || undefined,
+    serialNumber: process.env.SIXBUTTON_SERIAL_NUMBER || undefined,
+  },
+  firstViewModelTimeoutMs: CONNECT_TIMEOUT_MS,
+});
+
+function errorResult(err: unknown) {
+  return {
+    isError: true,
+    content: [{ type: "text" as const, text: err instanceof Error ? err.message : String(err) }],
+  };
+}
 
 const server = new McpServer({
   name: "sixbutton-mcp-server",
   version: "0.1.0",
 });
+
+server.registerTool(
+  "connect",
+  {
+    title: "Start a test session on the SixButtonUI device",
+    description:
+      "Starts a test session: finds the board (the one USB serial port plugged in, unless " +
+      "`port` or the server's configuration picks one), opens its serial port, which resets " +
+      "the board, and waits for its first screen, which it returns. Fails at once if a session " +
+      "is already open or another process holds the port, naming that process. Call " +
+      "`disconnect` when the session is done so builds and other sessions can use the board.",
+    inputSchema: {
+      port: z
+        .string()
+        .optional()
+        .describe("Device path to use, e.g. /dev/cu.usbserial-110, when several boards are plugged in."),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+  async ({ port }) => {
+    try {
+      const session = await connection.connect(port);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({ connected: session.path, ...session.viewModel }, null, 2),
+          },
+        ],
+      };
+    } catch (err) {
+      return errorResult(err);
+    }
+  },
+);
+
+server.registerTool(
+  "disconnect",
+  {
+    title: "End the test session",
+    description:
+      "Ends the test session and releases the serial port, so a build can flash the board or " +
+      "another session can connect. Call it when a session is done, including after a failure.",
+    inputSchema: {},
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
+  async () => {
+    const ended = await connection.disconnect();
+    return {
+      content: [
+        { type: "text", text: ended ? "Session ended; the port is free." : "No session was open." },
+      ],
+    };
+  },
+);
 
 server.registerTool(
   "press",
@@ -48,7 +123,8 @@ server.registerTool(
       "Simulates a physical button press on the live SixButtonUI device (UP/DN/LF/RT/EN/ME), " +
       "optionally as a long press. The server sends the press followed immediately by the " +
       "matching release, matching how a real button press behaves. If no handler is registered " +
-      "for that action on the current screen, nothing happens - this is not an error.",
+      "for that action on the current screen, nothing happens - this is not an error. " +
+      "Needs a session; see `connect`.",
     inputSchema: {
       button: z.enum(BUTTONS).describe("Which button to press: UP, DN, LF, RT, EN, or ME."),
       long: z
@@ -68,10 +144,7 @@ server.registerTool(
     try {
       await connection.writeCode(code);
     } catch (err) {
-      return {
-        isError: true,
-        content: [{ type: "text", text: err instanceof Error ? err.message : String(err) }],
-      };
+      return errorResult(err);
     }
     return {
       content: [{ type: "text", text: `Sent ${code}.` }],
@@ -86,8 +159,8 @@ server.registerTool(
     description:
       "Returns the most recently received UI state (ViewModel) reported by the device: the " +
       "current screen's type, title, instructions, footer, cursor position, and available " +
-      "navigation/selection flags. This is the last state the device pushed, not a live poll - " +
-      "call `press` first if you need to react to a fresh screen.",
+      "navigation/selection flags. This is the last state the device pushed in this session, " +
+      "not a live poll - call `press` first if you need to react to a fresh screen.",
     inputSchema: {},
     annotations: {
       readOnlyHint: true,
@@ -103,7 +176,9 @@ server.registerTool(
         content: [
           {
             type: "text",
-            text: "No ViewModel has been received yet. Press a button or wait for the device to render.",
+            text: connection.getStatus().sessionOpen
+              ? "No ViewModel has been received yet. Press a button or wait for the device to render."
+              : "No test session is open. Call connect first.",
           },
         ],
       };
@@ -122,11 +197,10 @@ server.registerTool(
 server.registerTool(
   "status",
   {
-    title: "Check the serial connection status",
+    title: "Check the test session",
     description:
-      "Reports whether the server currently holds a live serial connection to the device, " +
-      "which port/baud rate it's using, the last error (if any), and when a ViewModel was " +
-      "last received.",
+      "Reports whether a test session is open, which port and baud rate it uses, the last " +
+      "error (if any), and when a ViewModel was last received.",
     inputSchema: {},
     annotations: {
       readOnlyHint: true,
@@ -143,15 +217,6 @@ server.registerTool(
 );
 
 async function main() {
-  try {
-    await connection.connect();
-  } catch (err) {
-    console.error(
-      `Failed to open ${SERIAL_PATH}: ${err instanceof Error ? err.message : String(err)}`,
-    );
-    console.error("The server will still start; tool calls will report the connection error.");
-  }
-
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
