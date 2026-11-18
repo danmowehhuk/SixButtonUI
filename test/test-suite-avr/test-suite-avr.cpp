@@ -240,6 +240,21 @@ void after() {
   capturedWizardNumSelections = 0;
 }
 
+// Leaves the UI behind a fatal popup, so it runs last.
+void testShowErrorPopup(TestInvocation* t) {
+  t->setName(F("showErrorPopup() draws at once and stays"));
+  t->verify(helper.goToElementById(TestElement::MAIN_MENU), F("Element not found"));
+  sixButtonUI->showErrorPopup(F("Disk full"));
+  // No poll() since: the popup must already be drawn.
+  t->verify(MODEL.getType() == UIElement::Type::POPUP, F("expected the popup"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Disk full"));
+  t->verify(!MODEL.isCancelable, F("an error popup can't be dismissed"));
+  helper.pressAndReleaseSelectEnter();
+  helper.pressAndReleaseMenuBack();
+  t->verify(MODEL.getType() == UIElement::Type::POPUP, F("the popup should stay"));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("Disk full"));
+}
+
 Eventuino evt;
 
 int main() {
@@ -265,7 +280,8 @@ int main() {
     testWizardWidget_emptyModel,
     testRootLevelSelectionPreserved,
     testBackToSubMenu,
-    testSubMenuWidget
+    testSubMenuWidget,
+    testShowErrorPopup
 
   };
 

@@ -59,6 +59,12 @@ class SixButtonUI: public EventSource {
     void showPopup(PopupWidget::Type type, const char* message, bool allocate = true);
     void showPopup(PopupWidget::Type type, uint16_t duration, const char* message, bool allocate = true);
     void showPopupRaw(PopupWidget::Type type, uint16_t duration, const char* message, bool isPmem, bool allocate);
+
+    // Shows a FATAL popup and draws it at once, rather than on the next poll(). For
+    // errors raised outside SixButtonUI's own button handling, e.g. by another part
+    // of the system that may stop running right after.
+    void showErrorPopup(const FlashStr* message);
+    void showErrorPopup(const char* message, bool allocate = true);
     void dismissPopup();
 
     // Required by EventSource
