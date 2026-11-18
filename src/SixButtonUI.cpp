@@ -236,6 +236,16 @@ void SixButtonUI::showPopupRaw(PopupWidget::Type type, uint16_t duration, const 
   setNext(popupElement);
 }
 
+void SixButtonUI::showErrorPopup(const FlashStr* message) {
+  showPopupRaw(PopupWidget::Type::FATAL, 0, reinterpret_cast<const char*>(message), true, false);
+  render();
+}
+
+void SixButtonUI::showErrorPopup(const char* message, bool allocate) {
+  showPopupRaw(PopupWidget::Type::FATAL, 0, message, false, allocate);
+  render();
+}
+
 void SixButtonUI::dismissPopup() {
   _menuBackDisabled = false;
   if (_currConfig->type != UIElement::Type::POPUP) {
