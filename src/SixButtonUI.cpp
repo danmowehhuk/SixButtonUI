@@ -460,11 +460,11 @@ void SixButtonUI::_mcpDispatch(Mcp::Code code) {
 }
 
 void SixButtonUI::mcpSetCursor(uint8_t col, uint8_t row) {
-  Mcp::displayCursor(col, row);
+  Mcp::setDisplayCursor(col, row);
 }
 
 void SixButtonUI::mcpPrint(char c) {
-  Mcp::displayChar(c);
+  Mcp::printDisplayChar(c);
 }
 
 #else

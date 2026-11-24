@@ -71,8 +71,10 @@ class SixButtonUI: public EventSource {
     // protocol, so an agent sees the display as drawn, not just the view model. Call
     // mcpSetCursor() wherever the render function moves the display's cursor, and
     // mcpPrint() for each character it draws, after it's cut to fit. Drawing starts
-    // at column 0, row 0. Calls outside the render function are ignored, and without
-    // SIXBUTTONUI_ENABLE_MCP both do nothing.
+    // at column 0, row 0 of a blank display, so the render function must clear and
+    // redraw the whole display each time, and must not write to the serial port
+    // while it draws: that would land inside the protocol line. Calls outside the
+    // render function are ignored, and without SIXBUTTONUI_ENABLE_MCP both do nothing.
     static void mcpSetCursor(uint8_t col, uint8_t row);
     static void mcpPrint(char c);
 

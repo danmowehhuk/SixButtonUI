@@ -86,10 +86,9 @@ you need non-default values.
 - **`read_view_model()`** - returns the most recently received UI state
   (screen type, title, instructions, footer, cursor, nav/selection
   flags), plus `display`: the rows of text the app's render function
-  drew for it, as the device's display shows them. This is the last
-  state the device pushed, not a live poll. `display` is null if the
-  render function doesn't send its text (see below) or it hasn't arrived
-  yet.
+  drew for it (see below). This is the last state the device pushed, not
+  a live poll. `display` is null if the render function doesn't send its
+  text or drew nothing, or the text hasn't arrived yet.
 - **`status()`** - whether a session is open, its path and baud rate,
   the last error, and when a ViewModel was last received.
 
@@ -119,4 +118,13 @@ void draw(uint8_t col, uint8_t row, const char* text) {
 
 Without `SIXBUTTONUI_ENABLE_MCP` both functions do nothing. SixButtonUI
 sends what they're given as one `6BUI=>'...'` line right after the
-screen's view model line.
+screen's view model line, if the render function drew anything.
+
+- The rows start from a blank display, so they match the device only if
+  the render function clears and redraws the whole display each time.
+- The render function must not write to the serial port while it draws:
+  that output would land inside the `6BUI=>'...'` line.
+- Printable ASCII appears as drawn. Any other character (an LCD's custom
+  or ROM characters) appears as `\xHH`, its code in hex, since what it
+  looks like depends on the display's character set. It still counts as
+  one column.

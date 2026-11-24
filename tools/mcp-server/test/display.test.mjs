@@ -18,8 +18,21 @@ test("keeps a row that was moved to but not drawn on", () => {
   assert.deepEqual(parseDisplayLine("6BUI=>'@0,0;Saved@1,0;'"), ["Saved", ""]);
 });
 
-test("unescapes @, ' and \\, and decodes \\xHH", () => {
-  assert.deepEqual(parseDisplayLine("6BUI=>'@0,0;a\\@b\\'c\\\\d\\xDF'"), ["a@b'c\\dß"]);
+test("unescapes @, ' and \\", () => {
+  assert.deepEqual(parseDisplayLine("6BUI=>'@0,0;a\\@b\\'c\\\\d'"), ["a@b'c\\d"]);
+});
+
+test("keeps a character outside printable ASCII as \\xHH in one column", () => {
+  assert.deepEqual(parseDisplayLine("6BUI=>'@0,0;20\\xDFC@0,5;!'"), ["20\\xDFC !"]);
+  assert.deepEqual(parseDisplayLine("6BUI=>'\\x00\\x01'"), ["\\x00\\x01"]);
+});
+
+test("returns null for a line whose closing quote was lost", () => {
+  assert.equal(parseDisplayLine("6BUI=>'@0,0;Hi\\'"), null);
+});
+
+test("keeps what was drawn before a position with no ;", () => {
+  assert.deepEqual(parseDisplayLine("6BUI=>'@0,0;Hi@1'"), ["Hi"]);
 });
 
 test("returns null for other lines", () => {

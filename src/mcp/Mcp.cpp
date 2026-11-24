@@ -173,7 +173,7 @@ namespace {
   // has begun.
   bool openDisplay() {
     if (displayState == DisplayState::BEGUN) {
-      SixButtonUIHal::print("6BUI=>'");
+      SixButtonUIHal::print(F("6BUI=>'"));
       displayState = DisplayState::OPEN;
     }
     return displayState == DisplayState::OPEN;
@@ -189,7 +189,7 @@ void beginDisplay() {
   displayState = DisplayState::BEGUN;
 }
 
-void displayCursor(uint8_t col, uint8_t row) {
+void setDisplayCursor(uint8_t col, uint8_t row) {
   if (openDisplay()) {
     SixButtonUIHal::print('@');
     SixButtonUIHal::print((int)row);
@@ -216,7 +216,7 @@ void toDisplayText(char c, char text[DISPLAY_TEXT_SIZE]) {
   text[length] = '\0';
 }
 
-void displayChar(char c) {
+void printDisplayChar(char c) {
   if (openDisplay()) {
     char text[DISPLAY_TEXT_SIZE];
     toDisplayText(c, text);

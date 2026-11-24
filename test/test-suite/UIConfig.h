@@ -32,6 +32,9 @@ enum TestElement : uint8_t {
 ViewModel MODEL(UIElement::Type::UNDEFINED);
 
 void render(ViewModel viewModel) {
+  // No-ops without SIXBUTTONUI_ENABLE_MCP, which this suite leaves off.
+  SixButtonUI::mcpSetCursor(0, 0);
+  SixButtonUI::mcpPrint('x');
   MODEL = static_cast<ViewModel&&>(viewModel);  // Move data into global struct
 }
 

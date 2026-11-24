@@ -62,12 +62,12 @@ namespace Mcp {
   // row 0, column 0.
   //
   // beginDisplay() and endDisplay() bracket one render. The line opens
-  // at the first displayCursor() or displayChar() between them, so a
-  // render function that draws nothing sends nothing, and calls outside
-  // them are ignored.
+  // at the first setDisplayCursor() or printDisplayChar() between them,
+  // so a render function that draws nothing sends nothing, and calls
+  // outside them are ignored.
   void beginDisplay();
-  void displayCursor(uint8_t col, uint8_t row);
-  void displayChar(char c);
+  void setDisplayCursor(uint8_t col, uint8_t row);
+  void printDisplayChar(char c);
   void endDisplay();
 
   // The longest a character's display line text gets, "\xHH", plus the

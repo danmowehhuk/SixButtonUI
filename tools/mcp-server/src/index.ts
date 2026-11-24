@@ -160,8 +160,9 @@ server.registerTool(
       "Returns the most recently received UI state (ViewModel) reported by the device: the " +
       "current screen's type, title, instructions, footer, cursor position, and available " +
       "navigation/selection flags. `display` holds the rows of text the app's render function " +
-      "drew for that state, as they appear on the device's display (cut to fit, with any marks " +
-      "or arrows it adds); it's null if the app doesn't send them, or they haven't arrived yet. " +
+      "drew for that state (cut to fit, with any marks or arrows it adds; a character outside " +
+      "printable ASCII shows as \\xHH, its code); it's null if the app doesn't send them or " +
+      "drew nothing, or they haven't arrived yet. " +
       "This is the last state the device pushed in this session, not a live poll - call " +
       "`press` first if you need to react to a fresh screen.",
     inputSchema: {},
