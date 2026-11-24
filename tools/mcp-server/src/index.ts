@@ -159,8 +159,12 @@ server.registerTool(
     description:
       "Returns the most recently received UI state (ViewModel) reported by the device: the " +
       "current screen's type, title, instructions, footer, cursor position, and available " +
-      "navigation/selection flags. This is the last state the device pushed in this session, " +
-      "not a live poll - call `press` first if you need to react to a fresh screen.",
+      "navigation/selection flags. `display` holds the rows of text the app's render function " +
+      "drew for that state (cut to fit, with any marks or arrows it adds; a character outside " +
+      "printable ASCII shows as \\xHH, its code); it's null if the app doesn't send them or " +
+      "drew nothing, or they haven't arrived yet. " +
+      "This is the last state the device pushed in this session, not a live poll - call " +
+      "`press` first if you need to react to a fresh screen.",
     inputSchema: {},
     annotations: {
       readOnlyHint: true,
@@ -170,7 +174,7 @@ server.registerTool(
     },
   },
   async () => {
-    const { viewModel, receivedAt } = connection.getLastViewModel();
+    const { viewModel, display, receivedAt } = connection.getLastViewModel();
     if (!viewModel) {
       return {
         content: [
@@ -187,7 +191,7 @@ server.registerTool(
       content: [
         {
           type: "text",
-          text: JSON.stringify({ receivedAt, ...viewModel }, null, 2),
+          text: JSON.stringify({ receivedAt, ...viewModel, display }, null, 2),
         },
       ],
     };

@@ -164,6 +164,73 @@ void serialize(ViewModel& vm) {
   SixButtonUIHal::println("'");
 }
 
+namespace {
+
+  enum class DisplayState : uint8_t { CLOSED, BEGUN, OPEN };
+  DisplayState displayState = DisplayState::CLOSED;
+
+  // Returns true if the display line is open, opening it if a render
+  // has begun.
+  bool openDisplay() {
+    if (displayState == DisplayState::BEGUN) {
+      SixButtonUIHal::print(F("6BUI=>'"));
+      displayState = DisplayState::OPEN;
+    }
+    return displayState == DisplayState::OPEN;
+  }
+
+  char hexDigit(uint8_t value) {
+    return value < 10 ? '0' + value : 'A' + value - 10;
+  }
+
+} // namespace
+
+void beginDisplay() {
+  displayState = DisplayState::BEGUN;
+}
+
+void setDisplayCursor(uint8_t col, uint8_t row) {
+  if (openDisplay()) {
+    SixButtonUIHal::print('@');
+    SixButtonUIHal::print((int)row);
+    SixButtonUIHal::print(',');
+    SixButtonUIHal::print((int)col);
+    SixButtonUIHal::print(';');
+  }
+}
+
+void toDisplayText(char c, char text[DISPLAY_TEXT_SIZE]) {
+  uint8_t code = (uint8_t)c;
+  uint8_t length = 0;
+  if (code < ' ' || code > '~') {
+    text[length++] = '\\';
+    text[length++] = 'x';
+    text[length++] = hexDigit(code >> 4);
+    text[length++] = hexDigit(code & 0x0F);
+  } else {
+    if (c == '@' || c == '\'' || c == '\\') {
+      text[length++] = '\\';
+    }
+    text[length++] = c;
+  }
+  text[length] = '\0';
+}
+
+void printDisplayChar(char c) {
+  if (openDisplay()) {
+    char text[DISPLAY_TEXT_SIZE];
+    toDisplayText(c, text);
+    SixButtonUIHal::print(text);
+  }
+}
+
+void endDisplay() {
+  if (displayState == DisplayState::OPEN) {
+    SixButtonUIHal::println("'");
+  }
+  displayState = DisplayState::CLOSED;
+}
+
 } // namespace Mcp
 
 #endif // SIXBUTTONUI_ENABLE_MCP

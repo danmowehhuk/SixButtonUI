@@ -3,14 +3,16 @@
 // waits for its first screen; disconnect() releases the port so a flasher,
 // a serial monitor or another session can use it. Within a session it
 // writes "6BUI: <CODE>\n" press commands and routes each incoming line to
-// either the cached ViewModel (a "6BUI->'...'" line) or a debug log file
-// (everything else the device happens to print on the same wire).
+// the cached ViewModel (a "6BUI->'...'" line), the cached display text for
+// that ViewModel (a "6BUI=>'...'" line), or a debug log file (everything
+// else the device happens to print on the same wire).
 
 import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
 import { appendFileSync } from "node:fs";
 import { calloutPath, chooseBoard, type BoardPin, type PortInfo } from "./boardFinder.js";
 import { findPortHolder } from "./portHolder.js";
+import { parseDisplayLine } from "./display.js";
 import { parseViewModelLine, type ViewModel } from "./viewmodel.js";
 
 export interface ConnectionOptions {
@@ -43,6 +45,9 @@ export class SixButtonConnection {
   private closing = false;
   private lastViewModel: ViewModel | null = null;
   private lastViewModelAt: string | null = null;
+  // The rows the render function drew for lastViewModel, or null until
+  // they arrive (never, for an app whose render function doesn't send them).
+  private lastDisplay: string[] | null = null;
   private lastError: string | null = null;
   private wakeTimer: NodeJS.Timeout | null = null;
   private viewModelWaiter: ((vm: ViewModel) => void) | null = null;
@@ -67,6 +72,7 @@ export class SixButtonConnection {
       : chooseBoard(await this.listPorts(), this.options.pin);
     this.lastViewModel = null;
     this.lastViewModelAt = null;
+    this.lastDisplay = null;
 
     const failures: string[] = [];
     for (const path of paths) {
@@ -121,8 +127,16 @@ export class SixButtonConnection {
     });
   }
 
-  getLastViewModel(): { viewModel: ViewModel | null; receivedAt: string | null } {
-    return { viewModel: this.lastViewModel, receivedAt: this.lastViewModelAt };
+  getLastViewModel(): {
+    viewModel: ViewModel | null;
+    display: string[] | null;
+    receivedAt: string | null;
+  } {
+    return {
+      viewModel: this.lastViewModel,
+      display: this.lastDisplay,
+      receivedAt: this.lastViewModelAt,
+    };
   }
 
   getStatus(): ConnectionStatus {
@@ -214,7 +228,13 @@ export class SixButtonConnection {
     if (vm) {
       this.lastViewModel = vm;
       this.lastViewModelAt = new Date().toISOString();
+      this.lastDisplay = null;
       this.viewModelWaiter?.(vm);
+      return;
+    }
+    const display = parseDisplayLine(line);
+    if (display) {
+      this.lastDisplay = display;
       return;
     }
     if (line.trim().length === 0) return;

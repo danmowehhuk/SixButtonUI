@@ -61,6 +61,23 @@ test("picks up later screens while nothing else is running", async () => {
   relay.kill();
 });
 
+test("read pairs a screen with the display text drawn for it", async () => {
+  const { path, relay } = await openPty();
+  const connection = newConnection();
+  await connectWithBoot(connection, relay, path);
+  relay.stdin.write(viewModelLine("beta") + "\n" + "6BUI=>'@0,0;Items@1,0;>beta'\n");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  assert.deepEqual(connection.getLastViewModel().display, ["Items", ">beta"]);
+  // A new screen's text hasn't arrived yet, so the old text mustn't show.
+  relay.stdin.write(viewModelLine("gamma") + "\n");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const { viewModel, display } = connection.getLastViewModel();
+  assert.equal(viewModel?.interactive, "gamma");
+  assert.equal(display, null);
+  await connection.disconnect();
+  relay.kill();
+});
+
 test("connect fails and releases the port when no screen arrives", async () => {
   const { path, relay } = await openPty();
   const connection = newConnection();
