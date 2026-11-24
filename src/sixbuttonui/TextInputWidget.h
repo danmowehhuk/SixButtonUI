@@ -29,6 +29,10 @@ class TextInputWidget: public Widget {
       if (_config->modelLoader != 0) {
         _config->modelLoader(_model, state);
       }
+      uint8_t lastPos = _config->getMaxLength() - 1;
+      if (_model->getCursorPos() > lastPos) {
+        _model->setCursorPos(lastPos);
+      }
     };
 
     void* onEnter(uint8_t /*value*/, void* widgetModel, void* state) override {
@@ -75,7 +79,7 @@ class TextInputWidget: public Widget {
     void onRightPressed(uint8_t /*value*/, void* widgetModel) override {
       TextInputModel* m = static_cast<TextInputModel*>(widgetModel);
       uint8_t pos = m->getCursorPos();
-      if (pos < TextInputModel::MAX_LENGTH - 1) {
+      if (pos < _config->getMaxLength() - 1) {
         m->setCursorPos(pos + 1);
       }
     };

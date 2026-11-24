@@ -137,6 +137,30 @@ void testTextInputWidget_cursor(TestInvocation* t) {
   t->verify(MODEL.cursorPosition == 0, F("Expected cursor still at 0"));
 }
 
+void testTextInputWidget_maxLength(TestInvocation* t) {
+  t->setName(F("TextInput cursor stops at its max length"));
+  t->verify(helper.goToElementById(TestElement::LIMITED_TEXTBOX), F("Element not found"));
+  t->verify(MODEL.cursorPosition == 3, F("Expected a long initial value to start at 3"));
+  helper.longPressLeft();
+  for (uint8_t i = 0; i < 5; i++) {
+    helper.pressAndReleaseRight();
+  }
+  t->verify(MODEL.cursorPosition == 3, F("Expected the cursor to stop at 3"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("    "));
+}
+
+void testTextInputWidget_invalidMaxLength(TestInvocation* t) {
+  t->setName(F("TextInput max length outside 1-64 is 64"));
+  TextInputElement element;
+  t->verify(element.getMaxLength() == TextInputModel::MAX_LENGTH, F("Expected 64 by default"));
+  element.withMaxLength(0);
+  t->verify(element.getMaxLength() == TextInputModel::MAX_LENGTH, F("Expected 64 for 0"));
+  element.withMaxLength(TextInputModel::MAX_LENGTH + 1);
+  t->verify(element.getMaxLength() == TextInputModel::MAX_LENGTH, F("Expected 64 for 65"));
+  element.withMaxLength(16);
+  t->verify(element.getMaxLength() == 16, F("Expected 16"));
+}
+
 void testDefaultComboBoxWidget(TestInvocation* t) {
   t->setName(F("ComboBox core functionality"));
   t->verify(helper.goToElementById(TestElement::DEFAULT_COMBO_BOX), F("Element not found"));
@@ -274,6 +298,8 @@ int main() {
     testSelectorWidget_pmemOptions,
     testTextInputWidget,
     testTextInputWidget_cursor,
+    testTextInputWidget_maxLength,
+    testTextInputWidget_invalidMaxLength,
     testDefaultComboBoxWidget,
     testPreloadedComboBoxWidget,
     testWizardWidget_coreFunctionality,
