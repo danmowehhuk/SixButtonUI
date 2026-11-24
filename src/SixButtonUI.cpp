@@ -90,7 +90,9 @@ void SixButtonUI::render() {
 #if defined(SIXBUTTONUI_ENABLE_MCP)
   ViewModel vm = _currWidget->getViewModel();
   Mcp::serialize(vm);
+  Mcp::beginDisplay();
   _renderFunction(static_cast<ViewModel&&>(vm));
+  Mcp::endDisplay();
 #else
   _renderFunction(_currWidget->getViewModel());
 #endif
@@ -456,5 +458,19 @@ void SixButtonUI::_mcpDispatch(Mcp::Code code) {
     b->onReleased(b->getValue(), _currWidget->getModel());
   }
 }
+
+void SixButtonUI::mcpSetCursor(uint8_t col, uint8_t row) {
+  Mcp::displayCursor(col, row);
+}
+
+void SixButtonUI::mcpPrint(char c) {
+  Mcp::displayChar(c);
+}
+
+#else
+
+void SixButtonUI::mcpSetCursor(uint8_t, uint8_t) {}
+
+void SixButtonUI::mcpPrint(char) {}
 
 #endif // SIXBUTTONUI_ENABLE_MCP

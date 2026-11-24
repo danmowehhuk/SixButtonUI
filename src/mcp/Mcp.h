@@ -52,6 +52,34 @@ namespace Mcp {
   // hasPrev;isSelected;isSelectable;isCancelable
   void serialize(ViewModel& vm);
 
+  // The display line mirrors what the render function draws, as one
+  // "6BUI=>'@<row>,<col>;<text>@<row>,<col>;<text>...'" line sent after
+  // the view model's. Each <text> is the characters drawn from that
+  // position on, with '@', '\'' and '\\' backslash-escaped, and any
+  // character outside printable ASCII (control characters, an LCD's
+  // custom or ROM characters) sent as "\x" plus two hex digits, so it
+  // can't break the line. Drawing before the first position starts at
+  // row 0, column 0.
+  //
+  // beginDisplay() and endDisplay() bracket one render. The line opens
+  // at the first displayCursor() or displayChar() between them, so a
+  // render function that draws nothing sends nothing, and calls outside
+  // them are ignored.
+  void beginDisplay();
+  void displayCursor(uint8_t col, uint8_t row);
+  void displayChar(char c);
+  void endDisplay();
+
+  // The longest a character's display line text gets, "\xHH", plus the
+  // terminator.
+  const uint8_t DISPLAY_TEXT_SIZE = 5;
+
+  // Converts one drawn character to its display line text.
+  // Params:
+  //   c    - the character
+  //   text - gets the text, null-terminated
+  void toDisplayText(char c, char text[DISPLAY_TEXT_SIZE]);
+
 } // namespace Mcp
 
 #endif // SIXBUTTONUI_ENABLE_MCP

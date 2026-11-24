@@ -131,6 +131,39 @@ void testEscape_truncatesCleanlyWhenTooLong(TestInvocation* t) {
   }
 }
 
+void testDisplayText_plainCharUnchanged(TestInvocation* t) {
+  t->setName(F("toDisplayText leaves a plain character unchanged"));
+  char text[Mcp::DISPLAY_TEXT_SIZE];
+  Mcp::toDisplayText('>', text);
+  t->verifyEqual(text, ">");
+  Mcp::toDisplayText(';', text);
+  t->verifyEqual(text, ";");
+}
+
+void testDisplayText_escapesSpecialChars(TestInvocation* t) {
+  t->setName(F("toDisplayText backslash-escapes @ ' and \\"));
+  char text[Mcp::DISPLAY_TEXT_SIZE];
+  Mcp::toDisplayText('@', text);
+  t->verifyEqual(text, "\\@");
+  Mcp::toDisplayText('\'', text);
+  t->verifyEqual(text, "\\'");
+  Mcp::toDisplayText('\\', text);
+  t->verifyEqual(text, "\\\\");
+}
+
+void testDisplayText_hexEncodesNonPrintable(TestInvocation* t) {
+  t->setName(F("toDisplayText sends non-printable characters as \\xHH"));
+  char text[Mcp::DISPLAY_TEXT_SIZE];
+  Mcp::toDisplayText('\n', text);
+  t->verifyEqual(text, "\\x0A");
+  Mcp::toDisplayText((char)0x00, text);
+  t->verifyEqual(text, "\\x00");
+  Mcp::toDisplayText((char)0xDF, text);
+  t->verifyEqual(text, "\\xDF");
+  Mcp::toDisplayText((char)0x7F, text);
+  t->verifyEqual(text, "\\x7F");
+}
+
 void testDispatch_upDownMoveSelection(TestInvocation* t) {
   t->setName(F("UP/DN dispatch move the selector index"));
   t->verify(helper.goToElementById(TestElement::ITEM_SELECTOR), F("Element not found"));

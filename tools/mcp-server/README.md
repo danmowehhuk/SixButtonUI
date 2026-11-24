@@ -85,10 +85,38 @@ you need non-default values.
   no-op if the current screen has no handler for that action.
 - **`read_view_model()`** - returns the most recently received UI state
   (screen type, title, instructions, footer, cursor, nav/selection
-  flags). This is the last state the device pushed, not a live poll.
+  flags), plus `display`: the rows of text the app's render function
+  drew for it, as the device's display shows them. This is the last
+  state the device pushed, not a live poll. `display` is null if the
+  render function doesn't send its text (see below) or it hasn't arrived
+  yet.
 - **`status()`** - whether a session is open, its path and baud rate,
   the last error, and when a ViewModel was last received.
 
 `press` needs an open session. If the board is unplugged mid-session,
 the session ends and `press` reports why; `connect` again once it's back,
 on whatever port it comes back on.
+
+## Sending the display text
+
+The view model says what a screen holds; the display text shows what the
+app's render function made of it: text cut to fit, marks and arrows,
+centering. To send it, the render function calls
+`SixButtonUI::mcpSetCursor(col, row)` wherever it moves the display's
+cursor, and `SixButtonUI::mcpPrint(c)` for each character it draws:
+
+```cpp
+// Draws text at a position on the LCD, and sends it.
+void draw(uint8_t col, uint8_t row, const char* text) {
+  lcd.setCursor(col, row);
+  SixButtonUI::mcpSetCursor(col, row);
+  for (; *text; text++) {
+    lcd.print(*text);
+    SixButtonUI::mcpPrint(*text);
+  }
+}
+```
+
+Without `SIXBUTTONUI_ENABLE_MCP` both functions do nothing. SixButtonUI
+sends what they're given as one `6BUI=>'...'` line right after the
+screen's view model line.
