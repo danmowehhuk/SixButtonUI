@@ -164,6 +164,23 @@ void testTextInputWidget_invalidMaxLength(TestInvocation* t) {
   t->verify(element.getMaxLength() == 1, F("Expected 1"));
 }
 
+void testEnterMessageShownDuringOnEnter(TestInvocation* t) {
+  t->setName(F("Enter message is drawn while onEnter runs"));
+  t->verify(helper.goToElementById(TestElement::ENTER_MESSAGE_SELECTOR), F("Element not found"));
+  helper.pressAndReleaseSelectEnter();
+  t->verify(typeAtEnter == UIElement::Type::POPUP, F("Expected a popup during onEnter"));
+  t->verifyEqual(titleAtEnter, "Saving...");
+  t->verify(MODEL.getType() != UIElement::Type::POPUP, F("The next screen should replace it"));
+}
+
+void testNoEnterMessageWithoutOne(TestInvocation* t) {
+  t->setName(F("No enter message unless one is set"));
+  t->verify(helper.goToElementById(TestElement::PLAIN_ENTER_SELECTOR), F("Element not found"));
+  helper.pressAndReleaseSelectEnter();
+  t->verify(typeAtEnter == UIElement::Type::SELECTOR, F("Expected the selector during onEnter"));
+  t->verifyEqual(titleAtEnter, "PlainEnter");
+}
+
 void testDefaultComboBoxWidget(TestInvocation* t) {
   t->setName(F("ComboBox core functionality"));
   t->verify(helper.goToElementById(TestElement::DEFAULT_COMBO_BOX), F("Element not found"));
@@ -322,6 +339,8 @@ void setup() {
     testTextInputWidget_maxLength,
     testTextInputWidget_longInitialValueWhole,
     testTextInputWidget_invalidMaxLength,
+    testEnterMessageShownDuringOnEnter,
+    testNoEnterMessageWithoutOne,
     testDefaultComboBoxWidget,
     testPreloadedComboBoxWidget,
     testWizardWidget_coreFunctionality,

@@ -87,15 +87,8 @@ void SixButtonUI::render() {
   _currWidget->getModel()->_ui = this;
 
   // Update the ViewModel based on the current widget model
-#if defined(SIXBUTTONUI_ENABLE_MCP)
   ViewModel vm = _currWidget->getViewModel();
-  Mcp::serialize(vm);
-  Mcp::beginDisplay();
-  _renderFunction(static_cast<ViewModel&&>(vm));
-  Mcp::endDisplay();
-#else
-  _renderFunction(_currWidget->getViewModel());
-#endif
+  draw(vm);
 
   // Re-apply all the button action handlers
   _up.onPressed = [](uint8_t value, void* widgetModel) {
@@ -138,6 +131,7 @@ void SixButtonUI::render() {
    // selectEnter and menuBack are "onReleased" to avoid unwanted
    // actions when trying to long-press both together
   _selectEnter.onReleased = [](uint8_t value, void* widgetModel) {
+    UI(widgetModel)->showEnterMessage();
     void* stateIn = static_cast<WidgetModel*>(widgetModel)->_state;
     void* stateOut = UI(widgetModel)->_currWidget->onEnter(value, widgetModel, stateIn);
     UI(widgetModel)->_state = stateOut;
@@ -319,6 +313,26 @@ void SixButtonUI::menuBack() {
 
     // Switch to the parent element
     setNext(const_cast<UIElement*>(parent));
+  }
+}
+
+void SixButtonUI::draw(ViewModel& vm) {
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+  Mcp::serialize(vm);
+  Mcp::beginDisplay();
+  _renderFunction(static_cast<ViewModel&&>(vm));
+  Mcp::endDisplay();
+#else
+  _renderFunction(static_cast<ViewModel&&>(vm));
+#endif
+}
+
+void SixButtonUI::showEnterMessage() {
+  const char* message = _currConfig->getEnterMessage();
+  if (message) {
+    ViewModel vm(UIElement::Type::POPUP);
+    vm.setTitleLine(message, _currConfig->isEnterMessagePmem());
+    draw(vm);
   }
 }
 

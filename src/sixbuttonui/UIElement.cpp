@@ -34,9 +34,11 @@ UIElement::UIElement(UIElement&& other) noexcept
       _title(other._title),
       _instruction(other._instruction),
       _footer(other._footer),
+      _enterMessage(other._enterMessage),
       _isTitlePmem(other._isTitlePmem),
       _isInstructionPmem(other._isInstructionPmem),
       _isFooterPmem(other._isFooterPmem),
+      _isEnterMessagePmem(other._isEnterMessagePmem),
       _parent(other._parent),
       _hasId(other._hasId),
       _isHidden(other._isHidden) {
@@ -46,6 +48,7 @@ UIElement::UIElement(UIElement&& other) noexcept
     other._title = nullptr; 
     other._instruction = nullptr; 
     other._footer = nullptr; 
+    other._enterMessage = nullptr;
 
     for (uint8_t i = 0; i < _numChildren; i++) {
         if (_children[i]) {
