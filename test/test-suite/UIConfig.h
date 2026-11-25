@@ -27,10 +27,14 @@ enum TestElement : uint8_t {
   THIRD,
   EMPTY_WIZARD,
   FULL_WIZARD,
-  LIMITED_TEXTBOX
+  LIMITED_TEXTBOX,
+  MESSAGE_SELECTOR,
+  RAM_MESSAGE_SELECTOR,
+  PLAIN_ENTER_SELECTOR
 };
 
 ViewModel MODEL(UIElement::Type::UNDEFINED);
+SixButtonUI* sixButtonUI = nullptr;
 
 void render(ViewModel viewModel) {
   // No-ops without SIXBUTTONUI_ENABLE_MCP, which this suite leaves off.
@@ -51,6 +55,35 @@ void loadSelectorModelRAM(SelectorModel* model, void* /*state*/) {
   model->setCurrValue("shoe");
   model->setOption(0, "one", "buckle");
   model->setOption(1, "two", "shoe");
+}
+
+// What the render function last drew when an onEnter function ran. The
+// title has room for the test titles, which are all shorter.
+UIElement::Type typeAtEnter = UIElement::Type::UNDEFINED;
+char titleAtEnter[20] = "";
+void* captureScreenAtEnter(const char* /*name*/, bool /*namePmem*/, const char* /*value*/,
+                           bool /*valuePmem*/, void* state) {
+  typeAtEnter = MODEL.getType();
+  titleAtEnter[0] = '\0';
+  if (MODEL.getTitleLine() && MODEL.isTitlePmem()) {
+    strncpy_P(titleAtEnter, MODEL.getTitleLine(), sizeof(titleAtEnter) - 1);
+  } else if (MODEL.getTitleLine()) {
+    strncpy(titleAtEnter, MODEL.getTitleLine(), sizeof(titleAtEnter) - 1);
+  }
+  titleAtEnter[sizeof(titleAtEnter) - 1] = '\0';
+  return state;
+}
+
+void* showMessageAtEnter(const char* name, bool namePmem, const char* value,
+                         bool valuePmem, void* state) {
+  sixButtonUI->showMessage(F("Saving..."));
+  return captureScreenAtEnter(name, namePmem, value, valuePmem, state);
+}
+
+void* showRamMessageAtEnter(const char* name, bool namePmem, const char* value,
+                            bool valuePmem, void* state) {
+  sixButtonUI->showMessage("Wait");
+  return captureScreenAtEnter(name, namePmem, value, valuePmem, state);
 }
 
 void initializeTextBox(TextInputModel* model, void* /*state*/) {
@@ -125,7 +158,6 @@ void loadWizardModelFull(WizardModel* model, void* /*state*/) {
   model->setStepInitialValue(2, F("buckle"));
 }
 
-SixButtonUI* sixButtonUI = nullptr;
 NavigationConfig* navConfig = nullptr;
 
 SixButtonUI* initSixButtonUI() {
@@ -167,7 +199,19 @@ SixButtonUI* initSixButtonUI() {
               ->withTitle(F("LimitedTextBox"))
               ->withInitialValue(F("abcdef")) // longer than its limit
               ->withMaxLength(4)
-              ->onEnter(captureTextValue)
+              ->onEnter(captureTextValue),
+            selector(TestElement::MESSAGE_SELECTOR)
+              ->withTitle(F("Message"))
+              ->withModelFunction(loadSelectorModel)
+              ->onEnter(showMessageAtEnter),
+            selector(TestElement::RAM_MESSAGE_SELECTOR)
+              ->withTitle(F("RamMessage"))
+              ->withModelFunction(loadSelectorModel)
+              ->onEnter(showRamMessageAtEnter),
+            selector(TestElement::PLAIN_ENTER_SELECTOR)
+              ->withTitle(F("PlainEnter"))
+              ->withModelFunction(loadSelectorModel)
+              ->onEnter(captureScreenAtEnter)
           ),
         selector(TestElement::SECOND)
           ->withTitle(F("Second"))

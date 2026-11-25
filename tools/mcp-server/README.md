@@ -88,7 +88,10 @@ you need non-default values.
   flags), plus `display`: the rows of text the app's render function
   drew for it (see below). This is the last state the device pushed, not
   a live poll. `display` is null if the render function doesn't send its
-  text or drew nothing, or the text hasn't arrived yet.
+  text or drew nothing, or the text hasn't arrived yet. A POPUP that
+  isn't cancelable and has no id is a message the app shows while an
+  action runs (e.g. "Saving..."): read again rather than pressing a
+  button to dismiss it.
 - **`status()`** - whether a session is open, its path and baud rate,
   the last error, and when a ViewModel was last received.
 

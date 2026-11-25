@@ -87,15 +87,7 @@ void SixButtonUI::render() {
   _currWidget->getModel()->_ui = this;
 
   // Update the ViewModel based on the current widget model
-#if defined(SIXBUTTONUI_ENABLE_MCP)
-  ViewModel vm = _currWidget->getViewModel();
-  Mcp::serialize(vm);
-  Mcp::beginDisplay();
-  _renderFunction(static_cast<ViewModel&&>(vm));
-  Mcp::endDisplay();
-#else
-  _renderFunction(_currWidget->getViewModel());
-#endif
+  draw(_currWidget->getViewModel());
 
   // Re-apply all the button action handlers
   _up.onPressed = [](uint8_t value, void* widgetModel) {
@@ -320,6 +312,29 @@ void SixButtonUI::menuBack() {
     // Switch to the parent element
     setNext(const_cast<UIElement*>(parent));
   }
+}
+
+void SixButtonUI::draw(ViewModel&& vm) {
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+  Mcp::serialize(vm);
+  Mcp::beginDisplay();
+#endif
+  _renderFunction(static_cast<ViewModel&&>(vm));
+#if defined(SIXBUTTONUI_ENABLE_MCP)
+  Mcp::endDisplay();
+#endif
+}
+
+void SixButtonUI::showMessage(const char* message, bool pmem) {
+  if (!message) return;
+  ViewModel vm(UIElement::Type::POPUP);
+  vm.setTitleLine(message, pmem);
+  vm.setInteractiveLine("", false);
+  draw(static_cast<ViewModel&&>(vm));
+}
+
+void SixButtonUI::showMessage(const FlashStr* message) {
+  showMessage(reinterpret_cast<const char*>(message), true);
 }
 
 void SixButtonUI::clearHandlers() {
