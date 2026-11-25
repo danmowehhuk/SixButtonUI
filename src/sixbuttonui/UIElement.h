@@ -108,11 +108,19 @@ class UIElementBase: public UIElement {
     DerivedElement* withInstruction(const FlashStr* instruction);
     DerivedElement* withFooter(const char* footer, bool pmem = false);
     DerivedElement* withFooter(const FlashStr* footer);
-    // Shows message, as a popup with no OK, while Enter's action runs, e.g.
-    // "Saving..." for one that blocks while it writes. The next screen
-    // replaces it.
+
+    // Draws message each time Enter is released on this element, before
+    // its onEnter action runs, as a POPUP view model that isn't
+    // cancelable, e.g. "Saving..." for an action that blocks while it
+    // writes. The next render replaces it. For a wizard, set it on the
+    // wizard, not its steps.
+    // Params:
+    //   message - the message
+    //   pmem    - true if message is in flash
+    // Returns this element.
     DerivedElement* withEnterMessage(const char* message, bool pmem = false);
     DerivedElement* withEnterMessage(const FlashStr* message);
+
     DerivedElement* setHidden(bool hidden);
 
     template <typename... Args>

@@ -175,8 +175,8 @@ void testEnterMessageShownDuringOnEnter(TestInvocation* t) {
   t->verify(helper.goToElementById(TestElement::ENTER_MESSAGE_SELECTOR), F("Element not found"));
   helper.pressAndReleaseSelectEnter();
   t->verify(typeAtEnter == UIElement::Type::POPUP, F("Expected a popup during onEnter"));
-  t->verifyEqual(titleAtEnter, "Saving...");
-  t->verify(MODEL.getType() != UIElement::Type::POPUP, F("The next screen should replace it"));
+  t->verifyEqual(titleAtEnter, F("Saving..."));
+  t->verifyEqual(MODEL.getTitleLine_P(), F("First"), F("The parent should replace it"));
 }
 
 void testNoEnterMessageWithoutOne(TestInvocation* t) {
@@ -184,7 +184,16 @@ void testNoEnterMessageWithoutOne(TestInvocation* t) {
   t->verify(helper.goToElementById(TestElement::PLAIN_ENTER_SELECTOR), F("Element not found"));
   helper.pressAndReleaseSelectEnter();
   t->verify(typeAtEnter == UIElement::Type::SELECTOR, F("Expected the selector during onEnter"));
-  t->verifyEqual(titleAtEnter, "PlainEnter");
+  t->verifyEqual(titleAtEnter, F("PlainEnter"));
+}
+
+void testEnterMessageInRam(TestInvocation* t) {
+  t->setName(F("Enter message can be a RAM string"));
+  SelectorElement element;
+  t->verify(element.getEnterMessage() == nullptr, F("Expected no message by default"));
+  element.withEnterMessage("Wait");
+  t->verify(element.getEnterMessage() && !element.isEnterMessagePmem(), F("Expected a RAM message"));
+  t->verifyEqual(element.getEnterMessage(), F("Wait"));
 }
 
 void testDefaultComboBoxWidget(TestInvocation* t) {
@@ -329,6 +338,7 @@ int main() {
     testTextInputWidget_invalidMaxLength,
     testEnterMessageShownDuringOnEnter,
     testNoEnterMessageWithoutOne,
+    testEnterMessageInRam,
     testDefaultComboBoxWidget,
     testPreloadedComboBoxWidget,
     testWizardWidget_coreFunctionality,

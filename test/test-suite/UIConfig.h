@@ -55,7 +55,8 @@ void loadSelectorModelRAM(SelectorModel* model, void* /*state*/) {
   model->setOption(1, "two", "shoe");
 }
 
-// What the render function last drew when an onEnter function ran.
+// What the render function last drew when an onEnter function ran. The
+// title has room for the test titles, which are all shorter.
 UIElement::Type typeAtEnter = UIElement::Type::UNDEFINED;
 char titleAtEnter[20] = "";
 void* captureScreenAtEnter(const char* /*name*/, bool /*namePmem*/, const char* /*value*/,

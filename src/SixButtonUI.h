@@ -122,11 +122,17 @@ class SixButtonUI: public EventSource {
 
     // Render-cycle functions
     void render();
-    // Hands vm to the render function, and with SIXBUTTONUI_ENABLE_MCP,
-    // sends it and what's drawn over the MCP protocol.
-    void draw(ViewModel& vm);
-    // Draws the current element's enter message, if it has one.
+
+    // Hands a view model to the render function, and with
+    // SIXBUTTONUI_ENABLE_MCP, sends it and what's drawn over the MCP
+    // protocol.
+    // Params:
+    //   vm - the view model, which the render function takes
+    void draw(ViewModel&& vm);
+
+    // Draws the current widget's element's enter message, if it has one.
     void showEnterMessage();
+
     void clearHandlers();
     void maybeInitWidget();
     Widget* newForType(UIElement::Type type);

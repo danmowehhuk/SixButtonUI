@@ -87,8 +87,7 @@ void SixButtonUI::render() {
   _currWidget->getModel()->_ui = this;
 
   // Update the ViewModel based on the current widget model
-  ViewModel vm = _currWidget->getViewModel();
-  draw(vm);
+  draw(_currWidget->getViewModel());
 
   // Re-apply all the button action handlers
   _up.onPressed = [](uint8_t value, void* widgetModel) {
@@ -316,23 +315,25 @@ void SixButtonUI::menuBack() {
   }
 }
 
-void SixButtonUI::draw(ViewModel& vm) {
+void SixButtonUI::draw(ViewModel&& vm) {
 #if defined(SIXBUTTONUI_ENABLE_MCP)
   Mcp::serialize(vm);
   Mcp::beginDisplay();
+#endif
   _renderFunction(static_cast<ViewModel&&>(vm));
+#if defined(SIXBUTTONUI_ENABLE_MCP)
   Mcp::endDisplay();
-#else
-  _renderFunction(static_cast<ViewModel&&>(vm));
 #endif
 }
 
 void SixButtonUI::showEnterMessage() {
-  const char* message = _currConfig->getEnterMessage();
+  const UIElement* element = _currWidget->_wConf;
+  const char* message = element->getEnterMessage();
   if (message) {
     ViewModel vm(UIElement::Type::POPUP);
-    vm.setTitleLine(message, _currConfig->isEnterMessagePmem());
-    draw(vm);
+    vm.setTitleLine(message, element->isEnterMessagePmem());
+    vm.setInteractiveLine("", false);
+    draw(static_cast<ViewModel&&>(vm));
   }
 }
 
