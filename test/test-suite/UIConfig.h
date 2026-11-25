@@ -30,7 +30,8 @@ enum TestElement : uint8_t {
   LIMITED_TEXTBOX,
   MESSAGE_SELECTOR,
   RAM_MESSAGE_SELECTOR,
-  PLAIN_ENTER_SELECTOR
+  PLAIN_ENTER_SELECTOR,
+  WHOLE_NAME_COMBO_BOX
 };
 
 ViewModel MODEL(UIElement::Type::UNDEFINED);
@@ -100,6 +101,26 @@ void loadBasicComboBoxModel(SelectorModel* model, void* /*state*/) {
     model->setNumOptions(2);
     model->setOptionRaw(0, "e", false, PSTR("be"), true);
     model->setOptionRaw(1, PSTR("r"), true, nullptr, false);
+  } else {
+    model->setNumOptions(0);
+  }
+}
+
+// Completes whole names while few match, as a search of saved names does
+void loadWholeNameComboBoxModel(SelectorModel* model, void* /*state*/) {
+  const char* searchPrefix = model->getSearchPrefix();
+  if (!searchPrefix || searchPrefix[0] == '\0') {
+    model->setNumOptions(3);
+    model->setOptionRaw(0, "Big Muff", false, "1", false);
+    model->setOptionRaw(1, "Boss DD-7", false, "2", false);
+    model->setOptionRaw(2, "Cry Baby", false, "3", false);
+  } else if (strcmp(searchPrefix, "B") == 0) {
+    model->setNumOptions(2);
+    model->setOptionRaw(0, "ig Muff", false, "1", false);
+    model->setOptionRaw(1, "oss DD-7", false, "2", false);
+  } else if (strcmp(searchPrefix, "Bo") == 0) {
+    model->setNumOptions(1);
+    model->setOptionRaw(0, "ss DD-7", false, "2", false);
   } else {
     model->setNumOptions(0);
   }
@@ -211,7 +232,11 @@ SixButtonUI* initSixButtonUI() {
             selector(TestElement::PLAIN_ENTER_SELECTOR)
               ->withTitle(F("PlainEnter"))
               ->withModelFunction(loadSelectorModel)
-              ->onEnter(captureScreenAtEnter)
+              ->onEnter(captureScreenAtEnter),
+            comboBox(TestElement::WHOLE_NAME_COMBO_BOX)
+              ->withTitle(F("WholeNames"))
+              ->withModelFunction(loadWholeNameComboBoxModel)
+              ->onEnter(captureSelectorValue)
           ),
         selector(TestElement::SECOND)
           ->withTitle(F("Second"))

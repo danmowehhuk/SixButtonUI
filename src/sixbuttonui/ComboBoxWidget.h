@@ -15,7 +15,7 @@ class ComboBoxWidget: public SelectorWidget {
   public:
     ComboBoxWidget(ComboBoxElement* config): SelectorWidget(config), _config(config) {};
     ~ComboBoxWidget() override {
-      if (_prevSearchPrefix) free(_prevSearchPrefix);
+      if (_prevSelection) free(_prevSelection);
       if (_tmpInteractiveLine) free(_tmpInteractiveLine);
     };
 
@@ -66,15 +66,10 @@ class ComboBoxWidget: public SelectorWidget {
         _isFirstModelLoad = false;
         _doModelReload = true;
 
-      } else if (_prevSearchPrefix && _model->getSearchPrefix() 
-                 && strlen(_prevSearchPrefix) > strlen(_model->getSearchPrefix())) {
-        // Not the first load, but may need to handle a left-arrow press (trimming off the last
-        // character of the previous search prefix). When moving the cursor left, select the previous 
-        // completion option so the selection doesn't jump to the first option, breaking UX continuity
-        if (_prevSearchPrefix && strlen(_prevSearchPrefix) > 0) {
-          char lastChar[2] = { _prevSearchPrefix[strlen(_prevSearchPrefix) - 1], '\0' };
-          _model->selectOptionWithName(lastChar);
-        }
+      } else if (_prevSelection) {
+        // Right or Left changed the search prefix. Stay on what was selected so the selection
+        // doesn't jump to the first option, breaking UX continuity
+        selectLongestStartOf(_prevSelection);
       }
 
       // Handle the case where the latest search prefix returned no results.
@@ -89,6 +84,8 @@ class ComboBoxWidget: public SelectorWidget {
 
       _cursorPos = _model->_searchPrefix ? strlen(_model->_searchPrefix) : 0;
       _doModelReload = false;
+      if (_prevSelection) free(_prevSelection);
+      _prevSelection = nullptr;
     };
 
     /*
@@ -96,12 +93,16 @@ class ComboBoxWidget: public SelectorWidget {
      */
      void onLeftPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
-      _isInitialRender = false;
       size_t len = strlen(m->_searchPrefix);
       if (len == 0) {
+        _isInitialRender = false;
         return;
       }
-      setPrevSearchPrefix(m->getSearchPrefix());
+      if (m->_numOptions > 0) {
+        // With no options there's nothing to record, and Right's record, if any, stands
+        setPrevSelection();
+      }
+      _isInitialRender = false;
       char* newSearchPrefix = (char*)malloc(len);
       if (newSearchPrefix) {
         strncpy(newSearchPrefix, m->getSearchPrefix(), len - 1);
@@ -123,8 +124,10 @@ class ComboBoxWidget: public SelectorWidget {
         _doModelReload = true;
         return;
       }
-      char* optionName = dupOptionName(m->_currIndex);
-      char newChar = optionName[_cursorPos];
+      if (m->_numOptions == 0) return;
+      setPrevSelection();
+      if (!_prevSelection) return;
+      char newChar = _prevSelection[_cursorPos];
 
       size_t len = strlen(m->_searchPrefix);
       char* newSearchPrefix = (char*)malloc(len + 2);
@@ -135,15 +138,14 @@ class ComboBoxWidget: public SelectorWidget {
         m->setSearchPrefix(newSearchPrefix, true);
         free(newSearchPrefix);
       }
-      free(optionName);
       _doModelReload = true;
     };
 
     void onLeftLongPressed(uint8_t /*value*/, void* widgetModel) override {
       SelectorModel* m = static_cast<SelectorModel*>(widgetModel);
       m->setSearchPrefix("", true); // clear the search prefix
-      if (_prevSearchPrefix) free(_prevSearchPrefix);
-      _prevSearchPrefix = nullptr;
+      if (_prevSelection) free(_prevSelection);
+      _prevSelection = nullptr;
       _doModelReload = true;
     };
 
@@ -173,12 +175,36 @@ class ComboBoxWidget: public SelectorWidget {
     bool _isInitialRender = false;
     uint8_t _cursorPos = 0;
     bool _doModelReload = true;
-    char* _prevSearchPrefix = nullptr;
+    // The full name selected before Right or Left changed the search prefix, until the reload
+    char* _prevSelection = nullptr;
     char* _tmpInteractiveLine = nullptr;
 
-    void setPrevSearchPrefix(const char* prefix) {
-      if (_prevSearchPrefix) free(_prevSearchPrefix);
-      _prevSearchPrefix = strdup(prefix);
+    void setPrevSelection() {
+      if (_prevSelection) free(_prevSelection);
+      _prevSelection = dupOptionName();
+    };
+
+    // Selects the option whose full name is the longest start of name (name itself, or the
+    // prefix of it that a shorter search completes to), or else the first option
+    void selectLongestStartOf(const char* name) {
+      _model->_currIndex = 0;
+      const char* searchPrefix = _model->_searchPrefix ? _model->_searchPrefix : "";
+      size_t prefixLen = strlen(searchPrefix);
+      if (strncmp(name, searchPrefix, prefixLen) != 0) return;
+      const char* rest = name + prefixLen;
+      bool found = false;
+      size_t foundLen = 0;
+      for (uint8_t i = 0; i < _model->_numOptions; i++) {
+        const char* option = _model->_optionNames[i];
+        bool isPmem = _model->_isOptionNamePmem[i];
+        size_t len = isPmem ? strlen_P(option) : strlen(option);
+        bool isStart = (isPmem ? strncmp_P(rest, option, len) : strncmp(rest, option, len)) == 0;
+        if (isStart && (!found || len > foundLen)) {
+          _model->_currIndex = i;
+          found = true;
+          foundLen = len;
+        }
+      }
     };
 
     void setTmpInteractiveLine() {
@@ -191,10 +217,14 @@ class ComboBoxWidget: public SelectorWidget {
     };
 
     char* dupOptionName(uint8_t i) {
-      const char* searchPrefix = _model->_searchPrefix ? _model->_searchPrefix : "";
-      size_t prefixLen = strlen(searchPrefix);
       char* optionName = _model->_isOptionNamePmem[i] ? strdup_P(_model->_optionNames[i])
           : strdup(_model->_optionNames[i]);
+      if (!optionName || (_isInitialRender && !_model->_initialSearchPrefix)) {
+        // On an initial render the option is the whole name, as getViewModel shows it
+        return optionName;
+      }
+      const char* searchPrefix = _model->_searchPrefix ? _model->_searchPrefix : "";
+      size_t prefixLen = strlen(searchPrefix);
       size_t optionLen = strlen(optionName);
       char* result = (char*)malloc(prefixLen + optionLen + 1);
       if (result) {
