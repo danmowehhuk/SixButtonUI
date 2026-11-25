@@ -130,7 +130,6 @@ void SixButtonUI::render() {
    // selectEnter and menuBack are "onReleased" to avoid unwanted
    // actions when trying to long-press both together
   _selectEnter.onReleased = [](uint8_t value, void* widgetModel) {
-    UI(widgetModel)->showEnterMessage();
     void* stateIn = static_cast<WidgetModel*>(widgetModel)->_state;
     void* stateOut = UI(widgetModel)->_currWidget->onEnter(value, widgetModel, stateIn);
     UI(widgetModel)->_state = stateOut;
@@ -326,15 +325,16 @@ void SixButtonUI::draw(ViewModel&& vm) {
 #endif
 }
 
-void SixButtonUI::showEnterMessage() {
-  const UIElement* element = _currWidget->_wConf;
-  const char* message = element->getEnterMessage();
-  if (message) {
-    ViewModel vm(UIElement::Type::POPUP);
-    vm.setTitleLine(message, element->isEnterMessagePmem());
-    vm.setInteractiveLine("", false);
-    draw(static_cast<ViewModel&&>(vm));
-  }
+void SixButtonUI::showMessage(const char* message, bool pmem) {
+  if (!message) return;
+  ViewModel vm(UIElement::Type::POPUP);
+  vm.setTitleLine(message, pmem);
+  vm.setInteractiveLine("", false);
+  draw(static_cast<ViewModel&&>(vm));
+}
+
+void SixButtonUI::showMessage(const FlashStr* message) {
+  showMessage(reinterpret_cast<const char*>(message), true);
 }
 
 void SixButtonUI::clearHandlers() {

@@ -28,11 +28,13 @@ enum TestElement : uint8_t {
   EMPTY_WIZARD,
   FULL_WIZARD,
   LIMITED_TEXTBOX,
-  ENTER_MESSAGE_SELECTOR,
+  MESSAGE_SELECTOR,
+  RAM_MESSAGE_SELECTOR,
   PLAIN_ENTER_SELECTOR
 };
 
 ViewModel MODEL(UIElement::Type::UNDEFINED);
+SixButtonUI* sixButtonUI = nullptr;
 
 void render(ViewModel viewModel) {
   // No-ops without SIXBUTTONUI_ENABLE_MCP, which this suite leaves off.
@@ -70,6 +72,18 @@ void* captureScreenAtEnter(const char* /*name*/, bool /*namePmem*/, const char* 
   }
   titleAtEnter[sizeof(titleAtEnter) - 1] = '\0';
   return state;
+}
+
+void* showMessageAtEnter(const char* name, bool namePmem, const char* value,
+                         bool valuePmem, void* state) {
+  sixButtonUI->showMessage(F("Saving..."));
+  return captureScreenAtEnter(name, namePmem, value, valuePmem, state);
+}
+
+void* showRamMessageAtEnter(const char* name, bool namePmem, const char* value,
+                            bool valuePmem, void* state) {
+  sixButtonUI->showMessage("Wait");
+  return captureScreenAtEnter(name, namePmem, value, valuePmem, state);
 }
 
 void initializeTextBox(TextInputModel* model, void* /*state*/) {
@@ -144,7 +158,6 @@ void loadWizardModelFull(WizardModel* model, void* /*state*/) {
   model->setStepInitialValue(2, F("buckle"));
 }
 
-SixButtonUI* sixButtonUI = nullptr;
 NavigationConfig* navConfig = nullptr;
 
 SixButtonUI* initSixButtonUI() {
@@ -187,11 +200,14 @@ SixButtonUI* initSixButtonUI() {
               ->withInitialValue(F("abcdef")) // longer than its limit
               ->withMaxLength(4)
               ->onEnter(captureTextValue),
-            selector(TestElement::ENTER_MESSAGE_SELECTOR)
-              ->withTitle(F("EnterMessage"))
-              ->withEnterMessage(F("Saving..."))
+            selector(TestElement::MESSAGE_SELECTOR)
+              ->withTitle(F("Message"))
               ->withModelFunction(loadSelectorModel)
-              ->onEnter(captureScreenAtEnter),
+              ->onEnter(showMessageAtEnter),
+            selector(TestElement::RAM_MESSAGE_SELECTOR)
+              ->withTitle(F("RamMessage"))
+              ->withModelFunction(loadSelectorModel)
+              ->onEnter(showRamMessageAtEnter),
             selector(TestElement::PLAIN_ENTER_SELECTOR)
               ->withTitle(F("PlainEnter"))
               ->withModelFunction(loadSelectorModel)

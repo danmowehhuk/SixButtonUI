@@ -41,9 +41,6 @@ class UIElement {
     const char* getFooter() const { return _footer; };
     bool isFooterPmem() const { return _isFooterPmem; };
 
-    const char* getEnterMessage() const { return _enterMessage; };
-    bool isEnterMessagePmem() const { return _isEnterMessagePmem; };
-
     bool isHidden() const { return _isHidden; };
     bool hasId() const { return _hasId; };
 
@@ -65,11 +62,9 @@ class UIElement {
     const char* _title = nullptr;
     const char* _instruction = nullptr;
     const char* _footer = nullptr;
-    const char* _enterMessage = nullptr;
     bool _isTitlePmem = false;
     bool _isInstructionPmem = false;
     bool _isFooterPmem = false;
-    bool _isEnterMessagePmem = false;
 
   private:
     UIElement() = delete;
@@ -108,19 +103,6 @@ class UIElementBase: public UIElement {
     DerivedElement* withInstruction(const FlashStr* instruction);
     DerivedElement* withFooter(const char* footer, bool pmem = false);
     DerivedElement* withFooter(const FlashStr* footer);
-
-    // Draws message each time Enter is released on this element, before
-    // its onEnter action runs, as a POPUP view model that isn't
-    // cancelable, e.g. "Saving..." for an action that blocks while it
-    // writes. The next render replaces it. For a wizard, set it on the
-    // wizard, not its steps.
-    // Params:
-    //   message - the message
-    //   pmem    - true if message is in flash
-    // Returns this element.
-    DerivedElement* withEnterMessage(const char* message, bool pmem = false);
-    DerivedElement* withEnterMessage(const FlashStr* message);
-
     DerivedElement* setHidden(bool hidden);
 
     template <typename... Args>
@@ -183,20 +165,6 @@ template <typename DerivedElement>
 DerivedElement* UIElementBase<DerivedElement>::withFooter(const FlashStr* footer) {
   _footer = reinterpret_cast<const char*>(footer);
   _isFooterPmem = true;
-  return static_cast<DerivedElement*>(this);
-};
-
-template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withEnterMessage(const char* message, bool pmem) {
-  _enterMessage = message;
-  _isEnterMessagePmem = pmem;
-  return static_cast<DerivedElement*>(this);
-};
-
-template <typename DerivedElement>
-DerivedElement* UIElementBase<DerivedElement>::withEnterMessage(const FlashStr* message) {
-  _enterMessage = reinterpret_cast<const char*>(message);
-  _isEnterMessagePmem = true;
   return static_cast<DerivedElement*>(this);
 };
 

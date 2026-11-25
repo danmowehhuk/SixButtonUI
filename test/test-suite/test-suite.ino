@@ -164,30 +164,29 @@ void testTextInputWidget_invalidMaxLength(TestInvocation* t) {
   t->verify(element.getMaxLength() == 1, F("Expected 1"));
 }
 
-void testEnterMessageShownDuringOnEnter(TestInvocation* t) {
-  t->setName(F("Enter message is drawn while onEnter runs"));
-  t->verify(helper.goToElementById(TestElement::ENTER_MESSAGE_SELECTOR), F("Element not found"));
+void testMessageShownDuringOnEnter(TestInvocation* t) {
+  t->setName(F("showMessage() draws a popup at once"));
+  t->verify(helper.goToElementById(TestElement::MESSAGE_SELECTOR), F("Element not found"));
   helper.pressAndReleaseSelectEnter();
   t->verify(typeAtEnter == UIElement::Type::POPUP, F("Expected a popup during onEnter"));
   t->verifyEqual(titleAtEnter, F("Saving..."));
   t->verifyEqual(MODEL.getTitleLine_P(), F("First"), F("The parent should replace it"));
 }
 
-void testNoEnterMessageWithoutOne(TestInvocation* t) {
-  t->setName(F("No enter message unless one is set"));
+void testMessageInRam(TestInvocation* t) {
+  t->setName(F("showMessage() takes a RAM string"));
+  t->verify(helper.goToElementById(TestElement::RAM_MESSAGE_SELECTOR), F("Element not found"));
+  helper.pressAndReleaseSelectEnter();
+  t->verify(typeAtEnter == UIElement::Type::POPUP, F("Expected a popup during onEnter"));
+  t->verifyEqual(titleAtEnter, F("Wait"));
+}
+
+void testNoMessageUnlessShown(TestInvocation* t) {
+  t->setName(F("No message unless onEnter shows one"));
   t->verify(helper.goToElementById(TestElement::PLAIN_ENTER_SELECTOR), F("Element not found"));
   helper.pressAndReleaseSelectEnter();
   t->verify(typeAtEnter == UIElement::Type::SELECTOR, F("Expected the selector during onEnter"));
   t->verifyEqual(titleAtEnter, F("PlainEnter"));
-}
-
-void testEnterMessageInRam(TestInvocation* t) {
-  t->setName(F("Enter message can be a RAM string"));
-  SelectorElement element;
-  t->verify(element.getEnterMessage() == nullptr, F("Expected no message by default"));
-  element.withEnterMessage("Wait");
-  t->verify(element.getEnterMessage() && !element.isEnterMessagePmem(), F("Expected a RAM message"));
-  t->verifyEqual(element.getEnterMessage(), F("Wait"));
 }
 
 void testDefaultComboBoxWidget(TestInvocation* t) {
@@ -348,9 +347,9 @@ void setup() {
     testTextInputWidget_maxLength,
     testTextInputWidget_longInitialValueWhole,
     testTextInputWidget_invalidMaxLength,
-    testEnterMessageShownDuringOnEnter,
-    testNoEnterMessageWithoutOne,
-    testEnterMessageInRam,
+    testMessageShownDuringOnEnter,
+    testMessageInRam,
+    testNoMessageUnlessShown,
     testDefaultComboBoxWidget,
     testPreloadedComboBoxWidget,
     testWizardWidget_coreFunctionality,

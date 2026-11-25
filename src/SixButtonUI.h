@@ -67,6 +67,16 @@ class SixButtonUI: public EventSource {
     void showErrorPopup(const char* message, bool allocate = true);
     void dismissPopup();
 
+    // For an onEnter function that blocks while it works, e.g. while it saves:
+    // draws message at once, as a POPUP view model that isn't cancelable, so the
+    // screen Enter was pressed on doesn't stay up. Call it only once the function
+    // knows it will do the slow work. The render after onEnter replaces it.
+    // Params:
+    //   message - the message
+    //   pmem    - true if message is in flash
+    void showMessage(const char* message, bool pmem = false);
+    void showMessage(const FlashStr* message);
+
     // For the render function: mirrors what it draws to the SIXBUTTONUI_ENABLE_MCP
     // protocol, so an agent sees the display as drawn, not just the view model. Call
     // mcpSetCursor() wherever the render function moves the display's cursor, and
@@ -129,9 +139,6 @@ class SixButtonUI: public EventSource {
     // Params:
     //   vm - the view model, which the render function takes
     void draw(ViewModel&& vm);
-
-    // Draws the current widget's element's enter message, if it has one.
-    void showEnterMessage();
 
     void clearHandlers();
     void maybeInitWidget();
