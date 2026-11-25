@@ -26,7 +26,8 @@ enum TestElement : uint8_t {
   SECOND,
   THIRD,
   EMPTY_WIZARD,
-  FULL_WIZARD
+  FULL_WIZARD,
+  LIMITED_TEXTBOX
 };
 
 ViewModel MODEL(UIElement::Type::UNDEFINED);
@@ -161,7 +162,12 @@ SixButtonUI* initSixButtonUI() {
             comboBox(TestElement::PRELOADED_COMBO_BOX)
               ->withTitle(F("PreloadedComboBox"))
               ->withModelFunction(loadPreloadedComboBoxModel)
-              ->onEnter(captureSelectorValue)
+              ->onEnter(captureSelectorValue),
+            textInput(TestElement::LIMITED_TEXTBOX)
+              ->withTitle(F("LimitedTextBox"))
+              ->withInitialValue(F("abcdef")) // longer than its limit
+              ->withMaxLength(4)
+              ->onEnter(captureTextValue)
           ),
         selector(TestElement::SECOND)
           ->withTitle(F("Second"))
