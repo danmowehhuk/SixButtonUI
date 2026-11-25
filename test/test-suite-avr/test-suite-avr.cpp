@@ -254,6 +254,44 @@ void testPreloadedComboBoxWidget(TestInvocation* t) {
   t->verify(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
 }
 
+void testComboBoxWidget_keepsSelection(TestInvocation* t) {
+  t->setName(F("ComboBox keeps the selected name through Right and Left"));
+  t->verify(helper.goToElementById(TestElement::WHOLE_NAME_COMBO_BOX), F("Element not found"));
+  t->verifyEqual(MODEL.getInteractiveLine(), F("Big Muff"));
+  helper.pressAndReleaseDown();
+  t->verifyEqual(MODEL.getInteractiveLine(), F("Boss DD-7"));
+  helper.pressAndReleaseRight();
+  t->verifyEqual(MODEL.getInteractiveLine(), F("Boss DD-7"), F("Right moved off the selected name"));
+  t->verify(MODEL.cursorPosition == 1, F("Expected cursor at 1"));
+  helper.pressAndReleaseRight();
+  t->verifyEqual(MODEL.getInteractiveLine(), F("Boss DD-7"));
+  t->verify(MODEL.cursorPosition == 2, F("Expected cursor at 2"));
+  helper.pressAndReleaseLeft();
+  t->verifyEqual(MODEL.getInteractiveLine(), F("Boss DD-7"), F("Left moved off the selected name"));
+  helper.pressAndReleaseLeft();
+  t->verifyEqual(MODEL.getInteractiveLine(), F("Boss DD-7"), F("Left moved off the selected name"));
+  t->verify(MODEL.cursorPosition == 0, F("Expected cursor at 0"));
+}
+
+void testComboBoxWidget_keepsSelectionWhenRightFindsNothing(TestInvocation* t) {
+  t->setName(F("ComboBox keeps the selection when Right finds nothing"));
+  t->verify(helper.goToElementById(TestElement::DEFAULT_COMBO_BOX), F("Element not found"));
+  helper.pressAndReleaseDown();
+  helper.pressAndReleaseRight();
+  helper.pressAndReleaseDown();
+  t->verifyEqual(MODEL.getInteractiveLine(), F("br"));
+  helper.pressAndReleaseRight(); // "br" completes to nothing
+  t->verifyEqual(MODEL.getInteractiveLine(), F("br"), F("Right moved off the selected name"));
+  t->verify(MODEL.cursorPosition == 1, F("Expected cursor at 1"));
+}
+
+void testComboBoxWidget_preloadedEnter(TestInvocation* t) {
+  t->setName(F("ComboBox with preloaded value selects its name once"));
+  t->verify(helper.goToElementById(TestElement::PRELOADED_COMBO_BOX), F("Element not found"));
+  helper.pressAndReleaseSelectEnter();
+  t->verifyEqual(capturedSelectionName, F("be"));
+}
+
 void testWizardWidget_coreFunctionality(TestInvocation* t) {
   t->setName(F("Wizard core functionality"));
   t->verify(helper.goToElementById(TestElement::FULL_WIZARD), F("Element not found"));
@@ -354,6 +392,9 @@ int main() {
     testNoMessageUnlessShown,
     testDefaultComboBoxWidget,
     testPreloadedComboBoxWidget,
+    testComboBoxWidget_keepsSelection,
+    testComboBoxWidget_keepsSelectionWhenRightFindsNothing,
+    testComboBoxWidget_preloadedEnter,
     testWizardWidget_coreFunctionality,
     testWizardWidget_emptyModel,
     testRootLevelSelectionPreserved,
