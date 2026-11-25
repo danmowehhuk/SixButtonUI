@@ -164,6 +164,19 @@ void testTextInputWidget_invalidMaxLength(TestInvocation* t) {
   t->verify(element.getMaxLength() == 1, F("Expected 1"));
 }
 
+void testTextInputModel_emptyValue(TestInvocation* t) {
+  t->setName(F("TextInput empty value frees once"));
+  TextInputModel model("abc");
+  model.setInitialValue("");
+  t->verifyEqual(model.getValue(), F(" "));
+  t->verify(model.getCursorPos() == 0, F("Expected the cursor at 0"));
+  // Freeing the old value twice lets a later allocation share its memory.
+  char* other = new char[4];
+  strcpy(other, "xyz");
+  t->verifyEqual(model.getValue(), F(" "), F("Expected the value to be untouched"));
+  delete[] other;
+}
+
 void testMessageShownDuringOnEnter(TestInvocation* t) {
   t->setName(F("showMessage() draws a popup at once"));
   t->verify(helper.goToElementById(TestElement::MESSAGE_SELECTOR), F("Element not found"));
@@ -347,6 +360,7 @@ void setup() {
     testTextInputWidget_maxLength,
     testTextInputWidget_longInitialValueWhole,
     testTextInputWidget_invalidMaxLength,
+    testTextInputModel_emptyValue,
     testMessageShownDuringOnEnter,
     testMessageInRam,
     testNoMessageUnlessShown,
