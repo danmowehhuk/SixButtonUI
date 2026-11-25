@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <string.h>
 #include "TextInputModel.h"
 
@@ -11,20 +10,22 @@ TextInputModel::TextInputModel(const FlashStr* initValue) {
 }
 
 void TextInputModel::setInitialValueRaw(const char* initValue, bool pmem) {
-  if (_value) free(_value);
-  if (!initValue || (pmem ? strlen_P(initValue) : strlen(initValue)) == 0) {
-    setInitialValue(" ");
-  } else {
-    _valueLen = pmem ? strlen_P(initValue) : strlen(initValue);
-    // Always allocate because TextInputModel needs a writable copy for editing
-    _value = new char[_valueLen + 1];
-    if (pmem) {
-      strncpy_P(_value, initValue, _valueLen);
-    } else {
-      strncpy(_value, initValue, _valueLen);
-    }
-    _value[_valueLen] = '\0';
+  clear();
+  _valueLen = initValue ? (pmem ? strlen_P(initValue) : strlen(initValue)) : 0;
+  if (_valueLen == 0) {
+    // An empty value is edited as a single space
+    initValue = " ";
+    pmem = false;
+    _valueLen = 1;
   }
+  // Always allocate because TextInputModel needs a writable copy for editing
+  _value = new char[_valueLen + 1];
+  if (pmem) {
+    strncpy_P(_value, initValue, _valueLen);
+  } else {
+    strncpy(_value, initValue, _valueLen);
+  }
+  _value[_valueLen] = '\0';
   _cursorPos = _valueLen - 1;
   _isInitialized = true;
 }
@@ -68,7 +69,7 @@ char* TextInputModel::getValue() {
 }
 
 void TextInputModel::clear() {
-  if (_value) free(_value);
+  delete[] _value;
   _value = nullptr;
 }
 
